@@ -1,6 +1,6 @@
 package friends.mobile.auth.remote
 
-import friends.mobile.auth.exception.AuthException
+import friends.mobile.network.NetworkException
 import friends.mobile.auth.remote.dto.LoginRequestDto
 import friends.mobile.auth.remote.dto.LoginResponseDto
 import friends.mobile.auth.remote.dto.LogoutRequestDto
@@ -17,7 +17,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 
-/** Ktor wrapper for all /auth/* endpoints. Maps HTTP errors to [AuthException]. */
+/** Ktor wrapper for all /auth/* endpoints. Maps HTTP errors to [NetworkException]. */
 class AuthApi(private val client: HttpClient) {
 
     suspend fun register(request: RegisterRequestDto) {
@@ -38,16 +38,16 @@ class AuthApi(private val client: HttpClient) {
         return try {
             val response = block()
             if (response.status.isSuccess()) response else throw mapStatus(response.status)
-        } catch (e: AuthException) {
+        } catch (e: NetworkException) {
             throw e
         } catch (e: Exception) {
-            throw AuthException.NetworkError(e)
+            throw NetworkException.NetworkError(e)
         }
     }
 
-    private fun mapStatus(status: HttpStatusCode): AuthException = when (status) {
-        HttpStatusCode.Unauthorized -> AuthException.InvalidCredentials
-        HttpStatusCode.Conflict     -> AuthException.Conflict
-        else                        -> AuthException.UnknownError(status.value)
+    private fun mapStatus(status: HttpStatusCode): NetworkException = when (status) {
+        HttpStatusCode.Unauthorized -> NetworkException.InvalidCredentials
+        HttpStatusCode.Conflict     -> NetworkException.Conflict
+        else                        -> NetworkException.UnknownError(status.value)
     }
 }

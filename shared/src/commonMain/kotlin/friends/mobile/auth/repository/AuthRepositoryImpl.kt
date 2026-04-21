@@ -1,6 +1,6 @@
 package friends.mobile.auth.repository
 
-import friends.mobile.auth.exception.AuthException
+import friends.mobile.network.NetworkException
 import friends.mobile.auth.model.AuthSession
 import friends.mobile.auth.model.AuthToken
 import friends.mobile.auth.model.AuthUser
@@ -22,19 +22,19 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun login(username: String, password: String): AuthSession {
-        val r = api.login(LoginRequestDto(username, password))
+        val response = api.login(LoginRequestDto(username, password))
         val session = AuthSession(
-            token = AuthToken(r.accessToken, r.refreshToken),
-            user  = AuthUser(r.user.id, r.user.username, r.user.avatarUrl, r.user.bio),
+            token = AuthToken(response.accessToken, response.refreshToken),
+            user  = AuthUser(response.user.id, response.user.username, response.user.avatarUrl, response.user.bio),
         )
         storage.saveSession(session)
         return session
     }
 
     override suspend fun refresh(): AuthToken {
-        val current = storage.getSession() ?: throw AuthException.Unauthorized
-        val r = api.refresh(RefreshRequestDto(current.token.refreshToken))
-        val newToken = AuthToken(r.accessToken, r.refreshToken)
+        val current = storage.getSession() ?: throw NetworkException.Unauthorized
+        val response = api.refresh(RefreshRequestDto(current.token.refreshToken))
+        val newToken = AuthToken(response.accessToken, response.refreshToken)
         storage.saveSession(current.copy(token = newToken))
         return newToken
     }

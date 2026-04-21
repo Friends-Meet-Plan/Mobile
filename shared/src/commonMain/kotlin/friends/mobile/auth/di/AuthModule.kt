@@ -37,15 +37,17 @@ val authModule = module {
 
     // Authenticated client — HttpSend interceptor injects Bearer + handles 401 refresh
     single<HttpClient>(named("auth")) {
-        val authClient = get<HttpClient>().config {}   // fork of the base client
-        val storage = get<TokenStorage>()
-        val repo = get<AuthRepository>()
+        val base = get<HttpClient>(named("base"))
+
+        val authClient = base.config {}  
+
         AuthenticatedClient(
-            client        = authClient,
-            storage       = storage,
-            onRefresh     = { repo.refresh() },
-            onUnauthorized = { repo.logout() },
+            client = authClient,
+            storage = get(),
+            onRefresh = { get<AuthRepository>().refresh() },
+            onUnauthorized = { get<AuthRepository>().logout() },
         )
+        
         authClient
     }
 
