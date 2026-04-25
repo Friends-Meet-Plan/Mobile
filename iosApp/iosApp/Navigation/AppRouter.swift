@@ -10,11 +10,15 @@ import SwiftUI
 enum AppRouter: Hashable {
     
     case login
+    case main
     
+    @ViewBuilder
     var destination: some View {
         switch self {
         case .login:
             LoginView()
+        case .main:
+            MainView()
         }
     }
 }

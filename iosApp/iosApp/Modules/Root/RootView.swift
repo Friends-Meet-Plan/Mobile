@@ -8,9 +8,17 @@
 import SwiftUI
 
 struct RootView: View {
-    
+    @State var user: User?
+
     var body: some View {
-        LoginView()
+        if let user {
+            MainView()
+                .environment(ApplicationState(user: user))
+        } else {
+            LoginView { loggedInUser in
+                self.user = loggedInUser
+            }
+        }
     }
 }
 
