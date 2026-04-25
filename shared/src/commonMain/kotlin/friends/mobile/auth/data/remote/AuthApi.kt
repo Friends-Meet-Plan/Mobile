@@ -17,7 +17,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 
-/** Ktor wrapper for all /auth/* endpoints. Maps HTTP errors to [NetworkException]. */
+/** Ktor wrapper for all auth endpoints. Maps HTTP errors to [NetworkException]. */
 class AuthApi(private val client: HttpClient) {
 
     suspend fun register(request: RegisterRequestDto) {

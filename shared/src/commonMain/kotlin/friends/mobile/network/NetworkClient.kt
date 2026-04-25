@@ -12,8 +12,8 @@ import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-// TODO: replace with your actual server host
-private const val BASE_HOST = "your-server.com"
+private const val BASE_HOST = "localhost"
+private const val BASE_PORT = 3000
 
 /** Creates the shared base Ktor [HttpClient]. Pass to [AuthApi] and authenticated client. */
 fun createHttpClient(json: Json): HttpClient = HttpClient(httpEngine()) {
@@ -29,8 +29,9 @@ fun createHttpClient(json: Json): HttpClient = HttpClient(httpEngine()) {
     }
     defaultRequest {
         url {
-            protocol = URLProtocol.HTTPS
+            protocol = URLProtocol.HTTP
             host = BASE_HOST
+            port = BASE_PORT
         }
     }
 }

@@ -8,7 +8,6 @@ import friends.mobile.auth.storage.TokenStorage
 import friends.mobile.auth.storage.TokenStorageImpl
 import friends.mobile.network.createHttpClient
 import io.ktor.client.HttpClient
-import io.ktor.client.config
 import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -37,17 +36,13 @@ val authModule = module {
 
     // Authenticated client — HttpSend interceptor injects Bearer + handles 401 refresh
     single<HttpClient>(named("auth")) {
-        val base = get<HttpClient>(named("base"))
-
-        val authClient = base.config {}  
-
+        val authClient = createHttpClient(json = get())
         AuthenticatedClient(
             client = authClient,
             storage = get(),
             onRefresh = { get<AuthRepository>().refresh() },
             onUnauthorized = { get<AuthRepository>().logout() },
         )
-        
         authClient
     }
 
@@ -56,7 +51,7 @@ val authModule = module {
     }
 
     single<AuthApi> {
-        AuthApi(client = get())   // uses base (unauthenticated) client
+        AuthApi(client = get())
     }
 
     single<AuthRepository> {
