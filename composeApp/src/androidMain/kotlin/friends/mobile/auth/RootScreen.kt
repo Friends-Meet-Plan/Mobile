@@ -3,27 +3,33 @@ package friends.mobile.auth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import friends.mobile.auth.model.AuthSession
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import friends.mobile.feature.auth.presentation.OnSessionStarted
+import friends.mobile.feature.auth.presentation.RootViewModel as SharedRootViewModel
 
 @Composable
 fun RootScreen() {
-    var session by remember { mutableStateOf<AuthSession?>(null) }
+    val viewModel: SharedRootViewModel = viewModel()
+    val state by viewModel.viewStates.collectAsStateWithLifecycle()
+    val session = state.session
 
     if (session == null) {
         LoginScreen(
             onLoginSuccess = { authSession ->
-                session = authSession
+                viewModel.obtainEvent(
+                    friends.mobile.feature.auth.presentation.OnSessionStarted(
+                        authSession
+                    )
+                )
             },
         )
     } else {
-        MainScreen()
+        MainScreen(username = session.user.username)
     }
 }
 
 @Composable
-private fun MainScreen() {
-    Text("Main")
+private fun MainScreen(username: String) {
+    Text("Main, $username")
 }

@@ -15,6 +15,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,7 +26,12 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import friends.mobile.feature.auth.presentation.OnRegisterClick
+import friends.mobile.feature.auth.presentation.RegisterSucceeded
+import kotlinx.coroutines.flow.collectLatest
+import friends.mobile.feature.auth.presentation.RegisterViewModel as SharedRegisterViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,10 +40,19 @@ fun RegisterBottomSheet(
     onRegisterSuccess: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val viewModel: RegisterScreenViewModel = viewModel()
+    val viewModel: SharedRegisterViewModel = viewModel()
+    val state by viewModel.viewStates.collectAsStateWithLifecycle()
 
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(viewModel) {
+        viewModel.viewActions.collectLatest { action ->
+            when (action) {
+                is friends.mobile.feature.auth.presentation.RegisterSucceeded -> onRegisterSuccess()
+            }
+        }
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -69,7 +84,7 @@ fun RegisterBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            val errorMessage = viewModel.errorMessage
+            val errorMessage = state.errorMessage
             if (errorMessage != null) {
                 Text(
                     text = errorMessage,
@@ -80,16 +95,17 @@ fun RegisterBottomSheet(
 
             Button(
                 onClick = {
-                    viewModel.register(
-                        username = username,
-                        password = password,
-                        onSuccess = onRegisterSuccess,
+                    viewModel.obtainEvent(
+                        friends.mobile.feature.auth.presentation.OnRegisterClick(
+                            username = username,
+                            password = password,
+                        )
                     )
                 },
-                enabled = !viewModel.isLoading && username.isNotBlank() && password.isNotBlank(),
+                enabled = !state.isLoading && username.isNotBlank() && password.isNotBlank(),
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                if (viewModel.isLoading) {
+                if (state.isLoading) {
                     CircularProgressIndicator(
                         color = Color.White,
                         modifier = Modifier.size(20.dp),

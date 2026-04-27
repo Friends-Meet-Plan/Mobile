@@ -6,10 +6,11 @@
 //
 
 import SwiftUI
+import Shared
 
 struct LoginView: View {
 
-    var onLoginSuccess: ((User) -> Void)?
+    var onLoginSuccess: ((AuthSession) -> Void)?
 
     @State private var observable = LoginReducer()
     @State private var user = User()
@@ -51,7 +52,7 @@ struct LoginView: View {
 
         Button {
             observable.login(user: user) { session in
-                onLoginSuccess?(User(name: session.user.username))
+                onLoginSuccess?(session)
             }
         } label: {
             if observable.isLoading {

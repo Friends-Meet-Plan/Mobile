@@ -15,29 +15,48 @@ final class LoginReducer {
     var errorMessage: String?
 
     private let viewModel = LoginViewModel()
+    private var stateJob: Kotlinx_coroutines_coreJob?
+    private var actionJob: Kotlinx_coroutines_coreJob?
+    private var onSuccess: ((AuthSession) -> Void)?
+
+    init() {
+        stateJob = viewModel.viewStates.subscribe(
+            onItem: { [weak self] item in
+                guard let state = item as? LoginViewState else { return }
+                self?.isLoading = state.isLoading
+                self?.errorMessage = state.errorMessage
+            },
+            onComplete: {},
+            onThrow: { _ in },
+        )
+
+        actionJob = viewModel.viewActions.subscribe(
+            onItem: { [weak self] item in
+                guard let action = item as? LoginSucceeded else { return }
+                self?.onSuccess?(action.session)
+                self?.onSuccess = nil
+            },
+            onComplete: {},
+            onThrow: { _ in },
+        )
+    }
 
     deinit {
-        viewModel.dispose()
+        stateJob?.cancel(cause: nil)
+        actionJob?.cancel(cause: nil)
+        viewModel.clear()
     }
 
     func login(
         user: User,
         onSuccess: ((AuthSession) -> Void)? = nil
     ) {
-        isLoading = true
-        errorMessage = nil
-        
-        viewModel.login(
-            username: user.name,
-            password: user.password,
-            onSuccess: { [weak self] session in
-                self?.isLoading = false
-                onSuccess?(session)
-            },
-            onError: { [weak self] message in
-                self?.isLoading = false
-                self?.errorMessage = message
-            }
+        self.onSuccess = onSuccess
+        viewModel.obtainEvent(
+            event: OnLoginClick(
+                username: user.name,
+                password: user.password
+            )
         )
     }
 }
