@@ -29,9 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import friends.mobile.feature.auth.presentation.OnRegisterClick
+import friends.mobile.feature.auth.presentation.RegisterViewModel
 import friends.mobile.feature.auth.presentation.RegisterSucceeded
 import kotlinx.coroutines.flow.collectLatest
-import friends.mobile.feature.auth.presentation.RegisterViewModel as SharedRegisterViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +40,7 @@ fun RegisterBottomSheet(
     onRegisterSuccess: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val viewModel: SharedRegisterViewModel = viewModel()
+    val viewModel: RegisterViewModel = viewModel()
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
 
     var username by rememberSaveable { mutableStateOf("") }
@@ -49,7 +49,7 @@ fun RegisterBottomSheet(
     LaunchedEffect(viewModel) {
         viewModel.viewActions.collectLatest { action ->
             when (action) {
-                is friends.mobile.feature.auth.presentation.RegisterSucceeded -> onRegisterSuccess()
+                is RegisterSucceeded -> onRegisterSuccess()
             }
         }
     }
@@ -95,11 +95,11 @@ fun RegisterBottomSheet(
 
             Button(
                 onClick = {
-                    viewModel.obtainEvent(
-                        friends.mobile.feature.auth.presentation.OnRegisterClick(
-                            username = username,
-                            password = password,
-                        )
+                viewModel.obtainEvent(
+                    OnRegisterClick(
+                        username = username,
+                        password = password,
+                    )
                     )
                 },
                 enabled = !state.isLoading && username.isNotBlank() && password.isNotBlank(),

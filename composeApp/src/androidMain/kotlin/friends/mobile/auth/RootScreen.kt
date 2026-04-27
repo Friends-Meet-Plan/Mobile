@@ -6,22 +6,18 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import friends.mobile.feature.auth.presentation.OnSessionStarted
-import friends.mobile.feature.auth.presentation.RootViewModel as SharedRootViewModel
+import friends.mobile.feature.auth.presentation.RootViewModel
 
 @Composable
 fun RootScreen() {
-    val viewModel: SharedRootViewModel = viewModel()
+    val viewModel: RootViewModel = viewModel()
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
     val session = state.session
 
     if (session == null) {
         LoginScreen(
             onLoginSuccess = { authSession ->
-                viewModel.obtainEvent(
-                    friends.mobile.feature.auth.presentation.OnSessionStarted(
-                        authSession
-                    )
-                )
+                viewModel.obtainEvent(OnSessionStarted(authSession))
             },
         )
     } else {

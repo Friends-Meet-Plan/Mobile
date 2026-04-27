@@ -24,30 +24,30 @@ import org.koin.dsl.module
 val authModule = module {
     single<HttpClient>(named("auth")) {
         val authClient = get<HttpClient>().config { }
-        _root_ide_package_.friends.mobile.feature.auth.data.remote.AuthenticatedClient(
+        AuthenticatedClient(
             client = authClient,
             storage = get(),
-            onRefresh = { get<friends.mobile.feature.auth.domain.repository.AuthRepository>().refresh() },
-            onUnauthorized = { get<friends.mobile.feature.auth.domain.repository.AuthRepository>().logout() },
+            onRefresh = { get<AuthRepository>().refresh() },
+            onUnauthorized = { get<AuthRepository>().logout() },
         )
         authClient
     }
 
-    single<friends.mobile.feature.auth.data.storage.TokenStorage> {
-        _root_ide_package_.friends.mobile.feature.auth.data.storage.TokenStorageImpl(
+    single<TokenStorage> {
+        TokenStorageImpl(
             settings = get(),
-            json = get()
+            json = get(),
         )
     }
 
-    single<friends.mobile.feature.auth.data.remote.AuthApi> {
-        _root_ide_package_.friends.mobile.feature.auth.data.remote.AuthApi(client = get())
+    single<AuthApi> {
+        AuthApi(client = get())
     }
 
-    single<friends.mobile.feature.auth.domain.repository.AuthRepository> {
-        _root_ide_package_.friends.mobile.feature.auth.data.repository.AuthRepositoryImpl(
+    single<AuthRepository> {
+        AuthRepositoryImpl(
             api = get(),
-            storage = get()
+            storage = get(),
         )
     }
 }

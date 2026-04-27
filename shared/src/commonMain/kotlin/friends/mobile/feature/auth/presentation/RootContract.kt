@@ -5,7 +5,7 @@ import friends.mobile.feature.auth.domain.model.AuthSession
 sealed interface RootEvent
 
 data class OnSessionStarted(
-    val session: friends.mobile.feature.auth.domain.model.AuthSession,
-) : friends.mobile.feature.auth.presentation.RootEvent
+    val session: AuthSession,
+) : RootEvent
 
-class OnLogoutClick : friends.mobile.feature.auth.presentation.RootEvent
+class OnLogoutClick : RootEvent

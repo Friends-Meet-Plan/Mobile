@@ -16,26 +16,26 @@ private const val KEY = "auth_session"
 class TokenStorageImpl(
     private val settings: Settings,
     private val json: Json,
-) : friends.mobile.feature.auth.data.storage.TokenStorage {
+) : TokenStorage {
 
-    override fun saveSession(session: friends.mobile.feature.auth.domain.model.AuthSession) {
-        settings[_root_ide_package_.friends.mobile.feature.auth.data.storage.KEY] = json.encodeToString(session.toStoredSessionDto())
+    override fun saveSession(session: AuthSession) {
+        settings[KEY] = json.encodeToString(session.toStoredSessionDto())
     }
 
-    override fun getSession(): friends.mobile.feature.auth.domain.model.AuthSession? =
-        settings.getStringOrNull(_root_ide_package_.friends.mobile.feature.auth.data.storage.KEY)?.let { raw ->
-            runCatching { json.decodeFromString<friends.mobile.feature.auth.data.storage.dto.StoredSessionDto>(raw) }
+    override fun getSession(): AuthSession? =
+        settings.getStringOrNull(KEY)?.let { raw ->
+            runCatching { json.decodeFromString<StoredSessionDto>(raw) }
                 .getOrNull()
                 ?.toAuthSession()
         }
 
     override fun clearSession() {
-        settings.remove(_root_ide_package_.friends.mobile.feature.auth.data.storage.KEY)
+        settings.remove(KEY)
     }
 }
 
-private fun friends.mobile.feature.auth.domain.model.AuthSession.toStoredSessionDto(): friends.mobile.feature.auth.data.storage.dto.StoredSessionDto =
-    _root_ide_package_.friends.mobile.feature.auth.data.storage.dto.StoredSessionDto(
+private fun AuthSession.toStoredSessionDto(): StoredSessionDto =
+    StoredSessionDto(
         accessToken = token.accessToken,
         refreshToken = token.refreshToken,
         userId = user.id,
@@ -44,16 +44,8 @@ private fun friends.mobile.feature.auth.domain.model.AuthSession.toStoredSession
         bio = user.bio,
     )
 
-private fun friends.mobile.feature.auth.data.storage.dto.StoredSessionDto.toAuthSession(): friends.mobile.feature.auth.domain.model.AuthSession =
-    _root_ide_package_.friends.mobile.feature.auth.domain.model.AuthSession(
-        token = _root_ide_package_.friends.mobile.feature.auth.domain.model.AuthToken(
-            accessToken,
-            refreshToken
-        ),
-        user = _root_ide_package_.friends.mobile.feature.auth.domain.model.AuthUser(
-            userId,
-            username,
-            avatarUrl,
-            bio
-        ),
+private fun StoredSessionDto.toAuthSession(): AuthSession =
+    AuthSession(
+        token = AuthToken(accessToken, refreshToken),
+        user = AuthUser(userId, username, avatarUrl, bio),
     )
