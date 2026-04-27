@@ -15,29 +15,48 @@ final class RegisterReducer {
     var errorMessage: String?
 
     private let viewModel = RegisterViewModel()
+    private var stateJob: Kotlinx_coroutines_coreJob?
+    private var actionJob: Kotlinx_coroutines_coreJob?
+    private var onSuccess: (() -> Void)?
+
+    init() {
+        stateJob = viewModel.viewStates.subscribe(
+            onItem: { [weak self] item in
+                guard let state = item as? RegisterViewState else { return }
+                self?.isLoading = state.isLoading
+                self?.errorMessage = state.errorMessage
+            },
+            onComplete: {},
+            onThrow: { _ in },
+        )
+
+        actionJob = viewModel.viewActions.subscribe(
+            onItem: { [weak self] item in
+                guard item is RegisterSucceeded else { return }
+                self?.onSuccess?()
+                self?.onSuccess = nil
+            },
+            onComplete: {},
+            onThrow: { _ in },
+        )
+    }
 
     deinit {
-        viewModel.dispose()
+        stateJob?.cancel(cause: nil)
+        actionJob?.cancel(cause: nil)
+        viewModel.clear()
     }
 
     func register(
         user: User,
         onSuccess: (() -> Void)? = nil
     ) {
-        isLoading = true
-        errorMessage = nil
-        
-        viewModel.register(
-            username: user.name,
-            password: user.password,
-            onSuccess: { [weak self] in
-                self?.isLoading = false
-                onSuccess?()
-            },
-            onError: { [weak self] message in
-                self?.isLoading = false
-                self?.errorMessage = message
-            }
+        self.onSuccess = onSuccess
+        viewModel.obtainEvent(
+            event: OnRegisterClick(
+                username: user.name,
+                password: user.password
+            )
         )
     }
 }
