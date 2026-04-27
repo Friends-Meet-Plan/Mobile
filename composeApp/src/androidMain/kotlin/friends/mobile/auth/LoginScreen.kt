@@ -27,16 +27,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import friends.mobile.feature.auth.domain.model.AuthSession
+import friends.mobile.feature.auth.presentation.LoginViewModel
 import friends.mobile.feature.auth.presentation.LoginSucceeded
 import friends.mobile.feature.auth.presentation.OnLoginClick
 import kotlinx.coroutines.flow.collectLatest
-import friends.mobile.feature.auth.presentation.LoginViewModel as SharedLoginViewModel
 
 @Composable
 fun LoginScreen(
-    onLoginSuccess: (friends.mobile.feature.auth.domain.model.AuthSession) -> Unit,
+    onLoginSuccess: (AuthSession) -> Unit,
 ) {
-    val viewModel: SharedLoginViewModel = viewModel()
+    val viewModel: LoginViewModel = viewModel()
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
 
     var username by rememberSaveable { mutableStateOf("") }
@@ -46,7 +46,7 @@ fun LoginScreen(
     LaunchedEffect(viewModel) {
         viewModel.viewActions.collectLatest { action ->
             when (action) {
-                is friends.mobile.feature.auth.presentation.LoginSucceeded -> onLoginSuccess(action.session)
+                is LoginSucceeded -> onLoginSuccess(action.session)
             }
         }
     }
@@ -89,7 +89,7 @@ fun LoginScreen(
         Button(
             onClick = {
                 viewModel.obtainEvent(
-                    friends.mobile.feature.auth.presentation.OnLoginClick(
+                    OnLoginClick(
                         username = username,
                         password = password,
                     )

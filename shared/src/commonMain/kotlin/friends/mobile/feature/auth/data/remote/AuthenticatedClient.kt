@@ -26,8 +26,8 @@ private const val REFRESH_THRESHOLD_SECONDS = 60L
  */
 class AuthenticatedClient(
     private val client: HttpClient,
-    private val storage: friends.mobile.feature.auth.data.storage.TokenStorage,
-    private val onRefresh: suspend () -> friends.mobile.feature.auth.domain.model.AuthToken,
+    private val storage: TokenStorage,
+    private val onRefresh: suspend () -> AuthToken,
     private val onUnauthorized: suspend () -> Unit,
 ) {
     private val mutex = Mutex()
@@ -79,7 +79,7 @@ class AuthenticatedClient(
         val padding = (4 - raw.length % 4) % 4
         val payload = Base64.UrlSafe.decode(raw + "=".repeat(padding)).decodeToString()
         val exp = Json.parseToJsonElement(payload).jsonObject["exp"]?.jsonPrimitive?.long ?: return true
-        exp <= Clock.System.now().epochSeconds + _root_ide_package_.friends.mobile.feature.auth.data.remote.REFRESH_THRESHOLD_SECONDS
+        exp <= Clock.System.now().epochSeconds + REFRESH_THRESHOLD_SECONDS
     } catch (_: Exception) {
         true
     }
