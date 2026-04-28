@@ -18,7 +18,7 @@ enum AppRouter: Hashable {
         case .login:
             LoginView()
         case .main:
-            MainView()
+            MainView(username: "Name")
         }
     }
 }
