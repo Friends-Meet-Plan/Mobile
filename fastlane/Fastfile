@@ -1,0 +1,25 @@
+MOBILE_ROOT = File.expand_path("../", __dir__)
+
+lane :build_android do
+  Dir.chdir(MOBILE_ROOT) do
+    sh("./gradlew :composeApp:assembleDebug")
+  end
+end
+
+lane :test_android do
+  Dir.chdir(MOBILE_ROOT) do
+    sh("./gradlew :composeApp:testDebugUnitTest :shared:testDebugUnitTest")
+  end
+end
+
+lane :build_ios do
+  Dir.chdir(MOBILE_ROOT) do
+    sh("xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO")
+  end
+end
+
+lane :test_ios do
+  Dir.chdir(MOBILE_ROOT) do
+    sh("xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp -destination 'platform=iOS Simulator,name=iPhone 16'")
+  end
+end
