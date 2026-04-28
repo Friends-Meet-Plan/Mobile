@@ -32,6 +32,8 @@ jobs:
         with:
           ruby-version: "3.3"
           bundler-cache: true
+      - name: Install SwiftLint
+        run: brew install swiftlint
       - name: SwiftLint
         run: swiftlint --config iosApp/.swiftlint.yml iosApp/iosApp
       - name: Build iOS
