@@ -18,6 +18,12 @@ lane :build_ios do
   end
 end
 
+lane :detect_android do
+  Dir.chdir(MOBILE_ROOT) do
+    sh("./gradlew detekt")
+  end
+end
+
 lane :test_ios do
   Dir.chdir(MOBILE_ROOT) do
     pbxproj = File.read("iosApp/iosApp.xcodeproj/project.pbxproj")

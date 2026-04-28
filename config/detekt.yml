@@ -1,0 +1,32 @@
+style:
+  MagicNumber:
+    active: true
+    excludes:
+      - '**/designsystem/**/*'
+      - '**/model/**/*'
+      - '**/network/**/*'
+      - '**/test/**'
+      - '**/androidTest/**'
+    ignoreAnnotated:
+      - Composable
+
+naming:
+  FunctionNaming:
+    active: true
+    ignoreAnnotated:
+      - Composable
+
+complexity:
+  LongMethod:
+    active: true
+    ignoreAnnotated:
+      - Composable
+
+  LongParameterList:
+    active: false
+
+  CyclomaticComplexMethod:
+    active: true
+    threshold: 15
+    ignoreSingleWhenExpression: true
+    ignoreSimpleWhenEntries: true
