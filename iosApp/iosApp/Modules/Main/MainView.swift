@@ -8,11 +8,13 @@
 import SwiftUI
 
 struct MainView: View {
+    let username: String
+
     var body: some View {
-        Text("Main view")
+        Text("Main view, \(username)")
     }
 }
 
 #Preview {
-    MainView()
+    MainView(username: "Preview")
 }
