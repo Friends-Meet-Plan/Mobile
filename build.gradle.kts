@@ -6,4 +6,14 @@ plugins {
     alias(libs.plugins.composeMultiplatform) apply false
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
+    alias(libs.plugins.detekt)
+}
+
+detekt {
+    config.setFrom(files("config/detekt.yml"))
+    buildUponDefaultConfig = true
+    source.setFrom(
+        "composeApp/src",
+        "shared/src"
+    )
 }

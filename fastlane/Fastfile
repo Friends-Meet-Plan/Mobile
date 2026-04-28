@@ -1,0 +1,38 @@
+MOBILE_ROOT = File.expand_path("../", __dir__)
+
+lane :build_android do
+  Dir.chdir(MOBILE_ROOT) do
+    sh("./gradlew :composeApp:assembleDebug")
+  end
+end
+
+lane :test_android do
+  Dir.chdir(MOBILE_ROOT) do
+    sh("./gradlew :composeApp:testDebugUnitTest :shared:testDebugUnitTest")
+  end
+end
+
+lane :build_ios do
+  Dir.chdir(MOBILE_ROOT) do
+    sh("xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO")
+  end
+end
+
+lane :detect_android do
+  Dir.chdir(MOBILE_ROOT) do
+    sh("./gradlew detekt")
+  end
+end
+
+lane :test_ios do
+  Dir.chdir(MOBILE_ROOT) do
+    pbxproj = File.read("iosApp/iosApp.xcodeproj/project.pbxproj")
+    has_tests = pbxproj.include?("com.apple.product-type.bundle.unit-test") ||
+                pbxproj.include?("com.apple.product-type.bundle.ui-testing")
+    unless has_tests
+      UI.important("No iOS test targets found — skipping.")
+      next
+    end
+    sh("xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp -destination 'platform=iOS Simulator,name=iPhone 16'")
+  end
+end

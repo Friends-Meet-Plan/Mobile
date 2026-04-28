@@ -1,0 +1,39 @@
+style:
+  MagicNumber:
+    active: true
+    excludes:
+      - '**/designsystem/**'
+      - '**/model/**'
+      - '**/network/**'
+      - '**/commonTest/**'
+      - '**/androidUnitTest/**'
+      - '**/androidTest/**'
+    ignoreAnnotated:
+      - Composable
+
+naming:
+  FunctionNaming:
+    active: true
+    ignoreAnnotated:
+      - Composable
+
+  MatchingDeclarationName:
+    active: true
+    excludes:
+      - '**/*.android.kt'
+      - '**/*.ios.kt'
+
+complexity:
+  LongMethod:
+    active: true
+    ignoreAnnotated:
+      - Composable
+
+  LongParameterList:
+    active: false
+
+  CyclomaticComplexMethod:
+    active: true
+    threshold: 15
+    ignoreSingleWhenExpression: true
+    ignoreSimpleWhenEntries: true
