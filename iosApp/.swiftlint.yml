@@ -1,3 +1,7 @@
 analyzer_rules:
   - unused_declaration
   - unused_import
+
+disabled_rules:
+  - trailing_whitespace
+  - type_name
