@@ -2,10 +2,11 @@ style:
   MagicNumber:
     active: true
     excludes:
-      - '**/designsystem/**/*'
-      - '**/model/**/*'
-      - '**/network/**/*'
-      - '**/test/**'
+      - '**/designsystem/**'
+      - '**/model/**'
+      - '**/network/**'
+      - '**/commonTest/**'
+      - '**/androidUnitTest/**'
       - '**/androidTest/**'
     ignoreAnnotated:
       - Composable
@@ -15,6 +16,12 @@ naming:
     active: true
     ignoreAnnotated:
       - Composable
+
+  MatchingDeclarationName:
+    active: true
+    excludes:
+      - '**/*.android.kt'
+      - '**/*.ios.kt'
 
 complexity:
   LongMethod:
