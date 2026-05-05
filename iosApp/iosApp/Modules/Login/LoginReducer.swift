@@ -23,8 +23,8 @@ final class LoginReducer {
         stateJob = viewModel.viewStates.subscribe(
             onItem: { [weak self] item in
                 guard let state = item as? LoginViewState else { return }
-                self?.isLoading = state.isLoading
-                self?.errorMessage = state.errorMessage
+                self?.isLoading = state is LoginViewState.Loading
+                self?.errorMessage = (state as? LoginViewState.Error)?.message
             },
             onComplete: {},
             onThrow: { _ in },
@@ -32,9 +32,11 @@ final class LoginReducer {
 
         actionJob = viewModel.viewActions.subscribe(
             onItem: { [weak self] item in
-                guard let action = item as? LoginSucceeded else { return }
-                self?.onSuccess?(action.session)
-                self?.onSuccess = nil
+                guard let action = item as? LoginAction else { return }
+                if let success = action as? LoginAction.LoginSucceeded {
+                    self?.onSuccess?(success.session)
+                    self?.onSuccess = nil
+                }
             },
             onComplete: {},
             onThrow: { _ in },
@@ -53,7 +55,7 @@ final class LoginReducer {
     ) {
         self.onSuccess = onSuccess
         viewModel.obtainEvent(
-            event: OnLoginClick(
+            event: LoginEvent.OnLoginClick(
                 username: user.name,
                 password: user.password
             )

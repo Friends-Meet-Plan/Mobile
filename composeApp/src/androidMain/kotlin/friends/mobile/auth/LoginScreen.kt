@@ -27,9 +27,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import friends.mobile.feature.auth.domain.model.AuthSession
-import friends.mobile.feature.auth.presentation.LoginViewModel
-import friends.mobile.feature.auth.presentation.LoginSucceeded
-import friends.mobile.feature.auth.presentation.OnLoginClick
+import friends.mobile.feature.auth.presentation.login.LoginAction
+import friends.mobile.feature.auth.presentation.login.LoginEvent
+import friends.mobile.feature.auth.presentation.login.LoginViewModel
+import friends.mobile.feature.auth.presentation.login.LoginViewState
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -46,10 +47,14 @@ fun LoginScreen(
     LaunchedEffect(viewModel) {
         viewModel.viewActions.collectLatest { action ->
             when (action) {
-                is LoginSucceeded -> onLoginSuccess(action.session)
+                is LoginAction.LoginSucceeded -> onLoginSuccess(action.session)
+                is LoginAction.ShowMessage -> Unit
             }
         }
     }
+
+    val isLoading = state is LoginViewState.Loading
+    val errorMessage = (state as? LoginViewState.Error)?.message
 
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -77,7 +82,6 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        val errorMessage = state.errorMessage
         if (errorMessage != null) {
             Text(
                 text = errorMessage,
@@ -89,16 +93,16 @@ fun LoginScreen(
         Button(
             onClick = {
                 viewModel.obtainEvent(
-                    OnLoginClick(
+                    LoginEvent.OnLoginClick(
                         username = username,
                         password = password,
                     )
                 )
             },
-            enabled = !state.isLoading && username.isNotBlank() && password.isNotBlank(),
+            enabled = !isLoading && username.isNotBlank() && password.isNotBlank(),
             modifier = Modifier.fillMaxWidth(),
         ) {
-            if (state.isLoading) {
+            if (isLoading) {
                 CircularProgressIndicator(
                     color = Color.White,
                     modifier = Modifier.size(20.dp),

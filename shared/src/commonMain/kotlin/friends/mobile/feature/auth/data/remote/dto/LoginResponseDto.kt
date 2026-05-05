@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 data class LoginResponseDto(
     @SerialName("access_token") val accessToken: String,
     @SerialName("refresh_token") val refreshToken: String,
-    @SerialName("user") val user: friends.mobile.feature.auth.data.remote.dto.UserDto,
+    @SerialName("user") val user: UserDto,
 )

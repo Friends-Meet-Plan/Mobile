@@ -13,7 +13,7 @@ final class RootReducer {
         stateJob = viewModel.viewStates.subscribe(
             onItem: { [weak self] item in
                 guard let state = item as? RootViewState else { return }
-                self?.session = state.session
+                self?.session = (state as? RootViewState.Content)?.session
             },
             onComplete: {},
             onThrow: { _ in },
@@ -26,10 +26,10 @@ final class RootReducer {
     }
 
     func onLoginSuccess(_ session: AuthSession) {
-        viewModel.obtainEvent(event: OnSessionStarted(session: session))
+        viewModel.obtainEvent(event: RootEvent.OnSessionStarted(session: session))
     }
 
     func logout() {
-        viewModel.obtainEvent(event: OnLogoutClick())
+        viewModel.obtainEvent(event: RootEvent.OnLogoutClick())
     }
 }
