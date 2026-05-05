@@ -24,7 +24,7 @@ private const val REFRESH_THRESHOLD_SECONDS = 60L
  * Proactively refreshes if the access token expires within 60 s.
  * On 401, attempts one refresh (Mutex-guarded, check-after-wait), then retries.
  */
-class AuthenticatedClient(
+internal class AuthenticatedClient(
     private val client: HttpClient,
     private val storage: TokenStorage,
     private val onRefresh: suspend () -> AuthToken,
@@ -48,7 +48,7 @@ class AuthenticatedClient(
 
             // Inject current access token
             storage.getSession()?.token?.accessToken?.let {
-                request.headers.set(HttpHeaders.Authorization, "Bearer $it")
+                request.headers[HttpHeaders.Authorization] = "Bearer $it"
             }
 
             val call = execute(request)
@@ -65,7 +65,7 @@ class AuthenticatedClient(
                         runCatching { onRefresh() }.getOrElse { onUnauthorized(); return@intercept call }
                     }
                 }
-                request.headers.set(HttpHeaders.Authorization, "Bearer ${newToken.accessToken}")
+                request.headers[HttpHeaders.Authorization] = "Bearer ${newToken.accessToken}"
                 execute(request)
             } else {
                 call

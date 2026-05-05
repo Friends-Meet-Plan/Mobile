@@ -1,10 +1,5 @@
 package friends.mobile.core.viewmodel
 
-import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -14,11 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 abstract class BaseViewModel<State : Any, Action, Event>(
     initState: State,
-) : ViewModel() {
-
-    protected val viewModelScope = CoroutineScope(
-        SupervisorJob() + Dispatchers.Main,
-    )
+) : CommonViewModel() {
 
     private val mutableState = MutableStateFlow(initState)
     private val mutableAction = MutableSharedFlow<Action>(
@@ -45,9 +36,4 @@ abstract class BaseViewModel<State : Any, Action, Event>(
         get() = mutableAction.asSharedFlow()
 
     abstract fun obtainEvent(event: Event)
-
-    override fun onCleared() {
-        super.onCleared()
-        viewModelScope.cancel()
-    }
 }

@@ -28,9 +28,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import friends.mobile.feature.auth.presentation.OnRegisterClick
-import friends.mobile.feature.auth.presentation.RegisterViewModel
-import friends.mobile.feature.auth.presentation.RegisterSucceeded
+import friends.mobile.feature.auth.presentation.register.RegisterAction
+import friends.mobile.feature.auth.presentation.register.RegisterEvent
+import friends.mobile.feature.auth.presentation.register.RegisterViewModel
+import friends.mobile.feature.auth.presentation.register.RegisterViewState
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,10 +50,14 @@ fun RegisterBottomSheet(
     LaunchedEffect(viewModel) {
         viewModel.viewActions.collectLatest { action ->
             when (action) {
-                is RegisterSucceeded -> onRegisterSuccess()
+                RegisterAction.RegisterSucceeded -> onRegisterSuccess()
+                is RegisterAction.ShowMessage -> Unit
             }
         }
     }
+
+    val isLoading = state is RegisterViewState.Loading
+    val errorMessage = (state as? RegisterViewState.Error)?.message
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -84,7 +89,6 @@ fun RegisterBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            val errorMessage = state.errorMessage
             if (errorMessage != null) {
                 Text(
                     text = errorMessage,
@@ -96,16 +100,16 @@ fun RegisterBottomSheet(
             Button(
                 onClick = {
                 viewModel.obtainEvent(
-                    OnRegisterClick(
+                    RegisterEvent.OnRegisterClick(
                         username = username,
                         password = password,
                     )
                     )
                 },
-                enabled = !state.isLoading && username.isNotBlank() && password.isNotBlank(),
+                enabled = !isLoading && username.isNotBlank() && password.isNotBlank(),
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                if (state.isLoading) {
+                if (isLoading) {
                     CircularProgressIndicator(
                         color = Color.White,
                         modifier = Modifier.size(20.dp),

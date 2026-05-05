@@ -23,8 +23,8 @@ final class RegisterReducer {
         stateJob = viewModel.viewStates.subscribe(
             onItem: { [weak self] item in
                 guard let state = item as? RegisterViewState else { return }
-                self?.isLoading = state.isLoading
-                self?.errorMessage = state.errorMessage
+                self?.isLoading = state is RegisterViewState.Loading
+                self?.errorMessage = (state as? RegisterViewState.Error)?.message
             },
             onComplete: {},
             onThrow: { _ in },
@@ -32,9 +32,11 @@ final class RegisterReducer {
 
         actionJob = viewModel.viewActions.subscribe(
             onItem: { [weak self] item in
-                guard item is RegisterSucceeded else { return }
-                self?.onSuccess?()
-                self?.onSuccess = nil
+                guard let action = item as? RegisterAction else { return }
+                if action is RegisterAction.RegisterSucceeded {
+                    self?.onSuccess?()
+                    self?.onSuccess = nil
+                }
             },
             onComplete: {},
             onThrow: { _ in },
@@ -53,7 +55,7 @@ final class RegisterReducer {
     ) {
         self.onSuccess = onSuccess
         viewModel.obtainEvent(
-            event: OnRegisterClick(
+            event: RegisterEvent.OnRegisterClick(
                 username: user.name,
                 password: user.password
             )
