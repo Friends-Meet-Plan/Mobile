@@ -8,16 +8,10 @@
 import SwiftUI
 
 struct RootView: View {
-    @State private var observable = RootReducer()
+    @State private var reducer = RootReducer()
 
     var body: some View {
-        if let session = observable.session {
-            MainView(username: session.user.username)
-        } else {
-            LoginView { session in
-                observable.onLoginSuccess(session)
-            }
-        }
+        LoginView()
     }
 }
 

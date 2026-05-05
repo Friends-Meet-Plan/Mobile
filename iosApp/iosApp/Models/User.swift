@@ -7,13 +7,13 @@
 
 import Foundation
 
-struct User {
-    
-    var name: String
-    var password: String
-    
-    init(name: String = "", password: String = "") {
-        self.name = name
-        self.password = password
-    }
-}
+//struct User {
+//    
+//    var name: String
+//    var password: String
+//    
+//    init(name: String = "", password: String = "") {
+//        self.name = name
+//        self.password = password
+//    }
+//}
