@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -23,18 +24,37 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import friends.mobile.auth.model.AuthSession
+import friends.mobile.feature.auth.domain.model.AuthSession
+import friends.mobile.feature.auth.presentation.login.LoginAction
+import friends.mobile.feature.auth.presentation.login.LoginEvent
+import friends.mobile.feature.auth.presentation.login.LoginViewModel
+import friends.mobile.feature.auth.presentation.login.LoginViewState
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun LoginScreen(
     onLoginSuccess: (AuthSession) -> Unit,
 ) {
-    val viewModel: LoginScreenViewModel = viewModel()
+    val viewModel: LoginViewModel = viewModel()
+    val state by viewModel.viewStates.collectAsStateWithLifecycle()
 
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var showRegister by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(viewModel) {
+        viewModel.viewActions.collectLatest { action ->
+            when (action) {
+                is LoginAction.LoginSucceeded -> onLoginSuccess(action.session)
+                is LoginAction.ShowMessage -> Unit
+            }
+        }
+    }
+
+    val isLoading = state is LoginViewState.Loading
+    val errorMessage = (state as? LoginViewState.Error)?.message
 
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -62,7 +82,6 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        val errorMessage = viewModel.errorMessage
         if (errorMessage != null) {
             Text(
                 text = errorMessage,
@@ -73,16 +92,17 @@ fun LoginScreen(
 
         Button(
             onClick = {
-                viewModel.login(
-                    username = username,
-                    password = password,
-                    onSuccess = onLoginSuccess,
+                viewModel.obtainEvent(
+                    LoginEvent.OnLoginClick(
+                        username = username,
+                        password = password,
+                    )
                 )
             },
-            enabled = !viewModel.isLoading && username.isNotBlank() && password.isNotBlank(),
+            enabled = !isLoading && username.isNotBlank() && password.isNotBlank(),
             modifier = Modifier.fillMaxWidth(),
         ) {
-            if (viewModel.isLoading) {
+            if (isLoading) {
                 CircularProgressIndicator(
                     color = Color.White,
                     modifier = Modifier.size(20.dp),

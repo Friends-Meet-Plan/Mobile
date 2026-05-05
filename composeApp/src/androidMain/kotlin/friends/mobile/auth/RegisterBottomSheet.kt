@@ -15,6 +15,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,7 +26,13 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import friends.mobile.feature.auth.presentation.register.RegisterAction
+import friends.mobile.feature.auth.presentation.register.RegisterEvent
+import friends.mobile.feature.auth.presentation.register.RegisterViewModel
+import friends.mobile.feature.auth.presentation.register.RegisterViewState
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,10 +41,23 @@ fun RegisterBottomSheet(
     onRegisterSuccess: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val viewModel: RegisterScreenViewModel = viewModel()
+    val viewModel: RegisterViewModel = viewModel()
+    val state by viewModel.viewStates.collectAsStateWithLifecycle()
 
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(viewModel) {
+        viewModel.viewActions.collectLatest { action ->
+            when (action) {
+                RegisterAction.RegisterSucceeded -> onRegisterSuccess()
+                is RegisterAction.ShowMessage -> Unit
+            }
+        }
+    }
+
+    val isLoading = state is RegisterViewState.Loading
+    val errorMessage = (state as? RegisterViewState.Error)?.message
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -69,7 +89,6 @@ fun RegisterBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            val errorMessage = viewModel.errorMessage
             if (errorMessage != null) {
                 Text(
                     text = errorMessage,
@@ -80,16 +99,17 @@ fun RegisterBottomSheet(
 
             Button(
                 onClick = {
-                    viewModel.register(
+                viewModel.obtainEvent(
+                    RegisterEvent.OnRegisterClick(
                         username = username,
                         password = password,
-                        onSuccess = onRegisterSuccess,
+                    )
                     )
                 },
-                enabled = !viewModel.isLoading && username.isNotBlank() && password.isNotBlank(),
+                enabled = !isLoading && username.isNotBlank() && password.isNotBlank(),
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                if (viewModel.isLoading) {
+                if (isLoading) {
                     CircularProgressIndicator(
                         color = Color.White,
                         modifier = Modifier.size(20.dp),

@@ -12,11 +12,11 @@ lane :test_android do
   end
 end
 
-lane :build_ios do
-  Dir.chdir(MOBILE_ROOT) do
-    sh("xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO")
-  end
-end
+# lane :build_ios do
+#   Dir.chdir(MOBILE_ROOT) do
+#     sh("xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO")
+#   end
+# end
 
 lane :detect_android do
   Dir.chdir(MOBILE_ROOT) do
