@@ -16,9 +16,9 @@ enum AppRouter: Hashable {
     var destination: some View {
         switch self {
         case .login:
-            LoginView()
+            LoginView { _ in }
         case .main:
-            MainView(username: "Name")
+            MainView()
         }
     }
 }

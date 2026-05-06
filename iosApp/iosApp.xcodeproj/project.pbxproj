@@ -34,6 +34,11 @@
 			path = Configuration;
 			sourceTree = "<group>";
 		};
+		CF47F5862FABCEE70050BF7B /* Utils */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Utils;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,6 +55,7 @@
 		0DD46B45F0A3957853DDAEE9 = {
 			isa = PBXGroup;
 			children = (
+				CF47F5862FABCEE70050BF7B /* Utils */,
 				17B39E11C2FF15B784751E8C /* Configuration */,
 				130E5EEBEE6CEDC29557C495 /* iosApp */,
 				20E61D6599E621B90D885377 /* Products */,
@@ -83,6 +89,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				130E5EEBEE6CEDC29557C495 /* iosApp */,
+				CF47F5862FABCEE70050BF7B /* Utils */,
 			);
 			name = iosApp;
 			packageProductDependencies = (

@@ -6,15 +6,12 @@
 //
 
 import SwiftUI
+import Shared
 
 struct MainView: View {
-    let username: String
-
+    var user: AuthUser
+    
     var body: some View {
-        Text("Main view, \(username)")
+        Text("Main view")
     }
-}
-
-#Preview {
-    MainView(username: "Preview")
 }

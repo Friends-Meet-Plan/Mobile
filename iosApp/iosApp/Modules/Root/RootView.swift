@@ -6,12 +6,19 @@
 //
 
 import SwiftUI
+import Shared
 
 struct RootView: View {
-    @State private var reducer = RootReducer()
-
+    @State var session: AuthSession?
+    
     var body: some View {
-        LoginView()
+        if let session {
+            MainView(user: session.user)
+        } else {
+            LoginView { session in
+                self.session = session
+            }
+        }
     }
 }
 
