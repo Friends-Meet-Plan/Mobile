@@ -9,33 +9,40 @@ import SwiftUI
 import Shared
 
 struct LoginView: View {
-    @State private var reducer = LoginReducer()
-    
     let onLoginSuccess: (AuthSession) -> Void
+    
+    @State private var reducer = LoginReducer()
+    @State private var isRegisterPresented = false
     
     var body: some View {
         VStack(spacing: 16) {
             TextField("Username", text: $reducer.username)
-                .textFieldStyle(.roundedBorder)
-                .autocapitalization(.none)
-            
             SecureField("Password", text: $reducer.password)
-                .textFieldStyle(.roundedBorder)
             
             if let error = reducer.errorMessage {
                 Text(error).foregroundColor(.red).font(.caption)
             }
             
-            Button("Login") { reducer.login() }
-                .disabled(reducer.username.isEmpty || reducer.password.isEmpty || reducer.isLoading)
+            Button("Login") {
+                reducer.login()
+            }
+            .disabled(reducer.isLoading)
+            
+            Button("Register now") {
+                isRegisterPresented = true
+            }
             
             if reducer.isLoading {
                 ProgressView()
             }
         }
-        .padding()
         .onAppear {
             reducer.onLoginSuccess = onLoginSuccess
+        }
+        .sheet(isPresented: $isRegisterPresented) {
+            RegisterView {
+                isRegisterPresented = false
+            }
         }
     }
 }

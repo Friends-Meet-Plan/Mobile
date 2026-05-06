@@ -6,19 +6,20 @@
 //
 
 import SwiftUI
+import Shared
 
 enum AppRouter: Hashable {
     
     case login
-    case main
+    case main(AuthUser)
     
     @ViewBuilder
     var destination: some View {
         switch self {
         case .login:
             LoginView { _ in }
-        case .main:
-            MainView()
+        case let .main(user):
+            MainView(user: user)
         }
     }
 }
