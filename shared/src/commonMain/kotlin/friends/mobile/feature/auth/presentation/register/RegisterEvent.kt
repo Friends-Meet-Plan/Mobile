@@ -6,4 +6,3 @@ sealed class RegisterEvent {
         val password: String,
     ) : RegisterEvent()
 }
-

@@ -14,4 +14,3 @@ actual abstract class CommonViewModel actual constructor() {
         viewModelScope.cancel()
     }
 }
-

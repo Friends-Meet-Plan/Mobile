@@ -7,9 +7,11 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class RootViewModel : BaseViewModel<RootViewState, Nothing, RootEvent>(
-    initState = RootViewState.Loading,
-), KoinComponent {
+class RootViewModel :
+    BaseViewModel<RootViewState, Nothing, RootEvent>(
+        initState = RootViewState.Loading,
+    ),
+    KoinComponent {
 
     private val getStoredSessionUseCase: GetStoredSessionUseCase by inject()
     private val logoutUseCase: LogoutUseCase by inject()

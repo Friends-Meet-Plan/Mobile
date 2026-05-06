@@ -6,4 +6,3 @@ sealed class LoginAction {
     data class LoginSucceeded(val session: AuthSession) : LoginAction()
     data class ShowMessage(val message: String) : LoginAction()
 }
-

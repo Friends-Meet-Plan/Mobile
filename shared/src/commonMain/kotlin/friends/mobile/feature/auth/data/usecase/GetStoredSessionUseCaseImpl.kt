@@ -9,4 +9,3 @@ internal class GetStoredSessionUseCaseImpl(
 ) : GetStoredSessionUseCase {
     override fun invoke(): AuthSession? = repository.getStoredSession()
 }
-

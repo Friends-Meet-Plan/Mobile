@@ -6,4 +6,3 @@ sealed class RootEvent {
     data class OnSessionStarted(val session: AuthSession) : RootEvent()
     data object OnLogoutClick : RootEvent()
 }
-
