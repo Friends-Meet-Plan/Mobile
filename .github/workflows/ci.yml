@@ -36,7 +36,7 @@ jobs:
         run: brew install swiftlint
       - name: SwiftLint
         run: swiftlint --config iosApp/.swiftlint.yml iosApp/iosApp
-      # - name: Build iOS
-      #   run: bundle exec fastlane build_ios
+      - name: Build iOS
+        run: bundle exec fastlane build_ios
       - name: Test iOS
         run: bundle exec fastlane test_ios

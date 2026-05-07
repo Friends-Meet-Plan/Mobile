@@ -9,62 +9,40 @@ import SwiftUI
 import Shared
 
 struct LoginView: View {
-
-    var onLoginSuccess: ((AuthSession) -> Void)?
-
-    @State private var observable = LoginReducer()
-    @State private var user = User()
-    @State private var isRegistrationPresented = false
-
+    let onLoginSuccess: (AuthSession) -> Void
+    
+    @State private var reducer = LoginReducer()
+    @State private var isRegisterPresented = false
+    
     var body: some View {
         VStack(spacing: 16) {
-            loginView()
+            TextField("Username", text: $reducer.username)
+            SecureField("Password", text: $reducer.password)
             
-            Text("Register now")
-                .onTapGesture {
-                    isRegistrationPresented = true
-                }
-        }
-        .padding()
-        .sheet(isPresented: $isRegistrationPresented) {
-            RegisterView {
-                // TODO: Toast
-                isRegistrationPresented = false
+            if let error = reducer.errorMessage {
+                Text(error).foregroundColor(.red).font(.caption)
             }
-        }
-    }
-    
-    @ViewBuilder
-    private func loginView() -> some View {
-        TextField("Username", text: $user.name)
-            .textFieldStyle(.roundedBorder)
-            .autocorrectionDisabled()
-            .textInputAutocapitalization(.never)
-
-        SecureField("Password", text: $user.password)
-            .textFieldStyle(.roundedBorder)
-
-        if let error = observable.errorMessage {
-            Text(error)
-                .foregroundStyle(.red)
-                .font(.caption)
-        }
-
-        Button {
-            observable.login(user: user) { session in
-                onLoginSuccess?(session)
+            
+            Button("Login") {
+                reducer.login()
             }
-        } label: {
-            if observable.isLoading {
+            .disabled(reducer.isLoading)
+            
+            Button("Register now") {
+                isRegisterPresented = true
+            }
+            
+            if reducer.isLoading {
                 ProgressView()
-                    .tint(.white)
-                    .frame(maxWidth: .infinity)
-            } else {
-                Text("Login")
-                    .frame(maxWidth: .infinity)
             }
         }
-        .buttonStyle(.borderedProminent)
-        .disabled(observable.isLoading || user.name.isEmpty || user.password.isEmpty)
+        .onAppear {
+            reducer.onLoginSuccess = onLoginSuccess
+        }
+        .sheet(isPresented: $isRegisterPresented) {
+            RegisterView {
+                isRegisterPresented = false
+            }
+        }
     }
 }

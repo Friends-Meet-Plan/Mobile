@@ -8,45 +8,30 @@
 import SwiftUI
 
 struct RegisterView: View {
-
-    var onRegisterSuccess: (() -> Void)?
+    let onRegisterSuccess: () -> Void
     
-    @State private var observable = RegisterReducer()
-    @State private var user = User()
-
+    @State private var reducer = RegisterReducer()
+    
     var body: some View {
         VStack(spacing: 16) {
-            TextField("Username", text: $user.name)
-                .textFieldStyle(.roundedBorder)
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
-
-            SecureField("Password", text: $user.password)
-                .textFieldStyle(.roundedBorder)
-
-            if let error = observable.errorMessage {
-                Text(error)
-                    .foregroundStyle(.red)
-                    .font(.caption)
+            TextField("Username", text: $reducer.username)
+            SecureField("Password", text: $reducer.password)
+            
+            if let error = reducer.errorMessage {
+                Text(error).foregroundColor(.red).font(.caption)
             }
-
-            Button {
-                observable.register(user: user) {
-                    onRegisterSuccess?()
-                }
-            } label: {
-                if observable.isLoading {
-                    ProgressView()
-                        .tint(.white)
-                        .frame(maxWidth: .infinity)
-                } else {
-                    Text("Register")
-                        .frame(maxWidth: .infinity)
-                }
+            
+            Button("Register") {
+                reducer.register()
             }
-            .buttonStyle(.borderedProminent)
-            .disabled(observable.isLoading || user.name.isEmpty || user.password.isEmpty)
+            .disabled(reducer.isLoading)
+            
+            if reducer.isLoading {
+                ProgressView()
+            }
         }
-        .padding()
+        .onAppear {
+            reducer.onRegisterSuccess = onRegisterSuccess
+        }
     }
 }

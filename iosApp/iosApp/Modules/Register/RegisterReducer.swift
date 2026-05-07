@@ -10,54 +10,58 @@ import Shared
 
 @Observable
 final class RegisterReducer {
-
+    
+    var username = ""
+    var password = ""
     var isLoading = false
-    var errorMessage: String?
-
-    private let viewModel = RegisterViewModel()
-    private var stateJob: Kotlinx_coroutines_coreJob?
-    private var actionJob: Kotlinx_coroutines_coreJob?
-    private var onSuccess: (() -> Void)?
-
+    var errorMessage: String? = nil
+    
+    var onRegisterSuccess: (() -> Void)?
+    
+    private let sharedVM = RegisterViewModel()
+    private var stateTask: Task<Void, Never>?
+    private var actionTask: Task<Void, Never>?
+    
     init() {
-        stateJob = viewModel.viewStates.subscribe(
-            onItem: { [weak self] item in
-                guard let state = item as? RegisterViewState else { return }
-                self?.isLoading = state is RegisterViewState.Loading
-                self?.errorMessage = (state as? RegisterViewState.Error)?.message
-            },
-            onComplete: {},
-            onThrow: { _ in },
-        )
-
-        actionJob = viewModel.viewActions.subscribe(
-            onItem: { [weak self] item in
-                guard let action = item as? RegisterAction else { return }
-                if action is RegisterAction.RegisterSucceeded {
-                    self?.onSuccess?()
-                    self?.onSuccess = nil
+        let scope = sharedVM.viewModelScope
+        
+        stateTask = Task {
+            for await state in sharedVM.viewStates.asAsyncStream(scope: scope) {
+                switch state {
+                case is RegisterViewState.Loading:
+                    isLoading = true
+                    errorMessage = nil
+                case let error as RegisterViewState.Error:
+                    isLoading = false
+                    errorMessage = error.message
+                default:
+                    isLoading = false
                 }
-            },
-            onComplete: {},
-            onThrow: { _ in },
-        )
+            }
+        }
+        
+        actionTask = Task {
+            let stream = sharedVM.viewActions.asAsyncStream(scope: scope)
+            for await rawAction in stream {
+                guard let action = rawAction as? RegisterAction else { continue }
+                if action as? RegisterAction.RegisterSucceeded != nil {
+                    onRegisterSuccess?()
+                }
+            }
+        }
     }
-
+    
     deinit {
-        stateJob?.cancel(cause: nil)
-        actionJob?.cancel(cause: nil)
-        viewModel.clear()
+        stateTask?.cancel()
+        actionTask?.cancel()
+        sharedVM.clear()
     }
-
-    func register(
-        user: User,
-        onSuccess: (() -> Void)? = nil
-    ) {
-        self.onSuccess = onSuccess
-        viewModel.obtainEvent(
+    
+    func register() {
+        sharedVM.obtainEvent(
             event: RegisterEvent.OnRegisterClick(
-                username: user.name,
-                password: user.password
+                username: username,
+                password: password
             )
         )
     }
