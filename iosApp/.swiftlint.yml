@@ -5,3 +5,4 @@ analyzer_rules:
 disabled_rules:
   - trailing_whitespace
   - type_name
+  - prefer_type_checking

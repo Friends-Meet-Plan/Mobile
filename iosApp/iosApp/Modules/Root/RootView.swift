@@ -14,7 +14,7 @@ struct RootView: View {
     
     var body: some View {
         NavigationStack(path: $router.path) {
-            CurrentView
+            currentView()
                 .navigationDestination(for: AppRouter.self) { route in
                     switch route {
                     case let .main(user):
@@ -28,7 +28,7 @@ struct RootView: View {
     }
     
     @ViewBuilder
-    var CurrentView: some View {
+    private func currentView() -> some View {
         if let session {
             MainView(user: session.user)
         } else {
