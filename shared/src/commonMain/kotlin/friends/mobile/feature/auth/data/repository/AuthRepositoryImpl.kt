@@ -1,13 +1,16 @@
 package friends.mobile.feature.auth.data.repository
 
+import friends.mobile.core.network.NetworkException
 import friends.mobile.feature.auth.data.mapper.AuthSessionMapper
 import friends.mobile.feature.auth.data.remote.AuthApi
-import friends.mobile.feature.auth.data.remote.dto.*
+import friends.mobile.feature.auth.data.remote.dto.LoginRequestDto
+import friends.mobile.feature.auth.data.remote.dto.LogoutRequestDto
+import friends.mobile.feature.auth.data.remote.dto.RefreshRequestDto
+import friends.mobile.feature.auth.data.remote.dto.RegisterRequestDto
 import friends.mobile.feature.auth.data.storage.TokenStorage
 import friends.mobile.feature.auth.domain.model.AuthSession
 import friends.mobile.feature.auth.domain.model.AuthToken
 import friends.mobile.feature.auth.domain.repository.AuthRepository
-import friends.mobile.core.network.NetworkException
 
 internal class AuthRepositoryImpl(
     private val api: AuthApi,
@@ -19,7 +22,7 @@ internal class AuthRepositoryImpl(
         username: String,
         password: String,
         avatarUrl: String?,
-        bio: String?
+        bio: String?,
     ) {
         api.register(RegisterRequestDto(username, password, avatarUrl, bio))
     }

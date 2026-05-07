@@ -6,4 +6,3 @@ interface RegisterUseCase {
         password: String,
     )
 }
-

@@ -5,7 +5,6 @@ import com.russhwolf.settings.Settings
 import org.koin.core.module.Module
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import platform.Foundation.NSUserDefaults
 
 actual val platformModule: Module = module {
     single<Settings> {

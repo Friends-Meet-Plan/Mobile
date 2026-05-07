@@ -6,4 +6,3 @@ sealed class LoginEvent {
         val password: String,
     ) : LoginEvent()
 }
-

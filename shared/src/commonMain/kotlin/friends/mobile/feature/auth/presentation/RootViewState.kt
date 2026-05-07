@@ -7,4 +7,3 @@ sealed class RootViewState {
     data class Error(val message: String) : RootViewState()
     data class Content(val session: AuthSession?) : RootViewState()
 }
-

@@ -7,4 +7,3 @@ sealed class LoginViewState {
         val hint: String? = null,
     ) : LoginViewState()
 }
-
