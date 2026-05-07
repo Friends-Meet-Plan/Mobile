@@ -1,6 +1,6 @@
 package friends.mobile.feature.friends.domain.repository
 
-import friends.mobile.feature.friends.domain.model.Friend
+import friends.mobile.feature.auth.data.remote.dto.UserDto
 
 /**
  * Public interface for the friends repository.
@@ -15,5 +15,5 @@ interface FriendsRepository {
      * May cache results if appropriate.
      * Throws exceptions: NetworkException.NetworkError, NetworkException.Unauthorized, etc.
      */
-    suspend fun getFriends(): List<Friend>
+    suspend fun getFriends(): List<UserDto>
 }

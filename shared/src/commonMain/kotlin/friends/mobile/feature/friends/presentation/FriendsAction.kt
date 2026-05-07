@@ -1,7 +1,5 @@
 package friends.mobile.feature.friends.presentation
 
-import friends.mobile.feature.friends.domain.model.Friend
-
 /**
  * MVI actions for the friends screen.
  *

@@ -14,9 +14,5 @@ import friends.mobile.feature.friends.domain.model.PaginationInfo
 sealed class FriendsViewState {
     data object Loading : FriendsViewState()
     data class Error(val message: String) : FriendsViewState()
-    data class Content(
-        val friends: List<UserDto> = emptyList(),
-        val pagination: PaginationInfo? = null,
-        val isLoadingMore: Boolean = false
-    ) : FriendsViewState()
+    data class Content(val friends: List<UserDto> = emptyList()) : FriendsViewState()
 }

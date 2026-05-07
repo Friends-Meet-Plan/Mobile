@@ -9,6 +9,4 @@ package friends.mobile.feature.friends.presentation
  */
 sealed class FriendsEvent {
     data object ScreenOpened : FriendsEvent()
-
-    data class OnLoadMore(val nextPage: Int) : FriendsEvent()
 }

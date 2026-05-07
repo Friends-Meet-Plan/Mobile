@@ -1,6 +1,5 @@
 package friends.mobile.feature.friends.di
 
-import friends.mobile.feature.friends.data.mapper.FriendMapper
 import friends.mobile.feature.friends.data.remote.FriendsApi
 import friends.mobile.feature.friends.data.repository.FriendsRepositoryImpl
 import friends.mobile.feature.friends.data.usecase.GetFriendsUseCaseImpl
@@ -39,13 +38,8 @@ val friendsModule = module {
         FriendsApi(client = get(named("auth")))
     }
 
-    factory { FriendMapper() }
-
     single<FriendsRepository> {
-        FriendsRepositoryImpl(
-            api = get(),
-            mapper = get(),
-        )
+        FriendsRepositoryImpl(api = get())
     }
 
     factory<GetFriendsUseCase> { GetFriendsUseCaseImpl(repository = get()) }

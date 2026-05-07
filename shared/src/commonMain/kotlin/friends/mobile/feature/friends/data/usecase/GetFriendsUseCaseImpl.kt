@@ -1,6 +1,6 @@
 package friends.mobile.feature.friends.data.usecase
 
-import friends.mobile.feature.friends.domain.model.Friend
+import friends.mobile.feature.auth.data.remote.dto.UserDto
 import friends.mobile.feature.friends.domain.repository.FriendsRepository
 import friends.mobile.feature.friends.domain.usecase.GetFriendsUseCase
 
@@ -13,6 +13,6 @@ internal class GetFriendsUseCaseImpl(
     private val repository: FriendsRepository,
 ) : GetFriendsUseCase {
 
-    override suspend fun invoke(page: Int): List<Friend> =
+    override suspend fun invoke(): List<UserDto> =
         repository.getFriends()
 }
