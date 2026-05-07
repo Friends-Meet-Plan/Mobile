@@ -10,4 +10,3 @@ internal class LogoutUseCaseImpl(
         repository.logout()
     }
 }
-

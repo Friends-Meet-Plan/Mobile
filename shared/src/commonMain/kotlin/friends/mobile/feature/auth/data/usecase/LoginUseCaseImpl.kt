@@ -11,4 +11,3 @@ internal class LoginUseCaseImpl(
         return repository.login(username, password)
     }
 }
-

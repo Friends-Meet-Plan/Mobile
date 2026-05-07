@@ -5,4 +5,3 @@ import friends.mobile.feature.auth.domain.model.AuthSession
 interface GetStoredSessionUseCase {
     operator fun invoke(): AuthSession?
 }
-

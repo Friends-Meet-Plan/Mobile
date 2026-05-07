@@ -10,4 +10,3 @@ internal class RegisterUseCaseImpl(
         repository.register(username, password)
     }
 }
-

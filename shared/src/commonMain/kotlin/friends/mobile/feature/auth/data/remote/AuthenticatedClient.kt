@@ -18,6 +18,7 @@ import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 private const val REFRESH_THRESHOLD_SECONDS = 60L
+private const val BASE64_CHUNK_SIZE = 4
 
 /**
  * Installs proactive token refresh and single-flight 401-retry logic onto [client].
@@ -62,7 +63,11 @@ internal class AuthenticatedClient(
                         // Another coroutine already refreshed; reuse the new token
                         stored
                     } else {
-                        runCatching { onRefresh() }.getOrElse { onUnauthorized(); return@intercept call }
+                        runCatching { onRefresh() }
+                            .getOrElse {
+                                onUnauthorized()
+                                return@intercept call
+                            }
                     }
                 }
                 request.headers[HttpHeaders.Authorization] = "Bearer ${newToken.accessToken}"
@@ -76,7 +81,7 @@ internal class AuthenticatedClient(
     @OptIn(ExperimentalEncodingApi::class)
     private fun isExpiringSoon(jwt: String): Boolean = try {
         val raw = jwt.split(".").getOrNull(1) ?: return true
-        val padding = (4 - raw.length % 4) % 4
+        val padding = (BASE64_CHUNK_SIZE - raw.length % BASE64_CHUNK_SIZE) % BASE64_CHUNK_SIZE
         val payload = Base64.UrlSafe.decode(raw + "=".repeat(padding)).decodeToString()
         val exp = Json.parseToJsonElement(payload).jsonObject["exp"]?.jsonPrimitive?.long ?: return true
         exp <= Clock.System.now().epochSeconds + REFRESH_THRESHOLD_SECONDS

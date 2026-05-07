@@ -1,7 +1,7 @@
 package friends.mobile.auth
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -99,11 +99,11 @@ fun RegisterBottomSheet(
 
             Button(
                 onClick = {
-                viewModel.obtainEvent(
-                    RegisterEvent.OnRegisterClick(
-                        username = username,
-                        password = password,
-                    )
+                    viewModel.obtainEvent(
+                        RegisterEvent.OnRegisterClick(
+                            username = username,
+                            password = password,
+                        )
                     )
                 },
                 enabled = !isLoading && username.isNotBlank() && password.isNotBlank(),

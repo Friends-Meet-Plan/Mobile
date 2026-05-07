@@ -1,6 +1,11 @@
 package friends.mobile.feature.auth.data.remote
 
-import friends.mobile.feature.auth.data.remote.dto.*
+import friends.mobile.feature.auth.data.remote.dto.LoginRequestDto
+import friends.mobile.feature.auth.data.remote.dto.LoginResponseDto
+import friends.mobile.feature.auth.data.remote.dto.LogoutRequestDto
+import friends.mobile.feature.auth.data.remote.dto.RefreshRequestDto
+import friends.mobile.feature.auth.data.remote.dto.RefreshResponseDto
+import friends.mobile.feature.auth.data.remote.dto.RegisterRequestDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post

@@ -15,4 +15,3 @@ actual abstract class CommonViewModel actual constructor() : AndroidXViewModel()
         onCleared()
     }
 }
-

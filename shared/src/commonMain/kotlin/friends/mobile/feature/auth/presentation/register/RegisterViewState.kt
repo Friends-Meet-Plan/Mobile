@@ -7,4 +7,3 @@ sealed class RegisterViewState {
         val hint: String? = null,
     ) : RegisterViewState()
 }
-

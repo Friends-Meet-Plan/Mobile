@@ -3,14 +3,15 @@ package friends.mobile.feature.auth.presentation.register
 import friends.mobile.core.network.NetworkException
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.auth.domain.usecase.RegisterUseCase
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class RegisterViewModel : BaseViewModel<RegisterViewState, RegisterAction, RegisterEvent>(
-    initState = RegisterViewState.Content(),
-), KoinComponent {
+class RegisterViewModel :
+    BaseViewModel<RegisterViewState, RegisterAction, RegisterEvent>(
+        initState = RegisterViewState.Content(),
+    ),
+    KoinComponent {
 
     private val registerUseCase: RegisterUseCase by inject()
 
@@ -43,13 +44,15 @@ class RegisterViewModel : BaseViewModel<RegisterViewState, RegisterAction, Regis
                 registerUseCase(username, password)
                 viewState = RegisterViewState.Content()
                 viewAction = RegisterAction.RegisterSucceeded
-            } catch (e: NetworkException.Conflict) {
+            } catch (_: NetworkException.Conflict) {
                 viewState = RegisterViewState.Error("Username is already taken")
-            } catch (e: NetworkException.NetworkError) {
+            } catch (_: NetworkException.NetworkError) {
                 viewState = RegisterViewState.Error("Network error, check your connection")
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
+            } catch (_: NetworkException.Unauthorized) {
+                viewState = RegisterViewState.Error("Unauthorized")
+            } catch (_: NetworkException.UnknownError) {
+                viewState = RegisterViewState.Error("Something went wrong")
+            } catch (_: NetworkException) {
                 viewState = RegisterViewState.Error("Something went wrong")
             }
         }

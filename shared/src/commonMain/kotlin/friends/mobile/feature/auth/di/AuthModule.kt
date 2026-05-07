@@ -27,7 +27,8 @@ import org.koin.dsl.module
  *   - single<com.russhwolf.settings.Settings> { ... }  (platform-specific, see below)
  *
  * Android:
- *   single<Settings> { SharedPreferencesSettings(androidContext().getSharedPreferences("friends_auth", Context.MODE_PRIVATE)) }
+ *   single<Settings> { SharedPreferencesSettings(androidContext().getSharedPreferences(...)) }
+ *   See your Android DI module for the exact call.
  * iOS (in iosMain platform module):
  *   single<Settings> { NSUserDefaultsSettings(NSUserDefaults.standardUserDefaults) }
  */

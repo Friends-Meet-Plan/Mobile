@@ -24,4 +24,3 @@ internal class StoredSessionMapper {
         )
     }
 }
-

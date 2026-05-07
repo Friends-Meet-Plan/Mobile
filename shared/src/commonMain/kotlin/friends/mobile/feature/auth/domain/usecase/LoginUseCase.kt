@@ -8,4 +8,3 @@ interface LoginUseCase {
         password: String,
     ): AuthSession
 }
-
