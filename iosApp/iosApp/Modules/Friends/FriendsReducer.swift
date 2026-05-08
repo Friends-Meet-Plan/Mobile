@@ -22,7 +22,6 @@ final class FriendsReducer {
     var isSearching = false
     var isRequestPending = false
     var errorMessage: String?
-    var requestError: String?
     
     private let sharedVM = FriendsViewModel()
     private var stateTask: Task<Void, Never>?
@@ -48,7 +47,6 @@ final class FriendsReducer {
                     self.searchResults = content.searchResults
                     self.isSearching = content.isSearching
                     self.isRequestPending = content.isRequestPending
-                    self.requestError = content.requestError
                 default:
                     isLoading = false
                     isSearching = false

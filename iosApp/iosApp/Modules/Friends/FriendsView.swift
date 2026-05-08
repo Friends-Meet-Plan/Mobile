@@ -25,52 +25,45 @@ struct FriendsView: View {
             )
             .padding()
             .background(Color(.systemBackground))
-            .borderBottom()
             
             if let errorMessage = reducer.errorMessage {
                 ErrorBanner(message: errorMessage)
             }
             
-            ZStack {
-                if reducer.isLoading && reducer.searchResults == nil {
-                    LoadingView()
-                } else {
-                    contentListView()
-                }
-            }
-            .safeAreaInset(edge: .bottom) {
-                VStack(spacing: 0) {
-                    if let requestError = reducer.requestError {
-                        HStack(spacing: 8) {
-                            Image(systemName: "exclamationmark.circle.fill")
-                                .foregroundColor(.red)
-                            Text(requestError)
-                                .font(.caption)
-                                .foregroundColor(.red)
-                            Spacer()
+            contentListView()
+                .overlay {
+                    if reducer.isLoading {
+                        ScrollView {
+                            LazyVStack(spacing: 12) {
+                                ForEach(0..<8, id: \.self) { _ in
+                                    UserRowSkeleton()
+                                }
+                            }
+                            .padding()
                         }
-                        .padding(12)
+                    }
+                }
+                .opacity(reducer.isLoading ? 0 : 1)
+                .safeAreaInset(edge: .bottom) {
+                    VStack(spacing: 0) {
+                        
+                        Picker("", selection: $selectedSegment) {
+                            ForEach(Segment.allCases, id: \.self) { segment in
+                                Text(segment.rawValue)
+                                    .tag(segment)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .padding()
                         .background(Color(.systemBackground))
-                        .borderTop()
-                    }
-                    
-                    Picker("", selection: $selectedSegment) {
-                        ForEach(Segment.allCases, id: \.self) { segment in
-                            Text(segment.rawValue)
-                                .tag(segment)
+                        .onChange(of: selectedSegment) { oldValue, newValue in
+                            if reducer.searchResults != nil {
+                                reducer.clearSearch()
+                            }
+                            reducer.onTabSelected(newValue.requestTab)
                         }
-                    }
-                    .pickerStyle(.segmented)
-                    .padding()
-                    .background(Color(.systemBackground))
-                    .onChange(of: selectedSegment) { oldValue, newValue in
-                        if reducer.searchResults != nil {
-                            reducer.clearSearch()
-                        }
-                        reducer.onTabSelected(newValue.requestTab)
                     }
                 }
-            }
         }
     }
     
@@ -94,6 +87,7 @@ struct FriendsView: View {
         } else {
             List(listToDisplay, id: \.id) { user in
                 UserRowView(user: user)
+                    .listRowSeparator(.hidden)
             }
             .listStyle(.plain)
         }
@@ -176,46 +170,63 @@ private struct UserRowView: View {
     let user: Shared.UserDto
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 14) {
+            
             Circle()
-                .fill(Color.blue.opacity(0.3))
-                .frame(width: 44, height: 44)
-                .overlay(
-                    Text(String(user.username.prefix(1)).uppercased())
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.blue)
-                )
+                .fill(.gray.opacity(0.15))
+                .frame(width: 42, height: 42)
+                .overlay {
+                    Text(user.username.prefix(1).uppercased())
+                        .font(.subheadline.weight(.semibold))
+                }
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(user.username)
-                    .font(.body)
-                    .fontWeight(.semibold)
+                    .font(.subheadline.weight(.medium))
                 
                 if let bio = user.bio, !bio.isEmpty {
                     Text(bio)
                         .font(.caption)
-                        .foregroundColor(.secondary)
-                        .lineLimit(2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
                 }
             }
+            
             Spacer()
         }
-        .contentShape(Rectangle())
+        .padding(14)
+        .background {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(.gray.opacity(0.06))
+        }
     }
 }
 
-private extension View {
-    func borderBottom() -> some View {
-        VStack(spacing: 0) {
-            self
-            Divider()
+private struct UserRowSkeleton: View {
+    var body: some View {
+        HStack(spacing: 14) {
+            
+            Circle()
+                .fill(.gray.opacity(0.2))
+                .frame(width: 42, height: 42)
+            
+            VStack(alignment: .leading, spacing: 8) {
+                
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(.gray.opacity(0.2))
+                    .frame(width: 120, height: 12)
+                
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(.gray.opacity(0.15))
+                    .frame(width: 180, height: 10)
+            }
+            
+            Spacer()
         }
-    }
-    
-    func borderTop() -> some View {
-        VStack(spacing: 0) {
-            Divider()
-            self
+        .padding(14)
+        .background {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(.gray.opacity(0.06))
         }
     }
 }

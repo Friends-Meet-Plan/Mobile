@@ -82,9 +82,9 @@ class FriendsViewModel :
                 }
 
                 viewState = when (tab) {
-                    RequestTab.FRIENDS -> currentState.copy(currentTab = tab, friendsList = data)
-                    RequestTab.INCOMING -> currentState.copy(currentTab = tab, incomingRequests = data)
-                    RequestTab.OUTGOING -> currentState.copy(currentTab = tab, outgoingRequests = data)
+                    RequestTab.FRIENDS -> currentState.copy(currentTab = tab, friendsList = data, searchResults = null)
+                    RequestTab.INCOMING -> currentState.copy(currentTab = tab, incomingRequests = data, searchResults = null)
+                    RequestTab.OUTGOING -> currentState.copy(currentTab = tab, outgoingRequests = data, searchResults = null)
                 }
             } catch (_: NetworkException.NetworkError) {
                 viewState = currentState.copy(requestError = "Network error, check your connection")
