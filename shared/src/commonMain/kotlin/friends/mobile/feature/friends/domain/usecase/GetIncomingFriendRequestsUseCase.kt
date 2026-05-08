@@ -9,8 +9,6 @@ interface GetIncomingFriendRequestsUseCase {
 
     /**
      * Fetch incoming friend requests.
-     *
-     * @param page the page number (default: 1)
      */
-    suspend operator fun invoke(page: Int = 1): List<UserDto>
+    suspend operator fun invoke(): List<UserDto>
 }

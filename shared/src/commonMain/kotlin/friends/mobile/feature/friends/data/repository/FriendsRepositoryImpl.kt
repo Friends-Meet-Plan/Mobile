@@ -7,30 +7,21 @@ import friends.mobile.feature.friends.domain.repository.FriendsRepository
 /**
  * Implementation of FriendsRepository.
  *
- * Handles API calls and maps FriendDto responses to UserDto.
+ * Handles API calls and delegates to the API layer.
  * Future: add caching layer if needed.
  */
 internal class FriendsRepositoryImpl(
     private val api: FriendsApi,
 ) : FriendsRepository {
 
-    override suspend fun getFriends(): List<UserDto> {
-        val response = api.getFriends()
-        return response.friends.map { friendDto ->
-            UserDto(
-                id = friendDto.id,
-                username = friendDto.username,
-                avatarUrl = friendDto.avatarUrl,
-                bio = friendDto.bio,
-            )
-        }
-    }
+    override suspend fun getFriends(): List<UserDto> =
+        api.getFriends()
 
-    override suspend fun getIncomingRequests(page: Int): List<UserDto> =
-        api.getIncomingRequests(page)
+    override suspend fun getIncomingRequests(): List<UserDto> =
+        api.getIncomingRequests()
 
-    override suspend fun getOutgoingRequests(page: Int): List<UserDto> =
-        api.getOutgoingRequests(page)
+    override suspend fun getOutgoingRequests(): List<UserDto> =
+        api.getOutgoingRequests()
 
     override suspend fun sendFriendRequest(friendId: String) {
         api.sendFriendRequest(friendId)

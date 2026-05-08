@@ -1,7 +1,6 @@
 package friends.mobile.feature.friends.data.remote
 
 import friends.mobile.feature.auth.data.remote.dto.UserDto
-import friends.mobile.feature.friends.data.remote.dto.GetFriendsResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
@@ -23,32 +22,28 @@ internal class FriendsApi(
      * Fetch all available friends from the backend.
      *
      * GET /friends
-     * Response: { "friends": [ { "id", "username", "avatar_url", "bio" }, ... ] }
+     * Response: [ { "id", "username", "avatar_url", "bio" }, ... ]
      */
-    suspend fun getFriends(): GetFriendsResponseDto =
+    suspend fun getFriends(): List<UserDto> =
         client.get("/friends").body()
 
     /**
      * Fetch incoming friend requests.
      *
-     * GET /friend-requests/incoming?page={page}
+     * GET /friends/incoming
      * Response: [ { "id", "username", "avatar_url", "bio" }, ... ]
      */
-    suspend fun getIncomingRequests(page: Int = 1): List<UserDto> =
-        client.get("/friend-requests/incoming") {
-            parameter("page", page)
-        }.body()
+    suspend fun getIncomingRequests(): List<UserDto> =
+        client.get("/friends/incoming").body()
 
     /**
      * Fetch outgoing friend requests.
      *
-     * GET /friend-requests/outgoing?page={page}
+     * GET /friends/outgoing
      * Response: [ { "id", "username", "avatar_url", "bio" }, ... ]
      */
-    suspend fun getOutgoingRequests(page: Int = 1): List<UserDto> =
-        client.get("/friend-requests/outgoing") {
-            parameter("page", page)
-        }.body()
+    suspend fun getOutgoingRequests(): List<UserDto> =
+        client.get("/friends/outgoing").body()
 
     /**
      * Send a friend request to a user.

@@ -20,20 +20,18 @@ interface FriendsRepository {
     /**
      * Fetch incoming friend requests.
      *
-     * @param page The page number (default: 1)
      * @return List of users who have sent friend requests to the current user
      * @throws NetworkException on failure
      */
-    suspend fun getIncomingRequests(page: Int = 1): List<UserDto>
+    suspend fun getIncomingRequests(): List<UserDto>
 
     /**
      * Fetch outgoing friend requests.
      *
-     * @param page The page number (default: 1)
      * @return List of users to whom the current user has sent friend requests
      * @throws NetworkException on failure
      */
-    suspend fun getOutgoingRequests(page: Int = 1): List<UserDto>
+    suspend fun getOutgoingRequests(): List<UserDto>
 
     /**
      * Send a friend request to a user.

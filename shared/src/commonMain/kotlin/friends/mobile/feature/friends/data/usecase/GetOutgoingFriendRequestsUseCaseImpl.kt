@@ -13,6 +13,6 @@ internal class GetOutgoingFriendRequestsUseCaseImpl(
     private val repository: FriendsRepository,
 ) : GetOutgoingFriendRequestsUseCase {
 
-    override suspend fun invoke(page: Int): List<UserDto> =
-        repository.getOutgoingRequests(page)
+    override suspend fun invoke(): List<UserDto> =
+        repository.getOutgoingRequests()
 }
