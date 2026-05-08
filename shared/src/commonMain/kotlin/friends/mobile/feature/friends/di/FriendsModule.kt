@@ -2,9 +2,17 @@ package friends.mobile.feature.friends.di
 
 import friends.mobile.feature.friends.data.remote.FriendsApi
 import friends.mobile.feature.friends.data.repository.FriendsRepositoryImpl
+import friends.mobile.feature.friends.data.usecase.AcceptFriendRequestUseCaseImpl
+import friends.mobile.feature.friends.data.usecase.CancelFriendRequestUseCaseImpl
 import friends.mobile.feature.friends.data.usecase.GetFriendsUseCaseImpl
+import friends.mobile.feature.friends.data.usecase.RejectFriendRequestUseCaseImpl
+import friends.mobile.feature.friends.data.usecase.SendFriendRequestUseCaseImpl
 import friends.mobile.feature.friends.domain.repository.FriendsRepository
+import friends.mobile.feature.friends.domain.usecase.AcceptFriendRequestUseCase
+import friends.mobile.feature.friends.domain.usecase.CancelFriendRequestUseCase
 import friends.mobile.feature.friends.domain.usecase.GetFriendsUseCase
+import friends.mobile.feature.friends.domain.usecase.RejectFriendRequestUseCase
+import friends.mobile.feature.friends.domain.usecase.SendFriendRequestUseCase
 import io.ktor.client.HttpClient
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -16,6 +24,10 @@ import org.koin.dsl.module
  *   - FriendsApi: HTTP wrapper using authenticated HttpClient
  *   - FriendsRepository: data access layer
  *   - GetFriendsUseCase: business logic for fetching friends
+ *   - SendFriendRequestUseCase: send friend request
+ *   - AcceptFriendRequestUseCase: accept friend request
+ *   - RejectFriendRequestUseCase: reject friend request
+ *   - CancelFriendRequestUseCase: cancel friend request
  *
  * Prerequisites in your Koin graph before including this module:
  *   - single<HttpClient>(named("auth")) { ... }  (authenticated client from authModule)
@@ -43,4 +55,8 @@ val friendsModule = module {
     }
 
     factory<GetFriendsUseCase> { GetFriendsUseCaseImpl(repository = get()) }
+    factory<SendFriendRequestUseCase> { SendFriendRequestUseCaseImpl(repository = get()) }
+    factory<AcceptFriendRequestUseCase> { AcceptFriendRequestUseCaseImpl(repository = get()) }
+    factory<RejectFriendRequestUseCase> { RejectFriendRequestUseCaseImpl(repository = get()) }
+    factory<CancelFriendRequestUseCase> { CancelFriendRequestUseCaseImpl(repository = get()) }
 }

@@ -25,4 +25,20 @@ internal class FriendsRepositoryImpl(
             )
         }
     }
+
+    override suspend fun sendFriendRequest(friendId: String) {
+        api.sendFriendRequest(friendId)
+    }
+
+    override suspend fun acceptFriendRequest(requestId: String) {
+        api.acceptFriendRequest(requestId)
+    }
+
+    override suspend fun rejectFriendRequest(requestId: String) {
+        api.rejectFriendRequest(requestId)
+    }
+
+    override suspend fun cancelFriendRequest(requestId: String) {
+        api.cancelFriendRequest(requestId)
+    }
 }

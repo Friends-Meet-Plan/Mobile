@@ -3,7 +3,9 @@ package friends.mobile.feature.friends.data.remote
 import friends.mobile.feature.friends.data.remote.dto.GetFriendsResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
+import io.ktor.client.request.post
 
 /**
  * HTTP API wrapper for the friends feature.
@@ -23,4 +25,44 @@ internal class FriendsApi(
      */
     suspend fun getFriends(): GetFriendsResponseDto =
         client.get("/friends").body()
+
+    /**
+     * Send a friend request to a user.
+     *
+     * POST /friend-requests/{friendId}
+     * Response: empty 201
+     */
+    suspend fun sendFriendRequest(friendId: String) {
+        client.post("/friend-requests/$friendId")
+    }
+
+    /**
+     * Accept an incoming friend request.
+     *
+     * POST /friend-requests/{requestId}/accept
+     * Response: empty 200
+     */
+    suspend fun acceptFriendRequest(requestId: String) {
+        client.post("/friend-requests/$requestId/accept")
+    }
+
+    /**
+     * Reject an incoming friend request.
+     *
+     * POST /friend-requests/{requestId}/reject
+     * Response: empty 204
+     */
+    suspend fun rejectFriendRequest(requestId: String) {
+        client.post("/friend-requests/$requestId/reject")
+    }
+
+    /**
+     * Cancel an outgoing friend request.
+     *
+     * DELETE /friend-requests/{requestId}
+     * Response: empty 204
+     */
+    suspend fun cancelFriendRequest(requestId: String) {
+        client.delete("/friend-requests/$requestId")
+    }
 }

@@ -5,8 +5,15 @@ package friends.mobile.feature.friends.presentation
  *
  * Events:
  *   - ScreenOpened: triggered when the friends screen is first opened
- *   - OnFriendClick: user tapped on a friend in the list (navigate to friend profile)
+ *   - OnSendRequest: send a friend request to a user
+ *   - OnAcceptRequest: accept an incoming friend request
+ *   - OnRejectRequest: reject an incoming friend request
+ *   - OnCancelRequest: cancel an outgoing friend request
  */
 sealed class FriendsEvent {
     data object ScreenOpened : FriendsEvent()
+    data class OnSendRequest(val friendId: String) : FriendsEvent()
+    data class OnAcceptRequest(val requestId: String) : FriendsEvent()
+    data class OnRejectRequest(val requestId: String) : FriendsEvent()
+    data class OnCancelRequest(val requestId: String) : FriendsEvent()
 }
