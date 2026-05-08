@@ -1,10 +1,12 @@
 package friends.mobile.feature.friends.data.remote
 
+import friends.mobile.feature.auth.data.remote.dto.UserDto
 import friends.mobile.feature.friends.data.remote.dto.GetFriendsResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 
 /**
@@ -65,4 +67,15 @@ internal class FriendsApi(
     suspend fun cancelFriendRequest(requestId: String) {
         client.delete("/friend-requests/$requestId")
     }
+
+    /**
+     * Search for users by name/username.
+     *
+     * GET /users/search?query={query}
+     * Response: [ { "id", "username", "avatar_url", "bio" }, ... ]
+     */
+    suspend fun searchUsers(query: String): List<UserDto> =
+        client.get("/users/search") {
+            parameter("query", query)
+        }.body()
 }

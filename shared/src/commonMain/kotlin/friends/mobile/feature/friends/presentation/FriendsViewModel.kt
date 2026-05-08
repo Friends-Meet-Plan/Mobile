@@ -6,6 +6,7 @@ import friends.mobile.feature.friends.domain.usecase.AcceptFriendRequestUseCase
 import friends.mobile.feature.friends.domain.usecase.CancelFriendRequestUseCase
 import friends.mobile.feature.friends.domain.usecase.GetFriendsUseCase
 import friends.mobile.feature.friends.domain.usecase.RejectFriendRequestUseCase
+import friends.mobile.feature.friends.domain.usecase.SearchUserUseCase
 import friends.mobile.feature.friends.domain.usecase.SendFriendRequestUseCase
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -22,6 +23,7 @@ class FriendsViewModel :
     private val acceptFriendRequestUseCase: AcceptFriendRequestUseCase by inject()
     private val rejectFriendRequestUseCase: RejectFriendRequestUseCase by inject()
     private val cancelFriendRequestUseCase: CancelFriendRequestUseCase by inject()
+    private val searchUserUseCase: SearchUserUseCase by inject()
 
     override fun obtainEvent(event: FriendsEvent) {
         when (event) {
@@ -30,6 +32,7 @@ class FriendsViewModel :
             is FriendsEvent.OnAcceptRequest -> onAcceptRequest(event.requestId)
             is FriendsEvent.OnRejectRequest -> onRejectRequest(event.requestId)
             is FriendsEvent.OnCancelRequest -> onCancelRequest(event.requestId)
+            is FriendsEvent.OnSearchUsers -> onSearchUsers(event.query)
         }
     }
 
@@ -167,6 +170,40 @@ class FriendsViewModel :
                 viewState = currentState.copy(
                     isRequestPending = false,
                     requestError = "Failed to cancel friend request"
+                )
+            }
+        }
+    }
+
+    private fun onSearchUsers(query: String) {
+        val currentState = viewState as? FriendsViewState.Content ?: return
+
+        viewModelScope.launch {
+            viewState = currentState.copy(isSearching = true, requestError = null)
+
+            try {
+                val results = searchUserUseCase(query)
+                viewState = currentState.copy(
+                    searchResults = results,
+                    isSearching = false,
+                    requestError = null
+                )
+            } catch (_: NetworkException.NetworkError) {
+                viewState = currentState.copy(
+                    isSearching = false,
+                    requestError = "Network error, check your connection"
+                )
+            } catch (_: NetworkException.Unauthorized) {
+                viewState = FriendsViewState.Error("Unauthorized. Please login again.")
+            } catch (_: NetworkException.UnknownError) {
+                viewState = currentState.copy(
+                    isSearching = false,
+                    requestError = "Something went wrong"
+                )
+            } catch (_: NetworkException) {
+                viewState = currentState.copy(
+                    isSearching = false,
+                    requestError = "Failed to search users"
                 )
             }
         }

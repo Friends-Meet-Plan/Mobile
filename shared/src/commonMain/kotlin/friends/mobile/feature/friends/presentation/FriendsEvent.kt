@@ -9,6 +9,7 @@ package friends.mobile.feature.friends.presentation
  *   - OnAcceptRequest: accept an incoming friend request
  *   - OnRejectRequest: reject an incoming friend request
  *   - OnCancelRequest: cancel an outgoing friend request
+ *   - OnSearchUsers: search for users by name/username
  */
 sealed class FriendsEvent {
     data object ScreenOpened : FriendsEvent()
@@ -16,4 +17,5 @@ sealed class FriendsEvent {
     data class OnAcceptRequest(val requestId: String) : FriendsEvent()
     data class OnRejectRequest(val requestId: String) : FriendsEvent()
     data class OnCancelRequest(val requestId: String) : FriendsEvent()
+    data class OnSearchUsers(val query: String) : FriendsEvent()
 }

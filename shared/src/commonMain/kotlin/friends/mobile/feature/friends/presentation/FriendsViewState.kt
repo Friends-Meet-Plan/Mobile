@@ -12,8 +12,11 @@ import friends.mobile.feature.friends.domain.model.PaginationInfo
  *   - Content: successfully loaded friends list (may be empty)
  *
  * Properties:
+ *   - friends: list of friends from the backend
  *   - isRequestPending: true when a friend request operation is in progress
  *   - requestError: error message from a failed friend request operation
+ *   - searchResults: list of search results, null if no search performed, empty list if search yielded no results
+ *   - isSearching: true when a search operation is in progress
  */
 sealed class FriendsViewState {
     data object Loading : FriendsViewState()
@@ -22,5 +25,7 @@ sealed class FriendsViewState {
         val friends: List<UserDto> = emptyList(),
         val isRequestPending: Boolean = false,
         val requestError: String? = null,
+        val searchResults: List<UserDto>? = null,
+        val isSearching: Boolean = false,
     ) : FriendsViewState()
 }

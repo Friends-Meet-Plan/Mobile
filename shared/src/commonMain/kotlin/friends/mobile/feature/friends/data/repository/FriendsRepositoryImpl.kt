@@ -41,4 +41,7 @@ internal class FriendsRepositoryImpl(
     override suspend fun cancelFriendRequest(requestId: String) {
         api.cancelFriendRequest(requestId)
     }
+
+    override suspend fun searchUsers(query: String): List<UserDto> =
+        api.searchUsers(query)
 }

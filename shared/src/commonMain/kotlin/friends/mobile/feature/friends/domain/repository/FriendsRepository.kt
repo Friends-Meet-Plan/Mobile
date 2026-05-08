@@ -48,4 +48,13 @@ interface FriendsRepository {
      * @throws NetworkException on failure
      */
     suspend fun cancelFriendRequest(requestId: String)
+
+    /**
+     * Search for users by name/username.
+     *
+     * @param query The search query string
+     * @return List of matching users, empty if no matches found
+     * @throws NetworkException on failure
+     */
+    suspend fun searchUsers(query: String): List<UserDto>
 }

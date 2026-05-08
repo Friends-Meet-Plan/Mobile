@@ -6,12 +6,14 @@ import friends.mobile.feature.friends.data.usecase.AcceptFriendRequestUseCaseImp
 import friends.mobile.feature.friends.data.usecase.CancelFriendRequestUseCaseImpl
 import friends.mobile.feature.friends.data.usecase.GetFriendsUseCaseImpl
 import friends.mobile.feature.friends.data.usecase.RejectFriendRequestUseCaseImpl
+import friends.mobile.feature.friends.data.usecase.SearchUserUseCaseImpl
 import friends.mobile.feature.friends.data.usecase.SendFriendRequestUseCaseImpl
 import friends.mobile.feature.friends.domain.repository.FriendsRepository
 import friends.mobile.feature.friends.domain.usecase.AcceptFriendRequestUseCase
 import friends.mobile.feature.friends.domain.usecase.CancelFriendRequestUseCase
 import friends.mobile.feature.friends.domain.usecase.GetFriendsUseCase
 import friends.mobile.feature.friends.domain.usecase.RejectFriendRequestUseCase
+import friends.mobile.feature.friends.domain.usecase.SearchUserUseCase
 import friends.mobile.feature.friends.domain.usecase.SendFriendRequestUseCase
 import io.ktor.client.HttpClient
 import org.koin.core.qualifier.named
@@ -28,6 +30,7 @@ import org.koin.dsl.module
  *   - AcceptFriendRequestUseCase: accept friend request
  *   - RejectFriendRequestUseCase: reject friend request
  *   - CancelFriendRequestUseCase: cancel friend request
+ *   - SearchUserUseCase: search for users by name/username
  *
  * Prerequisites in your Koin graph before including this module:
  *   - single<HttpClient>(named("auth")) { ... }  (authenticated client from authModule)
@@ -59,4 +62,5 @@ val friendsModule = module {
     factory<AcceptFriendRequestUseCase> { AcceptFriendRequestUseCaseImpl(repository = get()) }
     factory<RejectFriendRequestUseCase> { RejectFriendRequestUseCaseImpl(repository = get()) }
     factory<CancelFriendRequestUseCase> { CancelFriendRequestUseCaseImpl(repository = get()) }
+    factory<SearchUserUseCase> { SearchUserUseCaseImpl(repository = get()) }
 }
