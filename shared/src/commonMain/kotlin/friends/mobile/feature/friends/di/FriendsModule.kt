@@ -70,5 +70,5 @@ val friendsModule = module {
     factory<AcceptFriendRequestUseCase> { AcceptFriendRequestUseCaseImpl(repository = get()) }
     factory<RejectFriendRequestUseCase> { RejectFriendRequestUseCaseImpl(repository = get()) }
     factory<CancelFriendRequestUseCase> { CancelFriendRequestUseCaseImpl(repository = get()) }
-    factory<SearchUserUseCase> { SearchUserUseCaseImpl(repository = get()) }
+    factory<SearchUserUseCase> { SearchUserUseCaseImpl(repository = get(), tokenStorage = get()) }
 }

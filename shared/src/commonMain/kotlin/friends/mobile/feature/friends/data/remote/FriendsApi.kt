@@ -88,11 +88,11 @@ internal class FriendsApi(
     /**
      * Search for users by name/username.
      *
-     * GET /users/search?query={query}
+     * GET /users/search?username={username}
      * Response: [ { "id", "username", "avatar_url", "bio" }, ... ]
      */
     suspend fun searchUsers(query: String): List<UserDto> =
         client.get("/users/search") {
-            parameter("query", query)
+            parameter("username", query)
         }.body()
 }
