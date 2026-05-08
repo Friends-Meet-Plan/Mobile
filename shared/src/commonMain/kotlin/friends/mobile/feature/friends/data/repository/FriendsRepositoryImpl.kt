@@ -26,6 +26,12 @@ internal class FriendsRepositoryImpl(
         }
     }
 
+    override suspend fun getIncomingRequests(page: Int): List<UserDto> =
+        api.getIncomingRequests(page)
+
+    override suspend fun getOutgoingRequests(page: Int): List<UserDto> =
+        api.getOutgoingRequests(page)
+
     override suspend fun sendFriendRequest(friendId: String) {
         api.sendFriendRequest(friendId)
     }

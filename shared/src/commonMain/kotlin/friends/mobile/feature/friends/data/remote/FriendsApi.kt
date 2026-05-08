@@ -29,6 +29,28 @@ internal class FriendsApi(
         client.get("/friends").body()
 
     /**
+     * Fetch incoming friend requests.
+     *
+     * GET /friend-requests/incoming?page={page}
+     * Response: [ { "id", "username", "avatar_url", "bio" }, ... ]
+     */
+    suspend fun getIncomingRequests(page: Int = 1): List<UserDto> =
+        client.get("/friend-requests/incoming") {
+            parameter("page", page)
+        }.body()
+
+    /**
+     * Fetch outgoing friend requests.
+     *
+     * GET /friend-requests/outgoing?page={page}
+     * Response: [ { "id", "username", "avatar_url", "bio" }, ... ]
+     */
+    suspend fun getOutgoingRequests(page: Int = 1): List<UserDto> =
+        client.get("/friend-requests/outgoing") {
+            parameter("page", page)
+        }.body()
+
+    /**
      * Send a friend request to a user.
      *
      * POST /friend-requests/{friendId}

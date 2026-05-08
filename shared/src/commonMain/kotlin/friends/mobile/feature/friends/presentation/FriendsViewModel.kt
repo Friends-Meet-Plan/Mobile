@@ -5,6 +5,8 @@ import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.friends.domain.usecase.AcceptFriendRequestUseCase
 import friends.mobile.feature.friends.domain.usecase.CancelFriendRequestUseCase
 import friends.mobile.feature.friends.domain.usecase.GetFriendsUseCase
+import friends.mobile.feature.friends.domain.usecase.GetIncomingFriendRequestsUseCase
+import friends.mobile.feature.friends.domain.usecase.GetOutgoingFriendRequestsUseCase
 import friends.mobile.feature.friends.domain.usecase.RejectFriendRequestUseCase
 import friends.mobile.feature.friends.domain.usecase.SearchUserUseCase
 import friends.mobile.feature.friends.domain.usecase.SendFriendRequestUseCase
@@ -19,6 +21,8 @@ class FriendsViewModel :
     KoinComponent {
 
     private val getFriendsUseCase: GetFriendsUseCase by inject()
+    private val getIncomingFriendRequestsUseCase: GetIncomingFriendRequestsUseCase by inject()
+    private val getOutgoingFriendRequestsUseCase: GetOutgoingFriendRequestsUseCase by inject()
     private val sendFriendRequestUseCase: SendFriendRequestUseCase by inject()
     private val acceptFriendRequestUseCase: AcceptFriendRequestUseCase by inject()
     private val rejectFriendRequestUseCase: RejectFriendRequestUseCase by inject()
@@ -33,6 +37,7 @@ class FriendsViewModel :
             is FriendsEvent.OnRejectRequest -> onRejectRequest(event.requestId)
             is FriendsEvent.OnCancelRequest -> onCancelRequest(event.requestId)
             is FriendsEvent.OnSearchUsers -> onSearchUsers(event.query)
+            is FriendsEvent.OnTabSelected -> onTabSelected(event.tab)
         }
     }
 
@@ -42,7 +47,7 @@ class FriendsViewModel :
 
             try {
                 val friends = getFriendsUseCase()
-                viewState = FriendsViewState.Content(friends = friends)
+                viewState = FriendsViewState.Content(friendsList = friends)
             } catch (_: NetworkException.NetworkError) {
                 viewState = FriendsViewState.Error("Network error, check your connection")
             } catch (_: NetworkException.Unauthorized) {
@@ -51,6 +56,44 @@ class FriendsViewModel :
                 viewState = FriendsViewState.Error("Something went wrong")
             } catch (_: NetworkException) {
                 viewState = FriendsViewState.Error("Failed to load friends")
+            }
+        }
+    }
+
+    private fun onTabSelected(tab: RequestTab) {
+        val currentState = viewState as? FriendsViewState.Content ?: return
+
+        if (currentState.currentTab == tab) return
+
+        viewModelScope.launch {
+            viewState = currentState.copy(currentTab = tab)
+
+            try {
+                val data = when (tab) {
+                    RequestTab.FRIENDS -> {
+                        getFriendsUseCase()
+                    }
+                    RequestTab.INCOMING -> {
+                        getIncomingFriendRequestsUseCase()
+                    }
+                    RequestTab.OUTGOING -> {
+                        getOutgoingFriendRequestsUseCase()
+                    }
+                }
+
+                viewState = when (tab) {
+                    RequestTab.FRIENDS -> currentState.copy(currentTab = tab, friendsList = data)
+                    RequestTab.INCOMING -> currentState.copy(currentTab = tab, incomingRequests = data)
+                    RequestTab.OUTGOING -> currentState.copy(currentTab = tab, outgoingRequests = data)
+                }
+            } catch (_: NetworkException.NetworkError) {
+                viewState = currentState.copy(requestError = "Network error, check your connection")
+            } catch (_: NetworkException.Unauthorized) {
+                viewState = FriendsViewState.Error("Unauthorized. Please login again.")
+            } catch (_: NetworkException.UnknownError) {
+                viewState = currentState.copy(requestError = "Something went wrong")
+            } catch (_: NetworkException) {
+                viewState = currentState.copy(requestError = "Failed to load tab data")
             }
         }
     }

@@ -19,6 +19,8 @@ struct RootView: View {
                     switch route {
                     case let .main(user):
                         MainView(user: user)
+                    case .friends:
+                        FriendsView()
                     default:
                         EmptyView()
                     }
