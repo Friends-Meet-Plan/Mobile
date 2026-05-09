@@ -19,7 +19,6 @@ import friends.mobile.feature.friends.domain.usecase.GetOutgoingFriendRequestsUs
 import friends.mobile.feature.friends.domain.usecase.RejectFriendRequestUseCase
 import friends.mobile.feature.friends.domain.usecase.SearchUserUseCase
 import friends.mobile.feature.friends.domain.usecase.SendFriendRequestUseCase
-import io.ktor.client.HttpClient
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 

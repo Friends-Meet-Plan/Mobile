@@ -8,6 +8,4 @@ package friends.mobile.feature.friends.presentation
  * Actions:
  *   - NavigateToProfile: navigate to a friend's profile screen
  */
-sealed class FriendsAction {
-
-}
+sealed class FriendsAction {}

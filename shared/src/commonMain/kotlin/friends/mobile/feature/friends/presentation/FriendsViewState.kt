@@ -1,7 +1,6 @@
 package friends.mobile.feature.friends.presentation
 
 import friends.mobile.feature.auth.data.remote.dto.UserDto
-import friends.mobile.feature.friends.domain.model.PaginationInfo
 
 /**
  * Enum representing the active tab in the friends screen.
