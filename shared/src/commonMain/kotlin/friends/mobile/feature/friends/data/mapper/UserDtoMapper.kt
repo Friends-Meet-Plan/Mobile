@@ -3,13 +3,15 @@ package friends.mobile.feature.friends.data.mapper
 import friends.mobile.feature.auth.data.remote.dto.UserDto
 import friends.mobile.feature.friends.domain.model.User
 
-internal fun UserDto.toDomain(): User =
-    User(
-        id = id,
-        username = username,
-        bio = bio,
-        avatarUrl = avatarUrl,
-    )
+internal class UserDtoMapper {
+    fun toDomain(dto: UserDto): User =
+        User(
+            id = dto.id,
+            username = dto.username,
+            bio = dto.bio,
+            avatarUrl = dto.avatarUrl,
+        )
 
-internal fun List<UserDto>.toDomain(): List<User> =
-    map { it.toDomain() }
+    fun toDomain(dtos: List<UserDto>): List<User> =
+        dtos.map { toDomain(it) }
+}
