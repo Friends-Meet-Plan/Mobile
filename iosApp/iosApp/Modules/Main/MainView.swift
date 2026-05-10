@@ -9,21 +9,14 @@ import SwiftUI
 import Shared
 
 struct MainView: View {
-    @Environment(Router.self) var router
-    
     var user: AuthUser
     
     var body: some View {
-        Text("Main view")
-            .navigationTitle("Hello")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        router.push(screen: .friends)
-                    } label: {
-                        Image(systemName: "person.badge.plus")
-                    }
-                }
-            }
+        VStack {
+            Text("Welcome, \(user.username)!")
+                .font(.title2)
+                .fontWeight(.semibold)
+        }
+        .navigationTitle("Home")
     }
 }
