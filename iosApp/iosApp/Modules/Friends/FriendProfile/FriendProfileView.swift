@@ -76,7 +76,6 @@ struct FriendProfileView: View {
                 Text("Add Friend")
                     .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.glass)
             .tint(.blue)
             .disabled(isLoading)
         case .requesting:
@@ -84,7 +83,6 @@ struct FriendProfileView: View {
                 Text("Request Sent")
                     .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.glass)
             .tint(.gray)
             .disabled(true)
         case .incoming:
@@ -93,7 +91,6 @@ struct FriendProfileView: View {
                     Text("Accept")
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.glass)
                 .tint(.green)
                 .disabled(isLoading)
                 
@@ -101,7 +98,6 @@ struct FriendProfileView: View {
                     Text("Decline")
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.glass)
                 .tint(.red)
                 .disabled(isLoading)
             }
@@ -110,7 +106,6 @@ struct FriendProfileView: View {
                 Text("Remove Friend")
                     .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.glass)
             .tint(.red)
             .disabled(isLoading)
         default:
