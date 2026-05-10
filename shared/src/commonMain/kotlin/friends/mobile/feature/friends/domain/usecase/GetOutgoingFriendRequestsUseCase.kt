@@ -1,14 +1,8 @@
 package friends.mobile.feature.friends.domain.usecase
 
+import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.feature.friends.domain.model.User
 
-/**
- * Public interface for the get outgoing friend requests use case.
- */
 interface GetOutgoingFriendRequestsUseCase {
-
-    /**
-     * Fetch outgoing friend requests.
-     */
-    suspend operator fun invoke(): List<User>
+    suspend operator fun invoke(): ResultWrapper<List<User>>
 }

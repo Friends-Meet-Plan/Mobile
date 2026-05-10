@@ -1,6 +1,8 @@
 package friends.mobile.feature.friends.presentation
 
-import friends.mobile.core.network.NetworkException
+import friends.mobile.core.domain.model.ResultWrapper
+import friends.mobile.core.domain.model.getErrorMessage
+import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.friends.domain.usecase.AcceptFriendRequestUseCase
 import friends.mobile.feature.friends.domain.usecase.CancelFriendRequestUseCase
@@ -44,64 +46,54 @@ class FriendsViewModel :
     private fun onScreenOpen() {
         viewModelScope.launch {
             viewState = FriendsViewState.Loading
-
-            try {
-                val friends = getFriendsUseCase()
-                viewState = FriendsViewState.Content(friendsList = friends)
-            } catch (_: NetworkException.NetworkError) {
-                viewState = FriendsViewState.Error("Network error, check your connection")
-            } catch (_: NetworkException.Unauthorized) {
-                viewState = FriendsViewState.Error("Unauthorized. Please login again.")
-            } catch (_: NetworkException.UnknownError) {
-                viewState = FriendsViewState.Error("Something went wrong")
-            } catch (_: NetworkException) {
-                viewState = FriendsViewState.Error("Failed to load friends")
+            when (val result = getFriendsUseCase()) {
+                is ResultWrapper.Success -> {
+                    viewState = FriendsViewState.Content(friendsList = result.data)
+                }
+                is ResultWrapper.Error -> {
+                    val userError = mapApiErrorToUserFriendly(result.error)
+                    viewState = FriendsViewState.Error(getErrorMessage(userError))
+                }
             }
         }
     }
 
     private fun onTabSelected(tab: RequestTab) {
         val currentState = viewState as? FriendsViewState.Content ?: return
-
         if (currentState.currentTab == tab) return
 
         viewModelScope.launch {
             viewState = currentState.copy(currentTab = tab)
+            val result = when (tab) {
+                RequestTab.FRIENDS -> getFriendsUseCase()
+                RequestTab.INCOMING -> getIncomingFriendRequestsUseCase()
+                RequestTab.OUTGOING -> getOutgoingFriendRequestsUseCase()
+            }
 
-            try {
-                val data = when (tab) {
-                    RequestTab.FRIENDS -> {
-                        getFriendsUseCase()
-                    }
-                    RequestTab.INCOMING -> {
-                        getIncomingFriendRequestsUseCase()
-                    }
-                    RequestTab.OUTGOING -> {
-                        getOutgoingFriendRequestsUseCase()
+            when (result) {
+                is ResultWrapper.Success -> {
+                    viewState = when (tab) {
+                        RequestTab.FRIENDS -> currentState.copy(
+                            currentTab = tab,
+                            friendsList = result.data,
+                            searchResults = null
+                        )
+                        RequestTab.INCOMING -> currentState.copy(
+                            currentTab = tab,
+                            incomingRequests = result.data,
+                            searchResults = null
+                        )
+                        RequestTab.OUTGOING -> currentState.copy(
+                            currentTab = tab,
+                            outgoingRequests = result.data,
+                            searchResults = null
+                        )
                     }
                 }
-
-                viewState = when (tab) {
-                    RequestTab.FRIENDS -> currentState.copy(currentTab = tab, friendsList = data, searchResults = null)
-                    RequestTab.INCOMING -> currentState.copy(
-                        currentTab = tab,
-                        incomingRequests = data,
-                        searchResults = null
-                    )
-                    RequestTab.OUTGOING -> currentState.copy(
-                        currentTab = tab,
-                        outgoingRequests = data,
-                        searchResults = null
-                    )
+                is ResultWrapper.Error -> {
+                    val userError = mapApiErrorToUserFriendly(result.error)
+                    viewState = currentState.copy(requestError = getErrorMessage(userError))
                 }
-            } catch (_: NetworkException.NetworkError) {
-                viewState = currentState.copy(requestError = "Network error, check your connection")
-            } catch (_: NetworkException.Unauthorized) {
-                viewState = FriendsViewState.Error("Unauthorized. Please login again.")
-            } catch (_: NetworkException.UnknownError) {
-                viewState = currentState.copy(requestError = "Something went wrong")
-            } catch (_: NetworkException) {
-                viewState = currentState.copy(requestError = "Failed to load tab data")
             }
         }
     }
@@ -111,27 +103,14 @@ class FriendsViewModel :
 
         viewModelScope.launch {
             viewState = currentState.copy(isRequestPending = true, requestError = null)
-
-            try {
-                sendFriendRequestUseCase(friendId)
-                viewState = currentState.copy(isRequestPending = false, requestError = null)
-            } catch (_: NetworkException.NetworkError) {
-                viewState = currentState.copy(
-                    isRequestPending = false,
-                    requestError = "Network error, check your connection"
-                )
-            } catch (_: NetworkException.Unauthorized) {
-                viewState = FriendsViewState.Error("Unauthorized. Please login again.")
-            } catch (_: NetworkException.UnknownError) {
-                viewState = currentState.copy(
-                    isRequestPending = false,
-                    requestError = "Something went wrong"
-                )
-            } catch (_: NetworkException) {
-                viewState = currentState.copy(
-                    isRequestPending = false,
-                    requestError = "Failed to send friend request"
-                )
+            when (val result = sendFriendRequestUseCase(friendId)) {
+                is ResultWrapper.Success -> {
+                    viewState = currentState.copy(isRequestPending = false, requestError = null)
+                }
+                is ResultWrapper.Error -> {
+                    val userError = mapApiErrorToUserFriendly(result.error)
+                    viewState = currentState.copy(isRequestPending = false, requestError = getErrorMessage(userError))
+                }
             }
         }
     }
@@ -141,27 +120,14 @@ class FriendsViewModel :
 
         viewModelScope.launch {
             viewState = currentState.copy(isRequestPending = true, requestError = null)
-
-            try {
-                acceptFriendRequestUseCase(requestId)
-                viewState = currentState.copy(isRequestPending = false, requestError = null)
-            } catch (_: NetworkException.NetworkError) {
-                viewState = currentState.copy(
-                    isRequestPending = false,
-                    requestError = "Network error, check your connection"
-                )
-            } catch (_: NetworkException.Unauthorized) {
-                viewState = FriendsViewState.Error("Unauthorized. Please login again.")
-            } catch (_: NetworkException.UnknownError) {
-                viewState = currentState.copy(
-                    isRequestPending = false,
-                    requestError = "Something went wrong"
-                )
-            } catch (_: NetworkException) {
-                viewState = currentState.copy(
-                    isRequestPending = false,
-                    requestError = "Failed to accept friend request"
-                )
+            when (val result = acceptFriendRequestUseCase(requestId)) {
+                is ResultWrapper.Success -> {
+                    viewState = currentState.copy(isRequestPending = false, requestError = null)
+                }
+                is ResultWrapper.Error -> {
+                    val userError = mapApiErrorToUserFriendly(result.error)
+                    viewState = currentState.copy(isRequestPending = false, requestError = getErrorMessage(userError))
+                }
             }
         }
     }
@@ -171,27 +137,14 @@ class FriendsViewModel :
 
         viewModelScope.launch {
             viewState = currentState.copy(isRequestPending = true, requestError = null)
-
-            try {
-                rejectFriendRequestUseCase(requestId)
-                viewState = currentState.copy(isRequestPending = false, requestError = null)
-            } catch (_: NetworkException.NetworkError) {
-                viewState = currentState.copy(
-                    isRequestPending = false,
-                    requestError = "Network error, check your connection"
-                )
-            } catch (_: NetworkException.Unauthorized) {
-                viewState = FriendsViewState.Error("Unauthorized. Please login again.")
-            } catch (_: NetworkException.UnknownError) {
-                viewState = currentState.copy(
-                    isRequestPending = false,
-                    requestError = "Something went wrong"
-                )
-            } catch (_: NetworkException) {
-                viewState = currentState.copy(
-                    isRequestPending = false,
-                    requestError = "Failed to reject friend request"
-                )
+            when (val result = rejectFriendRequestUseCase(requestId)) {
+                is ResultWrapper.Success -> {
+                    viewState = currentState.copy(isRequestPending = false, requestError = null)
+                }
+                is ResultWrapper.Error -> {
+                    val userError = mapApiErrorToUserFriendly(result.error)
+                    viewState = currentState.copy(isRequestPending = false, requestError = getErrorMessage(userError))
+                }
             }
         }
     }
@@ -201,27 +154,14 @@ class FriendsViewModel :
 
         viewModelScope.launch {
             viewState = currentState.copy(isRequestPending = true, requestError = null)
-
-            try {
-                cancelFriendRequestUseCase(requestId)
-                viewState = currentState.copy(isRequestPending = false, requestError = null)
-            } catch (_: NetworkException.NetworkError) {
-                viewState = currentState.copy(
-                    isRequestPending = false,
-                    requestError = "Network error, check your connection"
-                )
-            } catch (_: NetworkException.Unauthorized) {
-                viewState = FriendsViewState.Error("Unauthorized. Please login again.")
-            } catch (_: NetworkException.UnknownError) {
-                viewState = currentState.copy(
-                    isRequestPending = false,
-                    requestError = "Something went wrong"
-                )
-            } catch (_: NetworkException) {
-                viewState = currentState.copy(
-                    isRequestPending = false,
-                    requestError = "Failed to cancel friend request"
-                )
+            when (val result = cancelFriendRequestUseCase(requestId)) {
+                is ResultWrapper.Success -> {
+                    viewState = currentState.copy(isRequestPending = false, requestError = null)
+                }
+                is ResultWrapper.Error -> {
+                    val userError = mapApiErrorToUserFriendly(result.error)
+                    viewState = currentState.copy(isRequestPending = false, requestError = getErrorMessage(userError))
+                }
             }
         }
     }
@@ -231,31 +171,18 @@ class FriendsViewModel :
 
         viewModelScope.launch {
             viewState = currentState.copy(isSearching = true, requestError = null)
-
-            try {
-                val results = searchUserUseCase(query)
-                viewState = currentState.copy(
-                    searchResults = results,
-                    isSearching = false,
-                    requestError = null
-                )
-            } catch (_: NetworkException.NetworkError) {
-                viewState = currentState.copy(
-                    isSearching = false,
-                    requestError = "Network error, check your connection"
-                )
-            } catch (_: NetworkException.Unauthorized) {
-                viewState = FriendsViewState.Error("Unauthorized. Please login again.")
-            } catch (_: NetworkException.UnknownError) {
-                viewState = currentState.copy(
-                    isSearching = false,
-                    requestError = "Something went wrong"
-                )
-            } catch (_: NetworkException) {
-                viewState = currentState.copy(
-                    isSearching = false,
-                    requestError = "Failed to search users"
-                )
+            when (val result = searchUserUseCase(query)) {
+                is ResultWrapper.Success -> {
+                    viewState = currentState.copy(
+                        searchResults = result.data,
+                        isSearching = false,
+                        requestError = null
+                    )
+                }
+                is ResultWrapper.Error -> {
+                    val userError = mapApiErrorToUserFriendly(result.error)
+                    viewState = currentState.copy(isSearching = false, requestError = getErrorMessage(userError))
+                }
             }
         }
     }

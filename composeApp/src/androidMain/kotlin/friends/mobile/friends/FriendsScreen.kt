@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,8 +36,6 @@ fun FriendsScreen(onUserSelected: (User) -> Unit = {}) {
 
     var searchText by rememberSaveable { mutableStateOf("") }
     var selectedTab by rememberSaveable { mutableStateOf(RequestTab.FRIENDS) }
-
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(viewModel) {
         viewModel.viewActions.collectLatest { action ->
@@ -98,12 +95,7 @@ fun FriendsScreen(onUserSelected: (User) -> Unit = {}) {
             } else {
                 contentState?.let { content ->
                     ContentListView(
-                        friendsList = content.friendsList,
-                        incomingRequests = content.incomingRequests,
-                        outgoingRequests = content.outgoingRequests,
-                        searchResults = content.searchResults,
-                        isSearching = content.isSearching,
-                        currentTab = content.currentTab,
+                        content = content,
                         searchText = searchText,
                         onUserSelected = onUserSelected,
                     )
@@ -128,33 +120,30 @@ fun FriendsScreen(onUserSelected: (User) -> Unit = {}) {
 
 @Composable
 private fun ContentListView(
-    friendsList: List<User>,
-    incomingRequests: List<User>,
-    outgoingRequests: List<User>,
-    searchResults: List<User>?,
-    isSearching: Boolean,
-    currentTab: RequestTab,
+    content: FriendsViewState.Content,
     searchText: String,
     onUserSelected: (User) -> Unit,
 ) {
-    val listToDisplay = if (searchResults != null) {
+    val searchResults = content.searchResults
+
+    val listToDisplay: List<User> = if (searchResults != null) {
         searchResults
     } else {
-        when (currentTab) {
-            RequestTab.FRIENDS -> friendsList
-            RequestTab.INCOMING -> incomingRequests
-            RequestTab.OUTGOING -> outgoingRequests
+        when (content.currentTab) {
+            RequestTab.FRIENDS -> content.friendsList
+            RequestTab.INCOMING -> content.incomingRequests
+            RequestTab.OUTGOING -> content.outgoingRequests
         }
     }
 
     val isEmpty = listToDisplay.isEmpty()
 
-    if (isSearching && searchText.isNotEmpty()) {
+    if (content.isSearching && searchText.isNotEmpty()) {
         SearchingStateView()
     } else if (isEmpty) {
         EmptyStateView(
-            currentTab = currentTab,
-            isSearchEmpty = searchResults != null && searchResults.isEmpty(),
+            currentTab = content.currentTab,
+            isSearchEmpty = searchResults?.isEmpty() == true,
             searchText = searchText,
         )
     } else {

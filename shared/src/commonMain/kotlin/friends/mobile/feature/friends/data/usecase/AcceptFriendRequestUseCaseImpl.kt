@@ -1,5 +1,6 @@
 package friends.mobile.feature.friends.data.usecase
 
+import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.feature.friends.domain.repository.FriendsRepository
 import friends.mobile.feature.friends.domain.usecase.AcceptFriendRequestUseCase
 
@@ -9,10 +10,9 @@ import friends.mobile.feature.friends.domain.usecase.AcceptFriendRequestUseCase
  * Delegates to the repository.
  */
 internal class AcceptFriendRequestUseCaseImpl(
-    private val repository: FriendsRepository,
+    private val repository: FriendsRepository
 ) : AcceptFriendRequestUseCase {
-
-    override suspend fun invoke(requestId: String) {
-        repository.acceptFriendRequest(requestId)
+    override suspend fun invoke(requestId: String): ResultWrapper<Unit> {
+        return repository.acceptFriendRequest(requestId)
     }
 }

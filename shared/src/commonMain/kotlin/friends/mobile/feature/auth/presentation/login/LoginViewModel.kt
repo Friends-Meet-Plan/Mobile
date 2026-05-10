@@ -1,6 +1,8 @@
 package friends.mobile.feature.auth.presentation.login
 
-import friends.mobile.core.network.NetworkException
+import friends.mobile.core.domain.model.ResultWrapper
+import friends.mobile.core.domain.model.getErrorMessage
+import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.auth.domain.usecase.LoginUseCase
 import kotlinx.coroutines.launch
@@ -37,20 +39,15 @@ class LoginViewModel :
         viewModelScope.launch {
             viewState = LoginViewState.Loading
 
-            try {
-                val session = loginUseCase(username, password)
-                viewState = LoginViewState.Content()
-                viewAction = LoginAction.LoginSucceeded(session)
-            } catch (_: NetworkException.InvalidCredentials) {
-                viewState = LoginViewState.Error("Wrong username or password")
-            } catch (_: NetworkException.NetworkError) {
-                viewState = LoginViewState.Error("Network error, check your connection")
-            } catch (_: NetworkException.Unauthorized) {
-                viewState = LoginViewState.Error("Unauthorized")
-            } catch (_: NetworkException.UnknownError) {
-                viewState = LoginViewState.Error("Something went wrong")
-            } catch (_: NetworkException) {
-                viewState = LoginViewState.Error("Something went wrong")
+            when (val result = loginUseCase(username, password)) {
+                is ResultWrapper.Success -> {
+                    viewState = LoginViewState.Content()
+                    viewAction = LoginAction.LoginSucceeded(result.data)
+                }
+                is ResultWrapper.Error -> {
+                    val userError = mapApiErrorToUserFriendly(result.error)
+                    viewState = LoginViewState.Error(getErrorMessage(userError))
+                }
             }
         }
     }
