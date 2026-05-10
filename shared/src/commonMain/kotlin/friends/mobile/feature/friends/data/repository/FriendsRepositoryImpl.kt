@@ -1,27 +1,28 @@
 package friends.mobile.feature.friends.data.repository
 
-import friends.mobile.feature.auth.data.remote.dto.UserDto
+import friends.mobile.feature.friends.data.mapper.toDomain
 import friends.mobile.feature.friends.data.remote.FriendsApi
+import friends.mobile.feature.friends.domain.model.User
 import friends.mobile.feature.friends.domain.repository.FriendsRepository
 
 /**
  * Implementation of FriendsRepository.
  *
- * Handles API calls and delegates to the API layer.
+ * Handles API calls, maps DTOs to domain models.
  * Future: add caching layer if needed.
  */
 internal class FriendsRepositoryImpl(
     private val api: FriendsApi,
 ) : FriendsRepository {
 
-    override suspend fun getFriends(): List<UserDto> =
-        api.getFriends()
+    override suspend fun getFriends(): List<User> =
+        api.getFriends().toDomain()
 
-    override suspend fun getIncomingRequests(): List<UserDto> =
-        api.getIncomingRequests()
+    override suspend fun getIncomingRequests(): List<User> =
+        api.getIncomingRequests().toDomain()
 
-    override suspend fun getOutgoingRequests(): List<UserDto> =
-        api.getOutgoingRequests()
+    override suspend fun getOutgoingRequests(): List<User> =
+        api.getOutgoingRequests().toDomain()
 
     override suspend fun sendFriendRequest(friendId: String) {
         api.sendFriendRequest(friendId)
@@ -39,6 +40,6 @@ internal class FriendsRepositoryImpl(
         api.cancelFriendRequest(requestId)
     }
 
-    override suspend fun searchUsers(query: String): List<UserDto> =
-        api.searchUsers(query)
+    override suspend fun searchUsers(query: String): List<User> =
+        api.searchUsers(query).toDomain()
 }

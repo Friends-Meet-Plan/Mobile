@@ -1,6 +1,6 @@
 package friends.mobile.feature.friends.presentation
 
-import friends.mobile.feature.auth.data.remote.dto.UserDto
+import friends.mobile.feature.friends.domain.model.User
 
 /**
  * Enum representing the active tab in the friends screen.
@@ -38,12 +38,12 @@ sealed class FriendsViewState {
     data class Error(val message: String) : FriendsViewState()
     data class Content(
         val currentTab: RequestTab = RequestTab.FRIENDS,
-        val friendsList: List<UserDto> = emptyList(),
-        val incomingRequests: List<UserDto> = emptyList(),
-        val outgoingRequests: List<UserDto> = emptyList(),
+        val friendsList: List<User> = emptyList(),
+        val incomingRequests: List<User> = emptyList(),
+        val outgoingRequests: List<User> = emptyList(),
         val isRequestPending: Boolean = false,
         val requestError: String? = null,
-        val searchResults: List<UserDto>? = null,
+        val searchResults: List<User>? = null,
         val isSearching: Boolean = false,
     ) : FriendsViewState()
 }

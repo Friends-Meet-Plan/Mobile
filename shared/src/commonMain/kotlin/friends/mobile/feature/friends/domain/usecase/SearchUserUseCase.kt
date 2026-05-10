@@ -1,6 +1,6 @@
 package friends.mobile.feature.friends.domain.usecase
 
-import friends.mobile.feature.auth.data.remote.dto.UserDto
+import friends.mobile.feature.friends.domain.model.User
 
 /**
  * Public interface for the search users use case.
@@ -13,5 +13,5 @@ interface SearchUserUseCase {
      * @param query The search query string
      * @return List of matching users, empty if no matches found
      */
-    suspend operator fun invoke(query: String): List<UserDto>
+    suspend operator fun invoke(query: String): List<User>
 }

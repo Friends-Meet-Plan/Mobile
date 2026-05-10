@@ -93,7 +93,7 @@ struct FriendsView: View {
         }
     }
     
-    private func displayedList() -> [Shared.UserDto] {
+    private func displayedList() -> [Shared.User] {
         if let searchResults = reducer.searchResults {
             return searchResults
         }
@@ -167,7 +167,7 @@ struct FriendsView: View {
 }
 
 private struct UserRowView: View {
-    let user: Shared.UserDto
+    let user: Shared.User
     
     var body: some View {
         HStack(spacing: 14) {

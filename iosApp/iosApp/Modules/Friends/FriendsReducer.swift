@@ -12,11 +12,11 @@ import SwiftUI
 final class FriendsReducer {
     var currentTab: Shared.RequestTab = .friends
     var searchText = ""
-    
-    var friendsList: [Shared.UserDto] = []
-    var incomingRequests: [Shared.UserDto] = []
-    var outgoingRequests: [Shared.UserDto] = []
-    var searchResults: [Shared.UserDto]?
+
+    var friendsList: [Shared.User] = []
+    var incomingRequests: [Shared.User] = []
+    var outgoingRequests: [Shared.User] = []
+    var searchResults: [Shared.User]?
     
     var isLoading = false
     var isSearching = false

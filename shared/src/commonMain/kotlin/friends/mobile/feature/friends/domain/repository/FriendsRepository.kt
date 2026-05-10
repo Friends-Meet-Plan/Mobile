@@ -1,6 +1,6 @@
 package friends.mobile.feature.friends.domain.repository
 
-import friends.mobile.feature.auth.data.remote.dto.UserDto
+import friends.mobile.feature.friends.domain.model.User
 
 /**
  * Public interface for the friends repository.
@@ -15,7 +15,7 @@ interface FriendsRepository {
      * May cache results if appropriate.
      * Throws exceptions: NetworkException.NetworkError, NetworkException.Unauthorized, etc.
      */
-    suspend fun getFriends(): List<UserDto>
+    suspend fun getFriends(): List<User>
 
     /**
      * Fetch incoming friend requests.
@@ -23,7 +23,7 @@ interface FriendsRepository {
      * @return List of users who have sent friend requests to the current user
      * @throws NetworkException on failure
      */
-    suspend fun getIncomingRequests(): List<UserDto>
+    suspend fun getIncomingRequests(): List<User>
 
     /**
      * Fetch outgoing friend requests.
@@ -31,7 +31,7 @@ interface FriendsRepository {
      * @return List of users to whom the current user has sent friend requests
      * @throws NetworkException on failure
      */
-    suspend fun getOutgoingRequests(): List<UserDto>
+    suspend fun getOutgoingRequests(): List<User>
 
     /**
      * Send a friend request to a user.
@@ -72,5 +72,5 @@ interface FriendsRepository {
      * @return List of matching users, empty if no matches found
      * @throws NetworkException on failure
      */
-    suspend fun searchUsers(query: String): List<UserDto>
+    suspend fun searchUsers(query: String): List<User>
 }

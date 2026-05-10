@@ -1,7 +1,7 @@
 package friends.mobile.feature.friends.data.usecase
 
-import friends.mobile.feature.auth.data.remote.dto.UserDto
 import friends.mobile.feature.auth.data.storage.TokenStorage
+import friends.mobile.feature.friends.domain.model.User
 import friends.mobile.feature.friends.domain.repository.FriendsRepository
 import friends.mobile.feature.friends.domain.usecase.SearchUserUseCase
 
@@ -16,7 +16,7 @@ internal class SearchUserUseCaseImpl(
     private val tokenStorage: TokenStorage,
 ) : SearchUserUseCase {
 
-    override suspend fun invoke(query: String): List<UserDto> {
+    override suspend fun invoke(query: String): List<User> {
         val results = repository.searchUsers(query)
 
         // Get current user ID from session
