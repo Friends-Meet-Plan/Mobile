@@ -26,7 +26,7 @@ struct RootView: View {
     
     @ViewBuilder
     private func currentView() -> some View {
-        if let session {
+        if session != nil {
             TabBarView(onLogout: {
                 self.session = nil
                 router.root()
@@ -37,8 +37,4 @@ struct RootView: View {
             }
         }
     }
-}
-
-#Preview {
-    RootView()
 }

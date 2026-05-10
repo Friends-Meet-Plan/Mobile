@@ -1,12 +1,14 @@
 package friends.mobile.feature.friends.data.remote
 
 import friends.mobile.feature.auth.data.remote.dto.UserDto
+import friends.mobile.feature.friends.data.remote.dto.FriendIdBody
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 
 /**
  * HTTP API wrapper for the friends feature.
@@ -48,31 +50,34 @@ internal class FriendsApi(
     /**
      * Send a friend request to a user.
      *
-     * POST /friend-requests/{friendId}
+     * POST /friends/request
+     * Request body: { "friend_id": "uuid" }
      * Response: empty 201
      */
     suspend fun sendFriendRequest(friendId: String) {
-        client.post("/friend-requests/$friendId")
+        client.post("/friends/request") {
+            setBody(FriendIdBody(friendId = friendId))
+        }
     }
 
     /**
      * Accept an incoming friend request.
      *
-     * POST /friend-requests/{requestId}/accept
-     * Response: empty 200
+     * POST /friends/{userId}/accept
+     * Response: empty 204
      */
-    suspend fun acceptFriendRequest(requestId: String) {
-        client.post("/friend-requests/$requestId/accept")
+    suspend fun acceptFriendRequest(userId: String) {
+        client.post("/friends/$userId/accept")
     }
 
     /**
      * Reject an incoming friend request.
      *
-     * POST /friend-requests/{requestId}/reject
+     * POST /friends/{userId}/reject
      * Response: empty 204
      */
-    suspend fun rejectFriendRequest(requestId: String) {
-        client.post("/friend-requests/$requestId/reject")
+    suspend fun rejectFriendRequest(userId: String) {
+        client.post("/friends/$userId/reject")
     }
 
     /**
@@ -95,4 +100,23 @@ internal class FriendsApi(
         client.get("/users/search") {
             parameter("username", query)
         }.body()
+
+    /**
+     * Remove a user from friends.
+     *
+     * DELETE /friends/{userId}/remove
+     * Response: empty 204
+     */
+    suspend fun removeFriend(userId: String) {
+        client.delete("/friends/$userId/remove")
+    }
+
+    /**
+     * Get a user by ID.
+     *
+     * GET /users/{userId}
+     * Response: { "id", "username", "avatar_url", "bio" }
+     */
+    suspend fun getUserById(userId: String): UserDto =
+        client.get("/users/$userId").body()
 }

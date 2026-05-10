@@ -4,8 +4,10 @@ import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.network.safeApiCall
 import friends.mobile.feature.friends.data.mapper.UserDtoMapper
 import friends.mobile.feature.friends.data.remote.FriendsApi
+import friends.mobile.feature.friends.domain.model.FriendStatus
 import friends.mobile.feature.friends.domain.model.User
 import friends.mobile.feature.friends.domain.repository.FriendsRepository
+import friends.mobile.feature.friends.presentation.FriendshipStatus
 
 internal class FriendsRepositoryImpl(
     private val api: FriendsApi,
@@ -24,6 +26,23 @@ internal class FriendsRepositoryImpl(
         userDtoMapper.toDomain(api.getOutgoingRequests())
     }
 
+    override suspend fun getFriendStatus(userId: String): FriendStatus {
+        val user = userDtoMapper.toDomain(api.getUserById(userId))
+
+        val friends = userDtoMapper.toDomain(api.getFriends())
+        val incoming = userDtoMapper.toDomain(api.getIncomingRequests())
+        val outgoing = userDtoMapper.toDomain(api.getOutgoingRequests())
+
+        val status = when {
+            friends.any { it.id == userId } -> FriendshipStatus.FRIENDS
+            incoming.any { it.id == userId } -> FriendshipStatus.INCOMING
+            outgoing.any { it.id == userId } -> FriendshipStatus.REQUESTING
+            else -> FriendshipStatus.NONE
+        }
+
+        return FriendStatus(user = user, status = status)
+    }
+
     override suspend fun sendFriendRequest(friendId: String): ResultWrapper<Unit> = safeApiCall {
         api.sendFriendRequest(friendId)
     }
@@ -34,6 +53,10 @@ internal class FriendsRepositoryImpl(
 
     override suspend fun rejectFriendRequest(requestId: String): ResultWrapper<Unit> = safeApiCall {
         api.rejectFriendRequest(requestId)
+    }
+
+    override suspend fun removeFriend(friendId: String): ResultWrapper<Unit> = safeApiCall {
+        api.removeFriend(friendId)
     }
 
     override suspend fun cancelFriendRequest(requestId: String): ResultWrapper<Unit> = safeApiCall {

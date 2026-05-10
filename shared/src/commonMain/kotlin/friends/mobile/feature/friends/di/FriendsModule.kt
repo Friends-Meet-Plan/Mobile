@@ -14,12 +14,16 @@ import friends.mobile.feature.friends.data.usecase.SendFriendRequestUseCaseImpl
 import friends.mobile.feature.friends.domain.repository.FriendsRepository
 import friends.mobile.feature.friends.domain.usecase.AcceptFriendRequestUseCase
 import friends.mobile.feature.friends.domain.usecase.CancelFriendRequestUseCase
+import friends.mobile.feature.friends.domain.usecase.GetFriendStatusUseCase
 import friends.mobile.feature.friends.domain.usecase.GetFriendsUseCase
 import friends.mobile.feature.friends.domain.usecase.GetIncomingFriendRequestsUseCase
 import friends.mobile.feature.friends.domain.usecase.GetOutgoingFriendRequestsUseCase
 import friends.mobile.feature.friends.domain.usecase.RejectFriendRequestUseCase
+import friends.mobile.feature.friends.domain.usecase.RemoveFriendUseCase
 import friends.mobile.feature.friends.domain.usecase.SearchUserUseCase
 import friends.mobile.feature.friends.domain.usecase.SendFriendRequestUseCase
+import friends.mobile.feature.friends.presentation.FriendProfileViewModel
+import friends.mobile.feature.friends.presentation.FriendsViewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -42,9 +46,11 @@ val friendsModule = module {
     factory<GetFriendsUseCase> { GetFriendsUseCaseImpl(repository = get()) }
     factory<GetIncomingFriendRequestsUseCase> { GetIncomingFriendRequestsUseCaseImpl(repository = get()) }
     factory<GetOutgoingFriendRequestsUseCase> { GetOutgoingFriendRequestsUseCaseImpl(repository = get()) }
+    factory<GetFriendStatusUseCase> { GetFriendStatusUseCase(repository = get()) }
     factory<SendFriendRequestUseCase> { SendFriendRequestUseCaseImpl(repository = get()) }
     factory<AcceptFriendRequestUseCase> { AcceptFriendRequestUseCaseImpl(repository = get()) }
     factory<RejectFriendRequestUseCase> { RejectFriendRequestUseCaseImpl(repository = get()) }
+    factory<RemoveFriendUseCase> { RemoveFriendUseCase(repository = get()) }
     factory<CancelFriendRequestUseCase> { CancelFriendRequestUseCaseImpl(repository = get()) }
     factory<SearchUserUseCase> {
         SearchUserUseCaseImpl(
@@ -52,4 +58,7 @@ val friendsModule = module {
             getStoredSessionUseCase = get(),
         )
     }
+
+    factory<FriendsViewModel> { FriendsViewModel() }
+    factory<FriendProfileViewModel> { FriendProfileViewModel() }
 }
