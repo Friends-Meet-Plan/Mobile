@@ -20,26 +20,20 @@ import io.ktor.client.HttpClient
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-/**
- * Koin module for the auth feature.
- *
- * Prerequisites in your Koin graph before including this module:
- *   - single<com.russhwolf.settings.Settings> { ... }  (platform-specific, see below)
- *
- * Android:
- *   single<Settings> { SharedPreferencesSettings(androidContext().getSharedPreferences(...)) }
- *   See your Android DI module for the exact call.
- * iOS (in iosMain platform module):
- *   single<Settings> { NSUserDefaultsSettings(NSUserDefaults.standardUserDefaults) }
- */
 val authModule = module {
     single<HttpClient>(named("auth")) {
         val authClient = get<HttpClient>().config { }
         AuthenticatedClient(
             client = authClient,
             storage = get(),
-            onRefresh = { get<AuthRepository>().refresh() },
-            onUnauthorized = { get<AuthRepository>().logout() },
+            onRefresh = {
+                // Используем getOrThrow() для лаконичного получения токена
+                get<AuthRepository>().refresh().getOrThrow()
+            },
+            onUnauthorized = {
+                // Игнорируем результат логаута, так как нам нужно просто вызвать действие
+                get<AuthRepository>().logout()
+            },
         )
         authClient
     }

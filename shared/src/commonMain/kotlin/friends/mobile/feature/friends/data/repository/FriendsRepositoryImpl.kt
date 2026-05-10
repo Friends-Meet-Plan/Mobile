@@ -1,5 +1,7 @@
 package friends.mobile.feature.friends.data.repository
 
+import friends.mobile.core.domain.model.ResultWrapper
+import friends.mobile.core.network.safeApiCall
 import friends.mobile.feature.friends.data.mapper.UserDtoMapper
 import friends.mobile.feature.friends.data.remote.FriendsApi
 import friends.mobile.feature.friends.domain.model.User
@@ -10,31 +12,35 @@ internal class FriendsRepositoryImpl(
     private val userDtoMapper: UserDtoMapper,
 ) : FriendsRepository {
 
-    override suspend fun getFriends(): List<User> =
+    override suspend fun getFriends(): ResultWrapper<List<User>> = safeApiCall {
         userDtoMapper.toDomain(api.getFriends())
+    }
 
-    override suspend fun getIncomingRequests(): List<User> =
+    override suspend fun getIncomingRequests(): ResultWrapper<List<User>> = safeApiCall {
         userDtoMapper.toDomain(api.getIncomingRequests())
+    }
 
-    override suspend fun getOutgoingRequests(): List<User> =
+    override suspend fun getOutgoingRequests(): ResultWrapper<List<User>> = safeApiCall {
         userDtoMapper.toDomain(api.getOutgoingRequests())
+    }
 
-    override suspend fun sendFriendRequest(friendId: String) {
+    override suspend fun sendFriendRequest(friendId: String): ResultWrapper<Unit> = safeApiCall {
         api.sendFriendRequest(friendId)
     }
 
-    override suspend fun acceptFriendRequest(requestId: String) {
+    override suspend fun acceptFriendRequest(requestId: String): ResultWrapper<Unit> = safeApiCall {
         api.acceptFriendRequest(requestId)
     }
 
-    override suspend fun rejectFriendRequest(requestId: String) {
+    override suspend fun rejectFriendRequest(requestId: String): ResultWrapper<Unit> = safeApiCall {
         api.rejectFriendRequest(requestId)
     }
 
-    override suspend fun cancelFriendRequest(requestId: String) {
+    override suspend fun cancelFriendRequest(requestId: String): ResultWrapper<Unit> = safeApiCall {
         api.cancelFriendRequest(requestId)
     }
 
-    override suspend fun searchUsers(query: String): List<User> =
+    override suspend fun searchUsers(query: String): ResultWrapper<List<User>> = safeApiCall {
         userDtoMapper.toDomain(api.searchUsers(query))
+    }
 }

@@ -19,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import friends.mobile.friends.FriendsScreen
 import friends.mobile.profile.ProfileScreen
 
 @Composable
@@ -65,7 +66,9 @@ fun MainScreen(
                 PlaceholderScreen("Home Screen")
             }
             composable(BottomNavItem.Friends.route) {
-                PlaceholderScreen("Friends Screen")
+                FriendsScreen(onUserSelected = { user ->
+                    // Здесь можно обработать выбор пользователя, например, открыть его профиль
+                })
             }
             composable(BottomNavItem.Profile.route) {
                 ProfileScreen(onLogout = onLogout)

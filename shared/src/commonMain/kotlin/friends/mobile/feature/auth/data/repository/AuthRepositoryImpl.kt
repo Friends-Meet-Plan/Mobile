@@ -1,6 +1,8 @@
 package friends.mobile.feature.auth.data.repository
 
-import friends.mobile.core.network.NetworkException
+import friends.mobile.core.domain.model.ApiError
+import friends.mobile.core.domain.model.ResultWrapper
+import friends.mobile.core.network.safeApiCall
 import friends.mobile.feature.auth.data.mapper.AuthSessionMapper
 import friends.mobile.feature.auth.data.remote.AuthApi
 import friends.mobile.feature.auth.data.remote.dto.LoginRequestDto
@@ -11,6 +13,8 @@ import friends.mobile.feature.auth.data.storage.TokenStorage
 import friends.mobile.feature.auth.domain.model.AuthSession
 import friends.mobile.feature.auth.domain.model.AuthToken
 import friends.mobile.feature.auth.domain.repository.AuthRepository
+
+private const val HTTP_UNAUTHORIZED = 401
 
 internal class AuthRepositoryImpl(
     private val api: AuthApi,
@@ -23,40 +27,39 @@ internal class AuthRepositoryImpl(
         password: String,
         avatarUrl: String?,
         bio: String?,
-    ) {
+    ): ResultWrapper<Unit> = safeApiCall {
         api.register(RegisterRequestDto(username, password, avatarUrl, bio))
     }
 
     override suspend fun login(
         username: String,
         password: String
-    ): AuthSession {
+    ): ResultWrapper<AuthSession> = safeApiCall {
         val response = api.login(LoginRequestDto(username, password))
         val session = mapper.loginResponseToDomain(response)
-
         storage.saveSession(session)
-
-        return session
+        session
     }
 
-    override suspend fun refresh(): AuthToken {
-        val current = storage.getSession() ?: throw NetworkException.Unauthorized
+    override suspend fun refresh(): ResultWrapper<AuthToken> {
+        val current = storage.getSession()
+            ?: return ResultWrapper.Error(ApiError(HTTP_UNAUTHORIZED, "No active session"))
 
-        val response = api.refresh(RefreshRequestDto(current.token.refreshToken))
-        val newToken = mapper.refreshResponseToDomainToken(response)
-
-        val updatedSession = current.copy(token = newToken)
-        storage.saveSession(updatedSession)
-
-        return newToken
+        return safeApiCall {
+            val response = api.refresh(RefreshRequestDto(current.token.refreshToken))
+            val newToken = mapper.refreshResponseToDomainToken(response)
+            val updatedSession = current.copy(token = newToken)
+            storage.saveSession(updatedSession)
+            newToken
+        }
     }
 
-    override suspend fun logout() {
-        val session = storage.getSession() ?: return
-
+    override suspend fun logout(): ResultWrapper<Unit> {
+        val session = storage.getSession()
         storage.clearSession()
+        if (session == null) return ResultWrapper.Success(Unit)
 
-        runCatching {
+        return safeApiCall {
             api.logout(LogoutRequestDto(session.token.refreshToken))
         }
     }

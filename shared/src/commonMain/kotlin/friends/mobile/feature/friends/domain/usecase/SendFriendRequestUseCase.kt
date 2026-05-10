@@ -1,15 +1,7 @@
 package friends.mobile.feature.friends.domain.usecase
 
-/**
- * Public interface for sending a friend request.
- */
-interface SendFriendRequestUseCase {
+import friends.mobile.core.domain.model.ResultWrapper
 
-    /**
-     * Send a friend request to a user by ID.
-     *
-     * @param friendId The ID of the user to send the request to
-     * @throws NetworkException on failure
-     */
-    suspend operator fun invoke(friendId: String)
+interface SendFriendRequestUseCase {
+    suspend operator fun invoke(friendId: String): ResultWrapper<Unit>
 }

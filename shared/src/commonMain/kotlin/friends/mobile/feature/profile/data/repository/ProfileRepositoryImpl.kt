@@ -1,5 +1,7 @@
 package friends.mobile.feature.profile.data.repository
 
+import friends.mobile.core.domain.model.ResultWrapper
+import friends.mobile.core.network.safeApiCall
 import friends.mobile.feature.profile.data.mapper.ProfileMapper
 import friends.mobile.feature.profile.data.remote.ProfileApi
 import friends.mobile.feature.profile.domain.model.Profile
@@ -10,7 +12,7 @@ internal class ProfileRepositoryImpl(
     private val mapper: ProfileMapper,
 ) : ProfileRepository {
 
-    override suspend fun getMe(): Profile {
-        return mapper.mapToDomain(api.getMe())
+    override suspend fun getMe(): ResultWrapper<Profile> = safeApiCall {
+        mapper.mapToDomain(api.getMe())
     }
 }

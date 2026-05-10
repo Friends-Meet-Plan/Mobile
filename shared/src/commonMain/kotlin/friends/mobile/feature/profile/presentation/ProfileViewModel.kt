@@ -1,5 +1,8 @@
 package friends.mobile.feature.profile.presentation
 
+import friends.mobile.core.domain.model.ResultWrapper
+import friends.mobile.core.domain.model.getErrorMessage
+import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.profile.domain.usecase.GetMeUseCase
 import kotlinx.coroutines.launch
@@ -24,11 +27,14 @@ class ProfileViewModel :
     private fun onLoadProfile() {
         viewModelScope.launch {
             viewState = viewState.copy(isLoading = true, error = null)
-            try {
-                val profile = getMeUseCase()
-                viewState = viewState.copy(profile = profile, isLoading = false)
-            } catch (_: Exception) {
-                viewState = viewState.copy(isLoading = false, error = "Unknown error")
+            when (val result = getMeUseCase()) {
+                is ResultWrapper.Success -> {
+                    viewState = viewState.copy(profile = result.data, isLoading = false)
+                }
+                is ResultWrapper.Error -> {
+                    val userError = mapApiErrorToUserFriendly(result.error)
+                    viewState = viewState.copy(isLoading = false, error = getErrorMessage(userError))
+                }
             }
         }
     }

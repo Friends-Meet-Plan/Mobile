@@ -1,5 +1,6 @@
 package friends.mobile.feature.friends.data.usecase
 
+import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.feature.friends.domain.model.User
 import friends.mobile.feature.friends.domain.repository.FriendsRepository
 import friends.mobile.feature.friends.domain.usecase.GetFriendsUseCase
@@ -10,9 +11,9 @@ import friends.mobile.feature.friends.domain.usecase.GetFriendsUseCase
  * Delegates to the repository.
  */
 internal class GetFriendsUseCaseImpl(
-    private val repository: FriendsRepository,
+    private val repository: FriendsRepository
 ) : GetFriendsUseCase {
-
-    override suspend fun invoke(): List<User> =
-        repository.getFriends()
+    override suspend fun invoke(): ResultWrapper<List<User>> {
+        return repository.getFriends()
+    }
 }

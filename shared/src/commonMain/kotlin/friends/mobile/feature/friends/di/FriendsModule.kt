@@ -25,36 +25,8 @@ import org.koin.dsl.module
 
 /**
  * Koin module for the friends feature.
- *
- * Provides:
- *   - FriendsApi: HTTP wrapper using authenticated HttpClient
- *   - FriendsRepository: data access layer
- *   - GetFriendsUseCase: business logic for fetching friends
- *   - GetIncomingFriendRequestsUseCase: business logic for fetching incoming requests
- *   - GetOutgoingFriendRequestsUseCase: business logic for fetching outgoing requests
- *   - SendFriendRequestUseCase: send friend request
- *   - AcceptFriendRequestUseCase: accept friend request
- *   - RejectFriendRequestUseCase: reject friend request
- *   - CancelFriendRequestUseCase: cancel friend request
- *   - SearchUserUseCase: search for users by name/username
- *
- * Prerequisites in your Koin graph before including this module:
- *   - single<HttpClient>(named("auth")) { ... }  (authenticated client from authModule)
- *
- * Include in your FeatureModule:
- *   val featureModule = module {
- *       includes(authModule)
- *       includes(friendsModule)
- *   }
  */
 val friendsModule = module {
-    /**
-     * FriendsApi uses the authenticated HttpClient (named "auth").
-     * This client handles:
-     *   - Proactive token refresh (before expiry)
-     *   - 401 reactive retry with refresh
-     *   - Token storage/rotation
-     */
     single<FriendsApi> {
         FriendsApi(client = get(named("auth")))
     }
@@ -74,5 +46,10 @@ val friendsModule = module {
     factory<AcceptFriendRequestUseCase> { AcceptFriendRequestUseCaseImpl(repository = get()) }
     factory<RejectFriendRequestUseCase> { RejectFriendRequestUseCaseImpl(repository = get()) }
     factory<CancelFriendRequestUseCase> { CancelFriendRequestUseCaseImpl(repository = get()) }
-    factory<SearchUserUseCase> { SearchUserUseCaseImpl(repository = get(), tokenStorage = get()) }
+    factory<SearchUserUseCase> {
+        SearchUserUseCaseImpl(
+            repository = get(),
+            getStoredSessionUseCase = get(),
+        )
+    }
 }

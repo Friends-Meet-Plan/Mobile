@@ -66,7 +66,7 @@ fun ProfileScreen(
                 }
                 state.error != null -> {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = "Error: ${state.error}", color = MaterialTheme.colorScheme.error)
+                        Text(text = "${state.error}", color = MaterialTheme.colorScheme.error)
                         Button(onClick = { viewModel.obtainEvent(ProfileEvent.OnLoadProfile) }) {
                             Text("Retry")
                         }

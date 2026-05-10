@@ -1,6 +1,8 @@
 package friends.mobile.feature.auth.presentation.register
 
-import friends.mobile.core.network.NetworkException
+import friends.mobile.core.domain.model.ResultWrapper
+import friends.mobile.core.domain.model.getErrorMessage
+import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.auth.domain.usecase.RegisterUseCase
 import kotlinx.coroutines.launch
@@ -40,20 +42,15 @@ class RegisterViewModel :
         viewModelScope.launch {
             viewState = RegisterViewState.Loading
 
-            try {
-                registerUseCase(username, password)
-                viewState = RegisterViewState.Content()
-                viewAction = RegisterAction.RegisterSucceeded
-            } catch (_: NetworkException.Conflict) {
-                viewState = RegisterViewState.Error("Username is already taken")
-            } catch (_: NetworkException.NetworkError) {
-                viewState = RegisterViewState.Error("Network error, check your connection")
-            } catch (_: NetworkException.Unauthorized) {
-                viewState = RegisterViewState.Error("Unauthorized")
-            } catch (_: NetworkException.UnknownError) {
-                viewState = RegisterViewState.Error("Something went wrong")
-            } catch (_: NetworkException) {
-                viewState = RegisterViewState.Error("Something went wrong")
+            when (val result = registerUseCase(username, password)) {
+                is ResultWrapper.Success -> {
+                    viewState = RegisterViewState.Content()
+                    viewAction = RegisterAction.RegisterSucceeded
+                }
+                is ResultWrapper.Error -> {
+                    val userError = mapApiErrorToUserFriendly(result.error)
+                    viewState = RegisterViewState.Error(getErrorMessage(userError))
+                }
             }
         }
     }

@@ -1,14 +1,8 @@
 package friends.mobile.feature.friends.domain.usecase
 
+import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.feature.friends.domain.model.User
 
-/**
- * Public interface for the get friends use case.
- */
 interface GetFriendsUseCase {
-
-    /**
-     * Fetch all available friends.
-     */
-    suspend operator fun invoke(): List<User>
+    suspend operator fun invoke(): ResultWrapper<List<User>>
 }
