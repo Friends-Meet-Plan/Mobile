@@ -8,4 +8,5 @@ package friends.mobile.feature.friends.presentation
  * Actions:
  *   - NavigateToProfile: navigate to a friend's profile screen
  */
+@Suppress("EmptyClassBlock", "NoEmptyClassBody")
 sealed class FriendsAction {}
