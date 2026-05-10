@@ -43,7 +43,6 @@ struct ProfileView: View {
                 Button("Log Out") {
                     profileReducer.logout()
                 }
-                .buttonStyle(.glass)
                 .tint(.red)
             }
             .padding()
