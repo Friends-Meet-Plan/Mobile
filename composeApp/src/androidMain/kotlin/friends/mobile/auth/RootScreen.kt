@@ -1,12 +1,12 @@
 package friends.mobile.auth
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import friends.mobile.feature.auth.presentation.RootEvent
 import friends.mobile.feature.auth.presentation.RootViewModel
+import friends.mobile.friends.FriendsScreen
 
 @Composable
 fun RootScreen() {
@@ -21,11 +21,6 @@ fun RootScreen() {
             },
         )
     } else {
-        MainScreen(username = session.user.username)
+        FriendsScreen()
     }
-}
-
-@Composable
-private fun MainScreen(username: String) {
-    Text("Main, $username")
 }
