@@ -88,9 +88,7 @@ fun ProfileScreen(
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
-                        
                         Spacer(modifier = Modifier.height(24.dp))
-                        
                         Button(
                             onClick = { viewModel.obtainEvent(ProfileEvent.OnLogoutClick) },
                             colors = ButtonDefaults.buttonColors(

@@ -27,8 +27,8 @@ class ProfileViewModel :
             try {
                 val profile = getMeUseCase()
                 viewState = viewState.copy(profile = profile, isLoading = false)
-            } catch (e: Exception) {
-                viewState = viewState.copy(isLoading = false, error = e.message ?: "Unknown error")
+            } catch (_: Exception) {
+                viewState = viewState.copy(isLoading = false, error = "Unknown error")
             }
         }
     }
