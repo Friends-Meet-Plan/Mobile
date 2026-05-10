@@ -9,11 +9,10 @@ import SwiftUI
 import Shared
 
 struct MainView: View {
-    var user: AuthUser
     
     var body: some View {
         VStack {
-            Text("Welcome, \(user.username)!")
+            Text("Welcome!")
                 .font(.title2)
                 .fontWeight(.semibold)
         }

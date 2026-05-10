@@ -27,7 +27,10 @@ struct RootView: View {
     @ViewBuilder
     private func currentView() -> some View {
         if let session {
-            TabBarView(user: session.user)
+            TabBarView(onLogout: {
+                self.session = nil
+                router.root()
+            })
         } else {
             LoginView { newSession in
                 self.session = newSession
