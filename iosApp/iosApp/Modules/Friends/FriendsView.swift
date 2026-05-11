@@ -60,12 +60,10 @@ struct FriendsView: View {
                 }
         }
         .sheet(item: $friendToPresent) { friend in
-            NavigationStack {
-                FriendProfileView(reducer: FriendProfileReducer(userId: friend.id))
-                    .onDisappear {
-                        reducer.reloadCurrentTab()
-                    }
-            }
+            FriendProfileView(reducer: FriendProfileReducer(userId: friend.id))
+                .onDisappear {
+                    reducer.reloadCurrentTab()
+                }
         }
     }
     

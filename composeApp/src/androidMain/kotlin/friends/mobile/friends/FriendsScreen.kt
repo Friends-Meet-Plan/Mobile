@@ -36,6 +36,7 @@ fun FriendsScreen(onUserSelected: (User) -> Unit = {}) {
 
     var searchText by rememberSaveable { mutableStateOf("") }
     var selectedTab by rememberSaveable { mutableStateOf(RequestTab.FRIENDS) }
+    var selectedFriendId by rememberSaveable { mutableStateOf<String?>(null) }
 
     LaunchedEffect(viewModel) {
         viewModel.viewActions.collectLatest { action ->
@@ -97,7 +98,7 @@ fun FriendsScreen(onUserSelected: (User) -> Unit = {}) {
                     ContentListView(
                         content = content,
                         searchText = searchText,
-                        onUserSelected = onUserSelected,
+                        onUserSelected = { selectedFriendId = it.id },
                     )
                 }
             }
@@ -116,6 +117,15 @@ fun FriendsScreen(onUserSelected: (User) -> Unit = {}) {
                 .background(MaterialTheme.colorScheme.surface),
         )
     }
+
+    FriendProfileBottomSheet(
+        userId = selectedFriendId ?: "",
+        isVisible = selectedFriendId != null,
+        onDismiss = { selectedFriendId = null },
+        onSheetDismissed = {
+            viewModel.obtainEvent(FriendsEvent.ReloadCurrentTab())
+        }
+    )
 }
 
 @Composable
