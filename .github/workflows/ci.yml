@@ -25,18 +25,16 @@ jobs:
         id: lint
         continue-on-error: true
         run: |
-          cd Mobile
-          mkdir -p build/lint
-          ./gradlew :composeApp:lint --no-daemon 2>&1 | tee build/lint/report.txt
+          mkdir -p Mobile/build/lint
+          ./Mobile/gradlew :composeApp:lint --no-daemon 2>&1 | tee Mobile/build/lint/report.txt
           EXIT_CODE=$?
           echo "exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
           exit $EXIT_CODE
       - name: Process Android Lint Results
         if: always()
         run: |
-          cd Mobile
           # Parse lint results from XML report
-          LINT_REPORT="composeApp/build/reports/lint-results.xml"
+          LINT_REPORT="Mobile/composeApp/build/reports/lint-results.xml"
           if [ -f "$LINT_REPORT" ]; then
             echo "## Android Lint Report" >> $GITHUB_STEP_SUMMARY
             # Count errors and warnings
@@ -80,30 +78,28 @@ jobs:
         id: swiftlint
         continue-on-error: true
         run: |
-          cd Mobile
-          mkdir -p build/swiftlint
-          swiftlint --config iosApp/.swiftlint.yml --reporter json iosApp > build/swiftlint/report.json 2>&1
-          swiftlint --config iosApp/.swiftlint.yml --reporter html iosApp > build/swiftlint/report.html 2>&1
-          swiftlint --config iosApp/.swiftlint.yml iosApp > build/swiftlint/report.txt 2>&1
+          mkdir -p Mobile/build/swiftlint
+          swiftlint --config Mobile/iosApp/.swiftlint.yml --reporter json Mobile/iosApp > Mobile/build/swiftlint/report.json 2>&1
+          swiftlint --config Mobile/iosApp/.swiftlint.yml --reporter html Mobile/iosApp > Mobile/build/swiftlint/report.html 2>&1
+          swiftlint --config Mobile/iosApp/.swiftlint.yml Mobile/iosApp > Mobile/build/swiftlint/report.txt 2>&1
           EXIT_CODE=$?
           echo "exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
           exit $EXIT_CODE
       - name: Process SwiftLint Results
         if: always()
         run: |
-          cd Mobile
-          if [ -f build/swiftlint/report.json ]; then
+          if [ -f Mobile/build/swiftlint/report.json ]; then
             echo "## SwiftLint Report" >> $GITHUB_STEP_SUMMARY
             # Count violations
-            ERROR_COUNT=$(jq '[.[] | select(.severity == "error")] | length' build/swiftlint/report.json || echo "0")
-            WARNING_COUNT=$(jq '[.[] | select(.severity == "warning")] | length' build/swiftlint/report.json || echo "0")
+            ERROR_COUNT=$(jq '[.[] | select(.severity == "error")] | length' Mobile/build/swiftlint/report.json || echo "0")
+            WARNING_COUNT=$(jq '[.[] | select(.severity == "warning")] | length' Mobile/build/swiftlint/report.json || echo "0")
             echo "- **Errors:** $ERROR_COUNT" >> $GITHUB_STEP_SUMMARY
             echo "- **Warnings:** $WARNING_COUNT" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             # Show violations if any
             if [ "$ERROR_COUNT" -gt 0 ] || [ "$WARNING_COUNT" -gt 0 ]; then
               echo "### Violations" >> $GITHUB_STEP_SUMMARY
-              jq -r '.[] | "- [\(.severity | ascii_upcase)] \(.file):\(.line) - \(.message)"' build/swiftlint/report.json >> $GITHUB_STEP_SUMMARY
+              jq -r '.[] | "- [\(.severity | ascii_upcase)] \(.file):\(.line) - \(.message)"' Mobile/build/swiftlint/report.json >> $GITHUB_STEP_SUMMARY
             fi
           fi
       - name: Upload SwiftLint Artifacts
