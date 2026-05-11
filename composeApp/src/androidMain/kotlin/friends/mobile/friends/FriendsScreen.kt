@@ -30,7 +30,7 @@ import friends.mobile.feature.friends.presentation.RequestTab
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun FriendsScreen(onUserSelected: (User) -> Unit = {}) {
+fun FriendsScreen() {
     val viewModel: FriendsViewModel = viewModel()
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
 

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -41,6 +40,13 @@ import friends.mobile.feature.friends.presentation.FriendProfileViewModel
 import friends.mobile.feature.friends.presentation.FriendProfileViewState
 import friends.mobile.feature.friends.presentation.FriendshipStatus
 import kotlinx.coroutines.flow.collectLatest
+
+data class FriendActionCallbacks(
+    val onSendRequest: (String) -> Unit,
+    val onAcceptRequest: (String) -> Unit,
+    val onRejectRequest: (String) -> Unit,
+    val onRemoveFriend: (String) -> Unit,
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -187,10 +193,12 @@ private fun FriendProfileContent(
             user = content.user,
             status = content.status,
             isLoading = content.isActionPending,
-            onSendRequest = onSendRequest,
-            onAcceptRequest = onAcceptRequest,
-            onRejectRequest = onRejectRequest,
-            onRemoveFriend = onRemoveFriend,
+            callbacks = FriendActionCallbacks(
+                onSendRequest = onSendRequest,
+                onAcceptRequest = onAcceptRequest,
+                onRejectRequest = onRejectRequest,
+                onRemoveFriend = onRemoveFriend,
+            ),
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -252,10 +260,7 @@ private fun ActionButtons(
     user: User,
     status: FriendshipStatus,
     isLoading: Boolean,
-    onSendRequest: (String) -> Unit,
-    onAcceptRequest: (String) -> Unit,
-    onRejectRequest: (String) -> Unit,
-    onRemoveFriend: (String) -> Unit,
+    callbacks: FriendActionCallbacks,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -266,7 +271,7 @@ private fun ActionButtons(
         when (status) {
             FriendshipStatus.NONE -> {
                 Button(
-                    onClick = { onSendRequest(user.id) },
+                    onClick = { callbacks.onSendRequest(user.id) },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isLoading,
                 ) {
@@ -302,7 +307,7 @@ private fun ActionButtons(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Button(
-                        onClick = { onAcceptRequest(user.id) },
+                        onClick = { callbacks.onAcceptRequest(user.id) },
                         modifier = Modifier.weight(1f),
                         enabled = !isLoading,
                         colors = ButtonDefaults.buttonColors(
@@ -321,7 +326,7 @@ private fun ActionButtons(
                     }
 
                     OutlinedButton(
-                        onClick = { onRejectRequest(user.id) },
+                        onClick = { callbacks.onRejectRequest(user.id) },
                         modifier = Modifier.weight(1f),
                         enabled = !isLoading,
                     ) {
@@ -332,7 +337,7 @@ private fun ActionButtons(
 
             FriendshipStatus.FRIENDS -> {
                 OutlinedButton(
-                    onClick = { onRemoveFriend(user.id) },
+                    onClick = { callbacks.onRemoveFriend(user.id) },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isLoading,
                 ) {
