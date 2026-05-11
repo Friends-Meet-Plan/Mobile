@@ -20,7 +20,7 @@ end
 
 lane :detect_android do
   Dir.chdir(MOBILE_ROOT) do
-    sh("./gradlew detektAll --continue", log: false)
+    sh("./gradlew detektAll")
   end
 end
 
