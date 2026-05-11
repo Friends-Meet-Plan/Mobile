@@ -21,6 +21,48 @@ jobs:
         run: bundle exec fastlane build_android
       - name: Test Android
         run: bundle exec fastlane test_android
+      - name: Run Android Lint
+        id: lint
+        continue-on-error: true
+        run: |
+          cd Mobile
+          mkdir -p build/lint
+          ./gradlew :composeApp:lint --no-daemon 2>&1 | tee build/lint/report.txt
+          EXIT_CODE=$?
+          echo "exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          exit $EXIT_CODE
+      - name: Process Android Lint Results
+        if: always()
+        run: |
+          cd Mobile
+          # Parse lint results from XML report
+          LINT_REPORT="composeApp/build/reports/lint-results.xml"
+          if [ -f "$LINT_REPORT" ]; then
+            echo "## Android Lint Report" >> $GITHUB_STEP_SUMMARY
+            # Count errors and warnings
+            ERROR_COUNT=$(grep -c '<issue severity="Error"' "$LINT_REPORT" || echo "0")
+            WARNING_COUNT=$(grep -c '<issue severity="Warning"' "$LINT_REPORT" || echo "0")
+            echo "- **Errors:** $ERROR_COUNT" >> $GITHUB_STEP_SUMMARY
+            echo "- **Warnings:** $WARNING_COUNT" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            # Show violations if any
+            if [ "$ERROR_COUNT" -gt 0 ] || [ "$WARNING_COUNT" -gt 0 ]; then
+              echo "### Violations" >> $GITHUB_STEP_SUMMARY
+              grep '<issue ' "$LINT_REPORT" | sed 's/.*<issue severity="\([^"]*\)".*message="\([^"]*\)".*file="\([^"]*\)".*line="\([^"]*\)".*/- [\1] \3:\4 - \2/' >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+      - name: Upload Android Lint Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-lint-reports
+          path: Mobile/composeApp/build/reports/
+          retention-days: 30
+      - name: Fail if Android Lint Errors Found
+        if: steps.lint.outputs.exit-code != '0'
+        run: |
+          echo "Android Lint found errors. Check the artifacts and the summary above."
+          exit 1
       - name: Detect Android
         run: bundle exec fastlane detect_android
 
@@ -34,8 +76,48 @@ jobs:
           bundler-cache: true
       - name: Install SwiftLint
         run: brew install swiftlint
-      - name: SwiftLint
-        run: swiftlint --config iosApp/.swiftlint.yml iosApp/iosApp
+      - name: Run SwiftLint
+        id: swiftlint
+        continue-on-error: true
+        run: |
+          cd Mobile
+          mkdir -p build/swiftlint
+          swiftlint --config iosApp/.swiftlint.yml --reporter json iosApp > build/swiftlint/report.json 2>&1
+          swiftlint --config iosApp/.swiftlint.yml --reporter html iosApp > build/swiftlint/report.html 2>&1
+          swiftlint --config iosApp/.swiftlint.yml iosApp > build/swiftlint/report.txt 2>&1
+          EXIT_CODE=$?
+          echo "exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          exit $EXIT_CODE
+      - name: Process SwiftLint Results
+        if: always()
+        run: |
+          cd Mobile
+          if [ -f build/swiftlint/report.json ]; then
+            echo "## SwiftLint Report" >> $GITHUB_STEP_SUMMARY
+            # Count violations
+            ERROR_COUNT=$(jq '[.[] | select(.severity == "error")] | length' build/swiftlint/report.json || echo "0")
+            WARNING_COUNT=$(jq '[.[] | select(.severity == "warning")] | length' build/swiftlint/report.json || echo "0")
+            echo "- **Errors:** $ERROR_COUNT" >> $GITHUB_STEP_SUMMARY
+            echo "- **Warnings:** $WARNING_COUNT" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            # Show violations if any
+            if [ "$ERROR_COUNT" -gt 0 ] || [ "$WARNING_COUNT" -gt 0 ]; then
+              echo "### Violations" >> $GITHUB_STEP_SUMMARY
+              jq -r '.[] | "- [\(.severity | ascii_upcase)] \(.file):\(.line) - \(.message)"' build/swiftlint/report.json >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+      - name: Upload SwiftLint Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swiftlint-reports
+          path: Mobile/build/swiftlint/
+          retention-days: 30
+      - name: Fail if SwiftLint Errors Found
+        if: steps.swiftlint.outputs.exit-code != '0'
+        run: |
+          echo "SwiftLint found errors. Check the artifacts and the summary above."
+          exit 1
       - name: Build iOS
         run: bundle exec fastlane build_ios
       - name: Test iOS
