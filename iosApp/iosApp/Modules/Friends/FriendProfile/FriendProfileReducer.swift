@@ -17,11 +17,8 @@ final class FriendProfileReducer {
     var isActionPending = false
     var actionError: String?
     
-    var onRefreshFriendsRequested: (() -> Void)?
-    
     private let sharedVM = FriendProfileViewModel()
     private var stateTask: Task<Void, Never>?
-    private var wasActionPending = false
     
     init(userId: String) {
         let scope = sharedVM.viewModelScope
@@ -42,11 +39,6 @@ final class FriendProfileReducer {
                     self.status = contentState.status
                     self.isActionPending = contentState.isActionPending
                     self.actionError = contentState.actionError
-                    
-                    if self.wasActionPending && !contentState.isActionPending && contentState.actionError == nil {
-                        self.onRefreshFriendsRequested?()
-                    }
-                    self.wasActionPending = contentState.isActionPending
                 }
             }
         }

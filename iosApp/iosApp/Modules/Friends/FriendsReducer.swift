@@ -80,4 +80,8 @@ final class FriendsReducer {
         searchResults = nil
         searchText = ""
     }
+
+    func reloadCurrentTab() {
+        sharedVM.obtainEvent(event: FriendsEvent.ReloadCurrentTab())
+    }
 }

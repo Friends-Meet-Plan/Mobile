@@ -10,60 +10,38 @@ import Shared
 
 struct FriendProfileView: View {
     
-    let userId: String
-    let onDismiss: () -> Void
-    @State private var reducer: FriendProfileReducer?
+    @State private var reducer: FriendProfileReducer
+    
+    init(reducer: FriendProfileReducer) {
+        self.reducer = reducer
+    }
     
     var body: some View {
         VStack(spacing: 0) {
-            if let reducer {
-                if let user = reducer.user {
-                    VStack(spacing: 24) {
-                        VStack(spacing: 16) {
-                            UserCircle(name: user.username)
-                            
-                            VStack(spacing: 8) {
-                                Text(user.username)
-                                    .font(.headline)
-                                
-                                if let bio = user.bio, !bio.isEmpty {
-                                    Text(bio)
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
+            if let user = reducer.user {
+                VStack(spacing: 24) {
+                    UserView(user: user, dimension: .vertical)
                         .frame(maxWidth: .infinity)
-                        
-                        if let actionError = reducer.actionError {
-                            ErrorBanner(message: actionError)
-                        }
-                        
-                        actionButtons(reducer: reducer)
-                        
-                        Spacer()
+                    
+                    if let actionError = reducer.actionError {
+                        ErrorBanner(message: actionError)
                     }
-                    .padding()
-                    .opacity(reducer.isActionPending ? 0.6 : 1)
-                    .disabled(reducer.isActionPending)
-                } else if reducer.isLoading {
-                    LoadingView()
-                } else {
-                    ErrorBanner(message: "Failed to load profile")
+                    
+                    actionButtons(reducer: reducer)
+                    
+                    Spacer()
                 }
-            } else {
+                .padding()
+                .opacity(reducer.isActionPending ? 0.6 : 1)
+                .disabled(reducer.isActionPending)
+            } else if reducer.isLoading {
                 LoadingView()
+            } else {
+                ErrorBanner(message: "Failed to load profile")
             }
         }
         .navigationTitle("Profile")
         .navigationBarTitleDisplayMode(.inline)
-        .task {
-            let newReducer = FriendProfileReducer(userId: userId)
-            newReducer.onRefreshFriendsRequested = {
-                onDismiss()
-            }
-            self.reducer = newReducer
-        }
     }
     
     @ViewBuilder
@@ -111,11 +89,5 @@ struct FriendProfileView: View {
         default:
             EmptyView()
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        FriendProfileView(userId: "123", onDismiss: {})
     }
 }
