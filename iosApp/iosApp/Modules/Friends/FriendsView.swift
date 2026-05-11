@@ -12,6 +12,7 @@ struct FriendsView: View {
     
     @State private var reducer = FriendsReducer()
     @State private var selectedSegment: Segment = .friends
+    @State private var friendToPresent: Shared.User?
     
     var body: some View {
         VStack(spacing: 0) {
@@ -33,14 +34,7 @@ struct FriendsView: View {
             contentListView()
                 .overlay {
                     if reducer.isLoading {
-                        ScrollView {
-                            LazyVStack(spacing: 12) {
-                                ForEach(0..<8, id: \.self) { _ in
-                                    UserRowSkeleton()
-                                }
-                            }
-                            .padding()
-                        }
+                        LoadingView()
                     }
                 }
                 .opacity(reducer.isLoading ? 0 : 1)
@@ -63,6 +57,12 @@ struct FriendsView: View {
                             reducer.onTabSelected(newValue.requestTab)
                         }
                     }
+                }
+        }
+        .sheet(item: $friendToPresent) { friend in
+            FriendProfileView(reducer: FriendProfileReducer(userId: friend.id))
+                .onDisappear {
+                    reducer.reloadCurrentTab()
                 }
         }
     }
@@ -88,6 +88,9 @@ struct FriendsView: View {
             List(listToDisplay, id: \.id) { user in
                 UserRowView(user: user)
                     .listRowSeparator(.hidden)
+                    .onTapGesture {
+                        friendToPresent = user
+                    }
             }
             .listStyle(.plain)
         }
@@ -190,35 +193,6 @@ private struct UserRowView: View {
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
-            }
-            
-            Spacer()
-        }
-        .padding(14)
-        .background {
-            RoundedRectangle(cornerRadius: 16)
-                .fill(.gray.opacity(0.06))
-        }
-    }
-}
-
-private struct UserRowSkeleton: View {
-    var body: some View {
-        HStack(spacing: 14) {
-            
-            Circle()
-                .fill(.gray.opacity(0.2))
-                .frame(width: 42, height: 42)
-            
-            VStack(alignment: .leading, spacing: 8) {
-                
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(.gray.opacity(0.2))
-                    .frame(width: 120, height: 12)
-                
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(.gray.opacity(0.15))
-                    .frame(width: 180, height: 10)
             }
             
             Spacer()

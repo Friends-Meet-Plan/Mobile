@@ -4,7 +4,7 @@ import io.ktor.http.URLProtocol
 
 data class Configuration(
     val isDebug: Boolean,
-    val baseHost: String = "10.0.2.2",
+    val baseHost: String = "127.0.0.1",
     val basePort: Int = 3000,
     val baseProtocol: URLProtocol = URLProtocol.HTTP,
     val settingsName: String = "friends_settings",

@@ -21,8 +21,8 @@ jobs:
         run: bundle exec fastlane build_android
       - name: Test Android
         run: bundle exec fastlane test_android
-      - name: Detect Android
-        run: bundle exec fastlane detect_android
+      # - name: Detect Android
+      #   run: bundle exec fastlane detect_android
 
   ios:
     runs-on: macos-15

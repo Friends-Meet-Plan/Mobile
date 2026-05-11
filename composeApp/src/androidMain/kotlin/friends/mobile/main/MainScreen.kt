@@ -66,9 +66,7 @@ fun MainScreen(
                 PlaceholderScreen("Home Screen")
             }
             composable(BottomNavItem.Friends.route) {
-                FriendsScreen(onUserSelected = { user ->
-                    // Здесь можно обработать выбор пользователя, например, открыть его профиль
-                })
+                FriendsScreen()
             }
             composable(BottomNavItem.Profile.route) {
                 ProfileScreen(onLogout = onLogout)
