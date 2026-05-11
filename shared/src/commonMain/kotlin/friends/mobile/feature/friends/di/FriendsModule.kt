@@ -5,8 +5,8 @@ import friends.mobile.feature.friends.data.remote.FriendsApi
 import friends.mobile.feature.friends.data.repository.FriendsRepositoryImpl
 import friends.mobile.feature.friends.data.usecase.AcceptFriendRequestUseCaseImpl
 import friends.mobile.feature.friends.data.usecase.CancelFriendRequestUseCaseImpl
-import friends.mobile.feature.friends.data.usecase.GetFriendsUseCaseImpl
 import friends.mobile.feature.friends.data.usecase.GetFriendStatusUseCaseImpl
+import friends.mobile.feature.friends.data.usecase.GetFriendsUseCaseImpl
 import friends.mobile.feature.friends.data.usecase.GetIncomingFriendRequestsUseCaseImpl
 import friends.mobile.feature.friends.data.usecase.GetOutgoingFriendRequestsUseCaseImpl
 import friends.mobile.feature.friends.data.usecase.RejectFriendRequestUseCaseImpl
