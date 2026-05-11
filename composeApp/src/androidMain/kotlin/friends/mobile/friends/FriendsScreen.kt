@@ -123,7 +123,7 @@ fun FriendsScreen(onUserSelected: (User) -> Unit = {}) {
         isVisible = selectedFriendId != null,
         onDismiss = { selectedFriendId = null },
         onSheetDismissed = {
-            viewModel.obtainEvent(FriendsEvent.ReloadCurrentTab())
+            viewModel.obtainEvent(FriendsEvent.ReloadCurrentTab)
         }
     )
 }

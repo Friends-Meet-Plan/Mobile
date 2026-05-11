@@ -177,7 +177,7 @@ private fun FriendProfileContent(
 
         if (content.actionError != null) {
             ErrorBanner(
-                message = content.actionError,
+                message = content.actionError!!,
                 modifier = Modifier.fillMaxWidth(),
             )
             Spacer(modifier = Modifier.height(16.dp))
