@@ -1,2 +1,2 @@
 detect:
-    ./gradlew detektAll
+    ./gradlew composeApp:compileDebugKotlin --info

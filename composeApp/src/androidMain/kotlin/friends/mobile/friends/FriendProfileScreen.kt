@@ -41,6 +41,13 @@ import friends.mobile.feature.friends.presentation.FriendProfileViewState
 import friends.mobile.feature.friends.presentation.FriendshipStatus
 import kotlinx.coroutines.flow.collectLatest
 
+private data class FriendActionCallbacks(
+    val onSendRequest: (String) -> Unit,
+    val onAcceptRequest: (String) -> Unit,
+    val onRejectRequest: (String) -> Unit,
+    val onRemoveFriend: (String) -> Unit,
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendProfileBottomSheet(
@@ -163,13 +170,6 @@ private fun FriendProfileContent(
     onRejectRequest: (String) -> Unit,
     onRemoveFriend: (String) -> Unit,
 ) {
-    data class FriendActionCallbacks(
-        val onSendRequest: (String) -> Unit,
-        val onAcceptRequest: (String) -> Unit,
-        val onRejectRequest: (String) -> Unit,
-        val onRemoveFriend: (String) -> Unit,
-    )
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
