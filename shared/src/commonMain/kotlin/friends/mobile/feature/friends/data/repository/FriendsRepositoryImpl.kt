@@ -26,7 +26,7 @@ internal class FriendsRepositoryImpl(
         userDtoMapper.toDomain(api.getOutgoingRequests())
     }
 
-    override suspend fun getFriendStatus(userId: String): FriendStatus {
+    override suspend fun getFriendStatus(userId: String): ResultWrapper<FriendStatus> = safeApiCall {
         val user = userDtoMapper.toDomain(api.getUserById(userId))
 
         val friends = userDtoMapper.toDomain(api.getFriends())
@@ -40,7 +40,7 @@ internal class FriendsRepositoryImpl(
             else -> FriendshipStatus.NONE
         }
 
-        return FriendStatus(user = user, status = status)
+        FriendStatus(user = user, status = status)
     }
 
     override suspend fun sendFriendRequest(friendId: String): ResultWrapper<Unit> = safeApiCall {

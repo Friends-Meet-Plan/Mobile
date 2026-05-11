@@ -8,7 +8,7 @@ interface FriendsRepository {
     suspend fun getFriends(): ResultWrapper<List<User>>
     suspend fun getIncomingRequests(): ResultWrapper<List<User>>
     suspend fun getOutgoingRequests(): ResultWrapper<List<User>>
-    suspend fun getFriendStatus(userId: String): FriendStatus
+    suspend fun getFriendStatus(userId: String): ResultWrapper<FriendStatus>
     suspend fun sendFriendRequest(friendId: String): ResultWrapper<Unit>
     suspend fun acceptFriendRequest(requestId: String): ResultWrapper<Unit>
     suspend fun rejectFriendRequest(requestId: String): ResultWrapper<Unit>

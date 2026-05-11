@@ -1,7 +1,7 @@
 package friends.mobile.feature.friends.domain.usecase
 
-import friends.mobile.feature.friends.domain.repository.FriendsRepository
+import friends.mobile.core.domain.model.ResultWrapper
 
-class RemoveFriendUseCase(private val repository: FriendsRepository) {
-    suspend operator fun invoke(userId: String) = repository.removeFriend(userId)
+interface RemoveFriendUseCase {
+    suspend operator fun invoke(userId: String): ResultWrapper<Unit>
 }

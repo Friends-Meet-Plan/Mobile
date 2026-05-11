@@ -6,9 +6,11 @@ import friends.mobile.feature.friends.data.repository.FriendsRepositoryImpl
 import friends.mobile.feature.friends.data.usecase.AcceptFriendRequestUseCaseImpl
 import friends.mobile.feature.friends.data.usecase.CancelFriendRequestUseCaseImpl
 import friends.mobile.feature.friends.data.usecase.GetFriendsUseCaseImpl
+import friends.mobile.feature.friends.data.usecase.GetFriendStatusUseCaseImpl
 import friends.mobile.feature.friends.data.usecase.GetIncomingFriendRequestsUseCaseImpl
 import friends.mobile.feature.friends.data.usecase.GetOutgoingFriendRequestsUseCaseImpl
 import friends.mobile.feature.friends.data.usecase.RejectFriendRequestUseCaseImpl
+import friends.mobile.feature.friends.data.usecase.RemoveFriendUseCaseImpl
 import friends.mobile.feature.friends.data.usecase.SearchUserUseCaseImpl
 import friends.mobile.feature.friends.data.usecase.SendFriendRequestUseCaseImpl
 import friends.mobile.feature.friends.domain.repository.FriendsRepository
@@ -46,11 +48,11 @@ val friendsModule = module {
     factory<GetFriendsUseCase> { GetFriendsUseCaseImpl(repository = get()) }
     factory<GetIncomingFriendRequestsUseCase> { GetIncomingFriendRequestsUseCaseImpl(repository = get()) }
     factory<GetOutgoingFriendRequestsUseCase> { GetOutgoingFriendRequestsUseCaseImpl(repository = get()) }
-    factory<GetFriendStatusUseCase> { GetFriendStatusUseCase(repository = get()) }
+    factory<GetFriendStatusUseCase> { GetFriendStatusUseCaseImpl(repository = get()) }
     factory<SendFriendRequestUseCase> { SendFriendRequestUseCaseImpl(repository = get()) }
     factory<AcceptFriendRequestUseCase> { AcceptFriendRequestUseCaseImpl(repository = get()) }
     factory<RejectFriendRequestUseCase> { RejectFriendRequestUseCaseImpl(repository = get()) }
-    factory<RemoveFriendUseCase> { RemoveFriendUseCase(repository = get()) }
+    factory<RemoveFriendUseCase> { RemoveFriendUseCaseImpl(repository = get()) }
     factory<CancelFriendRequestUseCase> { CancelFriendRequestUseCaseImpl(repository = get()) }
     factory<SearchUserUseCase> {
         SearchUserUseCaseImpl(
