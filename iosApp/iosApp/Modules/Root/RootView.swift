@@ -15,11 +15,12 @@ struct RootView: View {
     var body: some View {
         NavigationStack(path: $router.path) {
             currentView()
-            /**
                 .navigationDestination(for: AppRouter.self) { route in
-                    EmptyView()
+                    switch route {
+                    case let .editProfile(profile):
+                        EditProfileView(profile: profile)
+                    }
                 }
-             */
         }
         .environment(router)
     }

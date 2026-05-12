@@ -8,4 +8,7 @@
 import SwiftUI
 import Shared
 
-enum AppRouter: Hashable {}
+enum AppRouter: Hashable {
+    
+    case editProfile(profile: Profile)
+}
