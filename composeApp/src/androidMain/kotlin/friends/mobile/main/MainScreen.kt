@@ -20,6 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import friends.mobile.friends.FriendsScreen
+import friends.mobile.profile.EditProfileScreen
 import friends.mobile.profile.ProfileScreen
 
 @Composable
@@ -71,7 +72,30 @@ fun MainScreen(
                 })
             }
             composable(BottomNavItem.Profile.route) {
-                ProfileScreen(onLogout = onLogout)
+                ProfileScreen(
+                    onLogout = onLogout,
+                    onEditClick = { profile ->
+                        // Переходим на экран редактирования и передаем данные
+                        // Для простоты используем навигацию с аргументами или без,
+                        // если ViewModel будет подтягивать данные сама, но здесь передадим через аргументы
+                        navController.navigate("profile_edit/${profile.username}/${profile.bio ?: " "}/${profile.avatarUrl ?: " "}")
+                    }
+                )
+            }
+            // Редактирование профиля (вне нижнего бара, но внутри NavHost)
+            composable(
+                route = "profile_edit/{username}/{bio}/{avatarUrl}"
+            ) { backStackEntry ->
+                val username = backStackEntry.arguments?.getString("username") ?: ""
+                val bio = backStackEntry.arguments?.getString("bio") ?: ""
+                val avatarUrl = backStackEntry.arguments?.getString("avatarUrl") ?: ""
+
+                EditProfileScreen(
+                    initialUsername = username,
+                    initialBio = if (bio == " ") "" else bio,
+                    initialAvatarUrl = if (avatarUrl == " ") "" else avatarUrl,
+                    onBack = { navController.popBackStack() }
+                )
             }
         }
     }

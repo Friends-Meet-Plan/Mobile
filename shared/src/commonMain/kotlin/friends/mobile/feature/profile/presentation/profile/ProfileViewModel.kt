@@ -1,4 +1,4 @@
-package friends.mobile.feature.profile.presentation
+package friends.mobile.feature.profile.presentation.profile
 
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
@@ -11,7 +11,7 @@ import org.koin.core.component.inject
 
 class ProfileViewModel :
     BaseViewModel<ProfileViewState, ProfileAction, ProfileEvent>(
-        initState = ProfileViewState(),
+        initState = ProfileViewState.Loading,
     ),
     KoinComponent {
 
@@ -26,20 +26,24 @@ class ProfileViewModel :
 
     private fun onLoadProfile() {
         viewModelScope.launch {
-            viewState = viewState.copy(isLoading = true, error = null)
+            viewState = ProfileViewState.Loading
             when (val result = getMeUseCase()) {
                 is ResultWrapper.Success -> {
-                    viewState = viewState.copy(profile = result.data, isLoading = false)
+                    viewState = ProfileViewState.Content(profile = result.data)
                 }
                 is ResultWrapper.Error -> {
                     val userError = mapApiErrorToUserFriendly(result.error)
-                    viewState = viewState.copy(isLoading = false, error = getErrorMessage(userError))
+                    viewState = ProfileViewState.Error(message = getErrorMessage(userError))
                 }
             }
         }
     }
 
     private fun onLogoutClick() {
+        val currentContent = viewState as? ProfileViewState.Content
+        if (currentContent != null) {
+            viewState = currentContent.copy(isLoggingOut = true)
+        }
         viewAction = ProfileAction.LogoutRequested
     }
 }
