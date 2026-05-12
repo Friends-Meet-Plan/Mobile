@@ -27,9 +27,17 @@ final class ProfileReducer {
         stateTask = Task {
             for await state in sharedVM.viewStates.asAsyncStream(scope: scope) {
                 guard let profileState = state as? ProfileViewState else { continue }
-                self.isLoading = profileState.isLoading
-                self.errorMessage = profileState.error
-                self.profile = profileState.profile
+                switch profileState {
+                case is ProfileViewState.Loading:
+                    self.isLoading = true
+                case let error as ProfileViewState.Error:
+                    self.errorMessage = error.message
+                case let content as ProfileViewState.Content:
+                    self.profile = content.profile
+                default:
+                    isLoading = false
+                    profile = nil
+                }
             }
         }
         
