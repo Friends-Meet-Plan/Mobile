@@ -1,13 +1,12 @@
-package friends.mobile.feature.profile.domain.repository
+package friends.mobile.feature.profile.domain.usecase
 
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.feature.profile.domain.model.Profile
 
-interface ProfileRepository {
-    suspend fun getMe(): ResultWrapper<Profile>
-    suspend fun updateProfile(
+interface UpdateProfileUseCase {
+    suspend operator fun invoke(
         username: String? = null,
         avatarUrl: String? = null,
-        bio: String? = null
+        bio: String? = null,
     ): ResultWrapper<Profile>
 }

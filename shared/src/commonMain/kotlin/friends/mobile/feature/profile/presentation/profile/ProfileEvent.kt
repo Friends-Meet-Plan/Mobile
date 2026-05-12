@@ -1,4 +1,4 @@
-package friends.mobile.feature.profile.presentation
+package friends.mobile.feature.profile.presentation.profile
 
 sealed class ProfileEvent {
     object OnLoadProfile : ProfileEvent()

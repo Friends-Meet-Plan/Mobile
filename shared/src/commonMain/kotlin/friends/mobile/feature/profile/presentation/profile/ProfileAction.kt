@@ -1,4 +1,4 @@
-package friends.mobile.feature.profile.presentation
+package friends.mobile.feature.profile.presentation.profile
 
 sealed class ProfileAction {
     object LogoutRequested : ProfileAction()

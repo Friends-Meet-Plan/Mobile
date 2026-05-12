@@ -23,18 +23,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import friends.mobile.feature.profile.presentation.ProfileAction
-import friends.mobile.feature.profile.presentation.ProfileEvent
-import friends.mobile.feature.profile.presentation.ProfileViewModel
+import friends.mobile.feature.profile.domain.model.Profile
+import friends.mobile.feature.profile.presentation.profile.ProfileAction
+import friends.mobile.feature.profile.presentation.profile.ProfileEvent
+import friends.mobile.feature.profile.presentation.profile.ProfileViewModel
+import friends.mobile.feature.profile.presentation.profile.ProfileViewState
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     onLogout: () -> Unit,
+    onEditClick: (Profile) -> Unit,
 ) {
     val viewModel: ProfileViewModel = viewModel()
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
+
+    // В ProfileScreen.kt внутри LaunchedEffect(viewModel)
+    LaunchedEffect(Unit) {
+        viewModel.obtainEvent(ProfileEvent.OnLoadProfile)
+    }
 
     LaunchedEffect(viewModel) {
         viewModel.obtainEvent(ProfileEvent.OnLoadProfile)
@@ -48,9 +56,7 @@ fun ProfileScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Profile") }
-            )
+            CenterAlignedTopAppBar(title = { Text("Profile") })
         }
     ) { padding ->
         Box(
@@ -60,20 +66,20 @@ fun ProfileScreen(
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-            when {
-                state.isLoading -> {
+            when (val currentState = state) {
+                is ProfileViewState.Loading -> {
                     CircularProgressIndicator()
                 }
-                state.error != null -> {
+                is ProfileViewState.Error -> {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = "${state.error}", color = MaterialTheme.colorScheme.error)
+                        Text(text = currentState.message, color = MaterialTheme.colorScheme.error)
                         Button(onClick = { viewModel.obtainEvent(ProfileEvent.OnLoadProfile) }) {
                             Text("Retry")
                         }
                     }
                 }
-                state.profile != null -> {
-                    val profile = state.profile!!
+                is ProfileViewState.Content -> {
+                    val profile = currentState.profile
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -83,19 +89,34 @@ fun ProfileScreen(
                             style = MaterialTheme.typography.headlineMedium
                         )
                         profile.bio?.let {
-                            Text(
-                                text = it,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
+                            Text(text = it, style = MaterialTheme.typography.bodyLarge)
                         }
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Button(
+                            onClick = { onEditClick(profile) },
+                            modifier = Modifier.padding(horizontal = 32.dp)
+                        ) {
+                            Text("Edit Profile")
+                        }
+
                         Spacer(modifier = Modifier.height(24.dp))
+
                         Button(
                             onClick = { viewModel.obtainEvent(ProfileEvent.OnLogoutClick) },
+                            enabled = !currentState.isLoggingOut,
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.error
                             )
                         ) {
-                            Text("Logout")
+                            if (currentState.isLoggingOut) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.height(20.dp),
+                                    color = MaterialTheme.colorScheme.onError
+                                )
+                            } else {
+                                Text("Logout")
+                            }
                         }
                     }
                 }
