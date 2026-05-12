@@ -39,8 +39,8 @@ class EditProfileViewModel :
         )
     }
 
-    private fun onSaveClick() {val currentState = viewState as? EditProfileViewState.Content ?: return
-
+    private fun onSaveClick() {
+        val currentState = viewState as? EditProfileViewState.Content ?: return
         viewModelScope.launch {
             viewState = currentState.copy(isSaving = true, saveError = null)
 

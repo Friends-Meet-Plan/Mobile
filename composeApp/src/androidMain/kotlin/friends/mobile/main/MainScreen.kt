@@ -76,7 +76,9 @@ fun MainScreen(
                         // Переходим на экран редактирования и передаем данные
                         // Для простоты используем навигацию с аргументами или без,
                         // если ViewModel будет подтягивать данные сама, но здесь передадим через аргументы
-                        navController.navigate("profile_edit/${profile.username}/${profile.bio ?: " "}/${profile.avatarUrl ?: " "}")
+                        navController.navigate(
+                            "profile_edit/${profile.username}/${profile.bio ?: " "}/${profile.avatarUrl ?: " "}"
+                        )
                     }
                 )
             }

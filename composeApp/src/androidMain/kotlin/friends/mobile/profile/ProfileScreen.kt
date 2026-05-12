@@ -91,7 +91,6 @@ fun ProfileScreen(
                         profile.bio?.let {
                             Text(text = it, style = MaterialTheme.typography.bodyLarge)
                         }
-                        
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Button(
