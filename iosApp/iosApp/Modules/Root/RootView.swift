@@ -15,32 +15,26 @@ struct RootView: View {
     var body: some View {
         NavigationStack(path: $router.path) {
             currentView()
+            /**
                 .navigationDestination(for: AppRouter.self) { route in
-                    switch route {
-                    case let .main(user):
-                        MainView(user: user)
-                    case .friends:
-                        FriendsView()
-                    default:
-                        EmptyView()
-                    }
+                    EmptyView()
                 }
+             */
         }
         .environment(router)
     }
     
     @ViewBuilder
     private func currentView() -> some View {
-        if let session {
-            MainView(user: session.user)
+        if session != nil {
+            TabBarView(onLogout: {
+                self.session = nil
+                router.root()
+            })
         } else {
             LoginView { newSession in
                 self.session = newSession
             }
         }
     }
-}
-
-#Preview {
-    RootView()
 }

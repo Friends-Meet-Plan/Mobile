@@ -17,7 +17,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class FriendsViewModel :
-    BaseViewModel<FriendsViewState, FriendsAction, FriendsEvent>(
+    BaseViewModel<FriendsViewState, Unit, FriendsEvent>(
         initState = FriendsViewState.Content(),
     ),
     KoinComponent {
@@ -40,6 +40,7 @@ class FriendsViewModel :
             is FriendsEvent.OnCancelRequest -> onCancelRequest(event.requestId)
             is FriendsEvent.OnSearchUsers -> onSearchUsers(event.query)
             is FriendsEvent.OnTabSelected -> onTabSelected(event.tab)
+            is FriendsEvent.ReloadCurrentTab -> onReloadCurrentTab()
         }
     }
 
@@ -88,6 +89,32 @@ class FriendsViewModel :
                             outgoingRequests = result.data,
                             searchResults = null
                         )
+                    }
+                }
+                is ResultWrapper.Error -> {
+                    val userError = mapApiErrorToUserFriendly(result.error)
+                    viewState = currentState.copy(requestError = getErrorMessage(userError))
+                }
+            }
+        }
+    }
+
+    private fun onReloadCurrentTab() {
+        val currentState = viewState as? FriendsViewState.Content ?: return
+
+        viewModelScope.launch {
+            val result = when (currentState.currentTab) {
+                RequestTab.FRIENDS -> getFriendsUseCase()
+                RequestTab.INCOMING -> getIncomingFriendRequestsUseCase()
+                RequestTab.OUTGOING -> getOutgoingFriendRequestsUseCase()
+            }
+
+            when (result) {
+                is ResultWrapper.Success -> {
+                    viewState = when (currentState.currentTab) {
+                        RequestTab.FRIENDS -> currentState.copy(friendsList = result.data)
+                        RequestTab.INCOMING -> currentState.copy(incomingRequests = result.data)
+                        RequestTab.OUTGOING -> currentState.copy(outgoingRequests = result.data)
                     }
                 }
                 is ResultWrapper.Error -> {

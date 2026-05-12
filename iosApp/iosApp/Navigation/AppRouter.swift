@@ -8,9 +8,4 @@
 import SwiftUI
 import Shared
 
-enum AppRouter: Hashable {
-    
-    case login
-    case main(AuthUser)
-    case friends
-}
+enum AppRouter: Hashable {}

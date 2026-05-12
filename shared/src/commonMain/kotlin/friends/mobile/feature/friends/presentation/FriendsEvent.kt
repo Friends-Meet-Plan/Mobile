@@ -11,6 +11,7 @@ package friends.mobile.feature.friends.presentation
  *   - OnCancelRequest: cancel an outgoing friend request
  *   - OnSearchUsers: search for users by name/username
  *   - OnTabSelected: switch to a different tab (FRIENDS, INCOMING, or OUTGOING)
+ *   - ReloadCurrentTab: reload the current tab's data
  */
 sealed class FriendsEvent {
     data object ScreenOpened : FriendsEvent()
@@ -20,4 +21,5 @@ sealed class FriendsEvent {
     data class OnCancelRequest(val requestId: String) : FriendsEvent()
     data class OnSearchUsers(val query: String) : FriendsEvent()
     data class OnTabSelected(val tab: RequestTab) : FriendsEvent()
+    data object ReloadCurrentTab : FriendsEvent()
 }
