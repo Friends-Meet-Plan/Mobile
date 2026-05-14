@@ -19,6 +19,8 @@ struct RootView: View {
                     switch route {
                     case let .editProfile(profile):
                         EditProfileView(profile: profile)
+                    case let .createEvent(date):
+                        CreateEventView(date: date)
                     }
                 }
         }

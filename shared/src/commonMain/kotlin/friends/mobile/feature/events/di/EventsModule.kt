@@ -38,6 +38,6 @@ val eventsModule = module {
     }
 
     factory { (dateString: String) ->
-        CreateEventViewModel(dateString = dateString)
+        CreateEventViewModel(selectedDate = dateString)
     }
 }

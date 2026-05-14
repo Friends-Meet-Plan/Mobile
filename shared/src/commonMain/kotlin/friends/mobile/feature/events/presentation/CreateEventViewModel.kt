@@ -6,15 +6,14 @@ import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.events.domain.usecase.CheckFriendsAvailabilityUseCase
 import friends.mobile.feature.events.domain.usecase.CreateEventUseCase
-import friends.mobile.feature.friends.domain.model.User
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class CreateEventViewModel(
-    private val dateString: String,
+    private val selectedDate: String,
 ) : BaseViewModel<CreateEventViewState, CreateEventAction, CreateEventEvent>(
-    initState = CreateEventViewState.SelectContacts(selectedDate = dateString),
+    initState = CreateEventViewState.Loading,
 ),
     KoinComponent {
 
@@ -23,47 +22,36 @@ class CreateEventViewModel(
 
     init {
         viewModelScope.launch {
-            loadAvailableFriends(dateString)
+            loadAvailableFriends()
         }
     }
 
     override fun obtainEvent(event: CreateEventEvent) {
         when (event) {
-            is CreateEventEvent.OnDateSelected -> onDateSelected(event.date)
+            is CreateEventEvent.OnTitleChanged -> updateContent { it.copy(title = event.title, isCreateButtonEnabled = computeIsCreateButtonEnabled(event.title, it.selectedFriendIds)) }
+            is CreateEventEvent.OnDescriptionChanged -> updateContent { it.copy(description = event.description) }
+            is CreateEventEvent.OnLocationChanged -> updateContent { it.copy(location = event.location) }
             is CreateEventEvent.OnToggleFriend -> onToggleFriend(event.friendId)
-            is CreateEventEvent.OnContinueToDetails -> onContinueToDetails()
-            is CreateEventEvent.OnTitleChanged -> updateDetails { it.copy(title = event.title) }
-            is CreateEventEvent.OnDescriptionChanged -> updateDetails { it.copy(description = event.description) }
-            is CreateEventEvent.OnLocationChanged -> updateDetails { it.copy(location = event.location) }
-            is CreateEventEvent.OnTimeChanged -> updateDetails { it.copy(time = event.time) }
-            is CreateEventEvent.OnSubmit -> onSubmit()
+            is CreateEventEvent.OnSelectFriendsSheet -> {} // Handled by UI (sheet visibility)
+            is CreateEventEvent.OnCreateEvent -> onCreateEvent()
             is CreateEventEvent.OnBack -> onBack()
         }
     }
 
-    private fun onDateSelected(date: String) {
-        viewState = CreateEventViewState.SelectContacts(selectedDate = date)
+    private fun loadAvailableFriends() {
         viewModelScope.launch {
-            loadAvailableFriends(date)
-        }
-    }
-
-    private fun loadAvailableFriends(date: String) {
-        val currentState = viewState as? CreateEventViewState.SelectContacts ?: return
-        viewModelScope.launch {
-            viewState = currentState.copy(isLoadingFriends = true, loadError = null)
-            when (val result = checkFriendsAvailabilityUseCase(date)) {
+            when (val result = checkFriendsAvailabilityUseCase(selectedDate)) {
                 is ResultWrapper.Success -> {
-                    viewState = currentState.copy(
+                    viewState = CreateEventViewState.Content(
+                        selectedDate = selectedDate,
                         availableFriends = result.data,
                         isLoadingFriends = false,
                     )
                 }
                 is ResultWrapper.Error -> {
                     val userError = mapApiErrorToUserFriendly(result.error)
-                    viewState = currentState.copy(
-                        isLoadingFriends = false,
-                        loadError = getErrorMessage(userError),
+                    viewState = CreateEventViewState.Error(
+                        message = getErrorMessage(userError),
                     )
                 }
             }
@@ -71,53 +59,36 @@ class CreateEventViewModel(
     }
 
     private fun onToggleFriend(friendId: String) {
-        val currentState = viewState as? CreateEventViewState.SelectContacts ?: return
+        val currentState = viewState as? CreateEventViewState.Content ?: return
         val newSelectedIds = currentState.selectedFriendIds.toMutableSet()
         if (newSelectedIds.contains(friendId)) {
             newSelectedIds.remove(friendId)
         } else {
             newSelectedIds.add(friendId)
         }
-        viewState = currentState.copy(selectedFriendIds = newSelectedIds)
-    }
-
-    private fun onContinueToDetails() {
-        val currentState = viewState as? CreateEventViewState.SelectContacts ?: return
-        val selectedFriends = currentState.availableFriends.filter { user ->
-            currentState.selectedFriendIds.contains(user.id)
-        }
-        viewState = CreateEventViewState.FillDetails(
-            selectedDate = currentState.selectedDate,
-            selectedFriends = selectedFriends,
+        val newSelectedSet = newSelectedIds.toSet()
+        viewState = currentState.copy(
+            selectedFriendIds = newSelectedSet,
+            isCreateButtonEnabled = computeIsCreateButtonEnabled(currentState.title, newSelectedSet),
         )
     }
 
-    private fun updateDetails(transform: (CreateEventViewState.FillDetails) -> CreateEventViewState.FillDetails) {
-        val currentState = viewState as? CreateEventViewState.FillDetails ?: return
-        viewState = transform(currentState)
-    }
-
-    private fun onSubmit() {
-        val currentState = viewState as? CreateEventViewState.FillDetails ?: return
+    private fun onCreateEvent() {
+        val currentState = viewState as? CreateEventViewState.Content ?: return
 
         if (currentState.title.isBlank()) {
-            viewState = CreateEventViewState.Error(
-                message = "Event title is required",
-                previousState = currentState,
-            )
+            viewState = CreateEventViewState.Error(message = "Event title is required")
             return
         }
 
-        val invitedIds = currentState.selectedFriends.map { it.id }
+        if (currentState.selectedFriendIds.isEmpty()) {
+            viewState = CreateEventViewState.Error(message = "Please select at least one friend")
+            return
+        }
 
-        viewState = CreateEventViewState.Submitting(
-            selectedDate = currentState.selectedDate,
-            selectedFriends = currentState.selectedFriends,
-            title = currentState.title,
-            description = currentState.description.takeIf { it.isNotBlank() },
-            location = currentState.location.takeIf { it.isNotBlank() },
-            time = currentState.time.takeIf { it.isNotBlank() },
-        )
+        val invitedIds = currentState.selectedFriendIds.toList()
+
+        viewState = currentState.copy(isCreatingEvent = true)
 
         viewModelScope.launch {
             when (val result = createEventUseCase(
@@ -129,14 +100,12 @@ class CreateEventViewModel(
                 invitedFriendIds = invitedIds,
             )) {
                 is ResultWrapper.Success -> {
-                    viewState = CreateEventViewState.Success(event = result.data)
                     viewAction = CreateEventAction.NavigateToEventDetail(eventId = result.data.id)
                 }
                 is ResultWrapper.Error -> {
                     val userError = mapApiErrorToUserFriendly(result.error)
                     viewState = CreateEventViewState.Error(
                         message = getErrorMessage(userError),
-                        previousState = viewState,
                     )
                 }
             }
@@ -144,21 +113,15 @@ class CreateEventViewModel(
     }
 
     private fun onBack() {
-        when (val current = viewState) {
-            is CreateEventViewState.FillDetails -> {
-                viewState = CreateEventViewState.SelectContacts(
-                    selectedDate = current.selectedDate,
-                    availableFriends = current.selectedFriends,
-                    selectedFriendIds = current.selectedFriends.map { it.id }.toSet(),
-                )
-            }
-            is CreateEventViewState.Error -> {
-                viewState = current.previousState ?: CreateEventViewState.SelectContacts(
-                    selectedDate = (current.previousState as? CreateEventViewState.FillDetails)?.selectedDate
-                        ?: "",
-                )
-            }
-            else -> viewAction = CreateEventAction.NavigateBack
-        }
+        viewAction = CreateEventAction.NavigateBack
+    }
+
+    private fun updateContent(transform: (CreateEventViewState.Content) -> CreateEventViewState.Content) {
+        val currentState = viewState as? CreateEventViewState.Content ?: return
+        viewState = transform(currentState)
+    }
+
+    private fun computeIsCreateButtonEnabled(title: String, selectedFriendIds: Set<String>): Boolean {
+        return title.isNotBlank() && selectedFriendIds.isNotEmpty()
     }
 }
