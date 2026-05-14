@@ -21,6 +21,8 @@ struct RootView: View {
                         EditProfileView(profile: profile)
                     case let .createEvent(date):
                         CreateEventView(date: date)
+                    case let .eventDetail(id):
+                        EventDetailView(eventId: id)
                     }
                 }
         }

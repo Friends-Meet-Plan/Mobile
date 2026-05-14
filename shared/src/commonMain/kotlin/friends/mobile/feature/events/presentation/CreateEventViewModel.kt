@@ -34,7 +34,6 @@ class CreateEventViewModel(
             is CreateEventEvent.OnToggleFriend -> onToggleFriend(event.friendId)
             is CreateEventEvent.OnSelectFriendsSheet -> {} // Handled by UI (sheet visibility)
             is CreateEventEvent.OnCreateEvent -> onCreateEvent()
-            is CreateEventEvent.OnBack -> onBack()
         }
     }
 

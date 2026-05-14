@@ -37,7 +37,7 @@ struct CreateEventView: View {
                     ))
                     
                     TextField("Description", text: Binding(
-                        get: { reducer.descriptionText },
+                        get: { reducer.description },
                         set: { reducer.updateDescription($0) }
                     ))
                     
@@ -63,10 +63,6 @@ struct CreateEventView: View {
                         reducer.submit()
                     }
                     .disabled(!reducer.isCreateButtonEnabled)
-                    
-                    Button("Back") {
-                        reducer.back()
-                    }
                 }
             }
             

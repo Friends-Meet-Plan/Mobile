@@ -16,6 +16,7 @@ internal class EventDetailMapper {
             time = dto.time,
             location = dto.location,
             creatorId = dto.creatorId,
+            status = dto.status,
             participants = dto.participants.map { toDomain(it) },
         )
 

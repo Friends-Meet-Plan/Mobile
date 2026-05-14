@@ -12,4 +12,5 @@ enum AppRouter: Hashable {
     
     case editProfile(profile: Profile)
     case createEvent(date: String)
+    case eventDetail(id: String)
 }

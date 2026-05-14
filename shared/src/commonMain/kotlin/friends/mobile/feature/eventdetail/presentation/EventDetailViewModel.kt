@@ -25,9 +25,7 @@ class EventDetailViewModel(
     }
 
     override fun obtainEvent(event: EventDetailEvent) {
-        when (event) {
-            is EventDetailEvent.OnBack -> onBack()
-        }
+        // Event handling removed - navigation handled natively on iOS/Android
     }
 
     private fun loadEventDetail() {
@@ -48,7 +46,4 @@ class EventDetailViewModel(
         }
     }
 
-    private fun onBack() {
-        viewAction = EventDetailAction.NavigateBack
-    }
 }

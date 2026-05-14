@@ -39,7 +39,7 @@ struct MainView: View {
                         Text("Participants: \(event.participantCount)")
                     }
                     .onTapGesture {
-                        // router.push(screen: .)
+                        router.push(screen: .eventDetail(id: event.id))
                     }
                 }
                 .refreshable {

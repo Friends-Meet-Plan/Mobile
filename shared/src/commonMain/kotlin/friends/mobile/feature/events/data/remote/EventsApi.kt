@@ -31,7 +31,5 @@ internal class EventsApi(
         }.body()
 
     suspend fun getEvent(eventId: String): EventResponseDto =
-        client.get("/events/{id}") {
-            parameter("id", eventId)
-        }.body()
+        client.get("/events/$eventId").body()
 }

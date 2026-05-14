@@ -7,5 +7,4 @@ sealed class CreateEventEvent {
     data class OnToggleFriend(val friendId: String) : CreateEventEvent()
     data object OnSelectFriendsSheet : CreateEventEvent()
     data object OnCreateEvent : CreateEventEvent()
-    data object OnBack : CreateEventEvent()
 }

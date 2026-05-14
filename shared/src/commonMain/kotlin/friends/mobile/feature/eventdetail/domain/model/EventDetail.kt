@@ -8,5 +8,6 @@ data class EventDetail(
     val time: String?,
     val location: String?,
     val creatorId: String,
+    val status: String,
     val participants: List<EventParticipant>,
 )
