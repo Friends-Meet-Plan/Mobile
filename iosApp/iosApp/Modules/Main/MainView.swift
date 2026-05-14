@@ -10,6 +10,7 @@ import Shared
 
 struct MainView: View {
     
+    @State private var reducer = MainEventsReducer()
     @State private var isCreatingEventInProgress = false
     @State private var selectedDate = Date()
     @Environment(Router.self) private var router
@@ -22,6 +23,30 @@ struct MainView: View {
     
     var body: some View {
         VStack {
+            if reducer.isLoading {
+                ProgressView()
+            } else if let errorMessage = reducer.errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.red)
+            } else {
+                List(reducer.upcomingEvents, id: \.id) { event in
+                    VStack(alignment: .leading) {
+                        Text(event.title)
+                        Text("Date: \(event.date)")
+                        if let time = event.time {
+                            Text("Time: \(time)")
+                        }
+                        Text("Participants: \(event.participantCount)")
+                    }
+                    .onTapGesture {
+                        // router.push(screen: .)
+                    }
+                }
+                .refreshable {
+                    reducer.refresh()
+                }
+            }
+            
             Button {
                 isCreatingEventInProgress = true
             } label: {
