@@ -18,6 +18,19 @@ struct EventDetailView: View {
         _reducer = State(initialValue: EventDetailReducer(eventId: eventId))
     }
     
+    private func statusColor(_ status: String) -> Color {
+        switch status.lowercased() {
+        case "accepted":
+            return .green
+        case "declined":
+            return .red
+        case "pending":
+            return .orange
+        default:
+            return .gray
+        }
+    }
+    
     var body: some View {
         if reducer.isLoading {
             ProgressView()
@@ -41,15 +54,32 @@ struct EventDetailView: View {
                         Text("Description: \(description)")
                     }
                     
-                    Text("Participants:")
-                        .font(.headline)
-                    
-                    List(reducer.participants, id: \.userId) { participant in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(participant.username)
-                            Text("Role: \(participant.role)")
-                            Text("Status: \(participant.responseStatus)")
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Participants")
+                            .font(.headline)
+                        
+                        List(reducer.participants, id: \.userId) { participant in
+                            HStack(spacing: 12) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(participant.username)
+                                        .font(.body)
+                                        .foregroundStyle(.primary)
+                                    Text(participant.role)
+                                        .font(.caption)
+                                        .foregroundStyle(.gray)
+                                }
+                                
+                                Spacer()
+                                
+                                Text(participant.responseStatus)
+                                    .font(.subheadline)
+                                    .foregroundColor(statusColor(participant.responseStatus))
+                            }
+                            .listRowInsets(EdgeInsets())
                         }
+                        .listStyle(.plain)
+                        .scrollDisabled(true)
+                        .frame(height: CGFloat(reducer.participants.count) * 60)
                     }
                 }
                 .padding()

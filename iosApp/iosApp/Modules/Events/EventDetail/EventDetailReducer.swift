@@ -44,7 +44,7 @@ final class EventDetailReducer {
                 case let content as EventDetailViewState.Content:
                     self.id = content.eventDetail.id
                     self.title = content.eventDetail.title
-                    self.description = content.eventDetail.description
+                    self.description = content.eventDetail.description_
                     self.date = content.eventDetail.date
                     self.time = content.eventDetail.time
                     self.location = content.eventDetail.location
