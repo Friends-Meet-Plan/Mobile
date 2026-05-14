@@ -108,7 +108,7 @@ final class CreateEventReducer {
     }
     
     func toggleFriendsSheet() {
-        sharedVM.obtainEvent(event: CreateEventEvent.OnSelectFriendsSheet())
+        self.showFriendsSheet.toggle()
     }
     
     func submit() {
