@@ -1,15 +1,14 @@
-package friends.mobile.feature.events.data.mapper
+package friends.mobile.feature.eventdetail.data.mapper
 
+import friends.mobile.feature.eventdetail.domain.model.EventDetail
+import friends.mobile.feature.eventdetail.domain.model.EventParticipant
 import friends.mobile.feature.events.data.remote.dto.EventParticipantDto
 import friends.mobile.feature.events.data.remote.dto.EventResponseDto
-import friends.mobile.feature.events.domain.model.Event
-import friends.mobile.feature.events.domain.model.EventParticipant
-import friends.mobile.feature.events.domain.model.ParticipationStatus
 
-internal class EventDtoMapper {
+internal class EventDetailMapper {
 
-    fun toDomain(dto: EventResponseDto): Event =
-        Event(
+    fun toDomain(dto: EventResponseDto): EventDetail =
+        EventDetail(
             id = dto.id,
             title = dto.title,
             description = dto.description,
@@ -25,7 +24,8 @@ internal class EventDtoMapper {
             userId = dto.userId,
             username = dto.username,
             avatarUrl = dto.avatarUrl,
-            status = ParticipationStatus.valueOf(dto.status.uppercase()),
+            bio = dto.bio,
+            role = dto.role,
+            responseStatus = dto.status,
         )
-
 }

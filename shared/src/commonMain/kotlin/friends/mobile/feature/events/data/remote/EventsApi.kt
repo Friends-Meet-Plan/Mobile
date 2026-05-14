@@ -29,4 +29,9 @@ internal class EventsApi(
         client.get("/events") {
             parameter("scope", scope)
         }.body()
+
+    suspend fun getEvent(eventId: String): EventResponseDto =
+        client.get("/events/{id}") {
+            parameter("id", eventId)
+        }.body()
 }

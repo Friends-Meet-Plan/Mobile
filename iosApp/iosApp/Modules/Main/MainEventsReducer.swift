@@ -53,6 +53,6 @@ final class MainEventsReducer {
     }
     
     func refresh() {
-        sharedVM.obtainEvent(event: Shared.MainEventOnRefresh())
+        // TODO: ON REFRESH
     }
 }
