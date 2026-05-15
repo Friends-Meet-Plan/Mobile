@@ -6,27 +6,32 @@ import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.profile.domain.usecase.GetMeUseCase
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-class ProfileViewModel :
-    BaseViewModel<ProfileViewState, ProfileAction, ProfileEvent>(
-        initState = ProfileViewState.Loading,
-    ),
-    KoinComponent {
+class ProfileViewModel(
+    private val getMeUseCase: GetMeUseCase,
+) : BaseViewModel<ProfileViewState, ProfileAction, ProfileEvent>(
+    initState = ProfileViewState.Loading,
+) {
 
-    private val getMeUseCase: GetMeUseCase by inject()
+    init {
+        obtainEvent(ProfileEvent.OnLoadProfile)
+    }
 
     override fun obtainEvent(event: ProfileEvent) {
         when (event) {
-            is ProfileEvent.OnLoadProfile -> onLoadProfile()
+            is ProfileEvent.OnLoadProfile -> loadProfile(showLoading = true)
+            is ProfileEvent.OnRefreshProfile -> loadProfile(showLoading = false)
             is ProfileEvent.OnLogoutClick -> onLogoutClick()
+            is ProfileEvent.OnEditClick -> onEditClick()
         }
     }
 
-    private fun onLoadProfile() {
+    private fun loadProfile(showLoading: Boolean) {
         viewModelScope.launch {
-            viewState = ProfileViewState.Loading
+            if (showLoading) {
+                viewState = ProfileViewState.Loading
+            }
+            
             when (val result = getMeUseCase()) {
                 is ResultWrapper.Success -> {
                     viewState = ProfileViewState.Content(profile = result.data)
@@ -39,11 +44,16 @@ class ProfileViewModel :
         }
     }
 
-    private fun onLogoutClick() {
-        val currentContent = viewState as? ProfileViewState.Content
-        if (currentContent != null) {
-            viewState = currentContent.copy(isLoggingOut = true)
+    private fun onEditClick() {
+        (viewState as? ProfileViewState.Content)?.let { content ->
+            viewAction = ProfileAction.NavigateToEdit(content.profile)
         }
-        viewAction = ProfileAction.LogoutRequested
+    }
+
+    private fun onLogoutClick() {
+        (viewState as? ProfileViewState.Content)?.let { content ->
+            viewState = content.copy(isLoggingOut = true)
+            viewAction = ProfileAction.NavigateToLogin
+        }
     }
 }

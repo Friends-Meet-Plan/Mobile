@@ -8,6 +8,8 @@ import friends.mobile.feature.profile.data.usecase.UpdateProfileUseCaseImpl
 import friends.mobile.feature.profile.domain.repository.ProfileRepository
 import friends.mobile.feature.profile.domain.usecase.GetMeUseCase
 import friends.mobile.feature.profile.domain.usecase.UpdateProfileUseCase
+import friends.mobile.feature.profile.presentation.edit.EditProfileViewModel
+import friends.mobile.feature.profile.presentation.profile.ProfileViewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -24,4 +26,7 @@ val profileModule = module {
     }
     single<GetMeUseCase> { GetMeUseCaseImpl(get()) }
     single<UpdateProfileUseCase> { UpdateProfileUseCaseImpl(get()) }
+
+    factory { ProfileViewModel(get()) }
+    factory { EditProfileViewModel(get()) }
 }

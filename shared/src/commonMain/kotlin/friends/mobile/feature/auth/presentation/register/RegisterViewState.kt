@@ -4,6 +4,8 @@ sealed class RegisterViewState {
     data object Loading : RegisterViewState()
     data class Error(val message: String) : RegisterViewState()
     data class Content(
-        val hint: String? = null,
+        val username: String = "",
+        val password: String = "",
+        val isRegistering: Boolean = false
     ) : RegisterViewState()
 }

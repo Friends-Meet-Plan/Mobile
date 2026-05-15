@@ -4,20 +4,16 @@ import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.auth.domain.usecase.GetStoredSessionUseCase
 import friends.mobile.feature.auth.domain.usecase.LogoutUseCase
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-class RootViewModel :
-    BaseViewModel<RootViewState, Nothing, RootEvent>(
-        initState = RootViewState.Loading,
-    ),
-    KoinComponent {
-
-    private val getStoredSessionUseCase: GetStoredSessionUseCase by inject()
-    private val logoutUseCase: LogoutUseCase by inject()
+class RootViewModel(
+    private val getStoredSessionUseCase: GetStoredSessionUseCase,
+    private val logoutUseCase: LogoutUseCase,
+) : BaseViewModel<RootViewState, Nothing, RootEvent>(
+    initState = RootViewState.Loading,
+) {
 
     init {
-        viewState = RootViewState.Content(session = getStoredSessionUseCase())
+        loadSession()
     }
 
     override fun obtainEvent(event: RootEvent) {
@@ -25,13 +21,24 @@ class RootViewModel :
             is RootEvent.OnSessionStarted -> {
                 viewState = RootViewState.Content(session = event.session)
             }
-            RootEvent.OnLogoutClick -> {
-                viewModelScope.launch {
-                    viewState = RootViewState.Loading
-                    logoutUseCase()
-                    viewState = RootViewState.Content(session = null)
-                }
+            is RootEvent.OnLogoutClick -> {
+                onLogoutClick()
             }
+        }
+    }
+
+    private fun loadSession() {
+        viewModelScope.launch {
+            val session = getStoredSessionUseCase()
+            viewState = RootViewState.Content(session = session)
+        }
+    }
+
+    private fun onLogoutClick() {
+        viewModelScope.launch {
+            viewState = RootViewState.Loading
+            logoutUseCase()
+            viewState = RootViewState.Content(session = null)
         }
     }
 }

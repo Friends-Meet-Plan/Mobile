@@ -2,22 +2,29 @@ package friends.mobile.auth
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -25,103 +32,141 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import friends.mobile.feature.auth.domain.model.AuthSession
 import friends.mobile.feature.auth.presentation.login.LoginAction
 import friends.mobile.feature.auth.presentation.login.LoginEvent
 import friends.mobile.feature.auth.presentation.login.LoginViewModel
 import friends.mobile.feature.auth.presentation.login.LoginViewState
 import kotlinx.coroutines.flow.collectLatest
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LoginScreen(
     onLoginSuccess: (AuthSession) -> Unit,
+    viewModel: LoginViewModel = koinViewModel()
 ) {
-    val viewModel: LoginViewModel = viewModel()
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
-
-    var username by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var showRegister by rememberSaveable { mutableStateOf(false) }
+    var showRegister by remember { mutableStateOf(false) }
+    var errorAlertMessage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(viewModel) {
         viewModel.viewActions.collectLatest { action ->
             when (action) {
-                is LoginAction.LoginSucceeded -> onLoginSuccess(action.session)
-                is LoginAction.ShowMessage -> Unit
+                is LoginAction.NavigateToHome -> onLoginSuccess(action.session)
+                is LoginAction.ShowMessage -> {
+                    errorAlertMessage = action.message
+                }
             }
         }
     }
 
-    val isLoading = state is LoginViewState.Loading
-    val errorMessage = (state as? LoginViewState.Error)?.message
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.padding(16.dp),
-    ) {
-        OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Username") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.None,
-                autoCorrectEnabled = false,
-                keyboardType = KeyboardType.Text,
-            ),
-            modifier = Modifier.fillMaxWidth(),
-        )
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth(),
-        )
-
-        if (errorMessage != null) {
-            Text(
-                text = errorMessage,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-
-        Button(
-            onClick = {
-                viewModel.obtainEvent(
-                    LoginEvent.OnLoginClick(
-                        username = username,
-                        password = password,
-                    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        when (val currentState = state) {
+            is LoginViewState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+            is LoginViewState.Error -> {
+                LaunchedEffect(currentState) {
+                    errorAlertMessage = currentState.message
+                }
+                LoginForm(
+                    state = LoginViewState.Content(),
+                    onEvent = viewModel::obtainEvent,
+                    onRegisterClick = { showRegister = true }
                 )
-            },
-            enabled = !isLoading && username.isNotBlank() && password.isNotBlank(),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    color = Color.White,
-                    modifier = Modifier.size(20.dp),
+            }
+            is LoginViewState.Content -> {
+                LoginForm(
+                    state = currentState,
+                    onEvent = viewModel::obtainEvent,
+                    onRegisterClick = { showRegister = true }
                 )
-            } else {
-                Text("Login")
             }
         }
+    }
 
-        Text(
-            text = "Register now",
-            modifier = Modifier.clickable { showRegister = true },
+    errorAlertMessage?.let { message ->
+        AlertDialog(
+            onDismissRequest = { errorAlertMessage = null },
+            title = { Text("Authentication Error") },
+            text = { Text(message) },
+            confirmButton = {
+                TextButton(onClick = { errorAlertMessage = null }) {
+                    Text("OK")
+                }
+            }
         )
     }
 
     if (showRegister) {
         RegisterBottomSheet(
             onDismiss = { showRegister = false },
-            onRegisterSuccess = { showRegister = false },
+            onRegisterSuccess = { showRegister = false }
+        )
+    }
+}
+
+@Composable
+private fun LoginForm(
+    state: LoginViewState.Content,
+    onEvent: (LoginEvent) -> Unit,
+    onRegisterClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Welcome Back", style = MaterialTheme.typography.headlineLarge)
+        Spacer(modifier = Modifier.height(32.dp))
+
+        OutlinedTextField(
+            value = state.username,
+            onValueChange = { onEvent(LoginEvent.OnUsernameChanged(it)) },
+            label = { Text("Username") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,
+                autoCorrectEnabled = false
+            )
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = state.password,
+            onValueChange = { onEvent(LoginEvent.OnPasswordChanged(it)) },
+            label = { Text("Password") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = { onEvent(LoginEvent.OnLoginClick) },
+            modifier = Modifier.fillMaxWidth().height(50.dp),
+            enabled = !state.isLoggingIn && state.username.isNotBlank() && state.password.isNotBlank()
+        ) {
+            if (state.isLoggingIn) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+            } else {
+                Text("Login")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Don't have an account? Register",
+            modifier = Modifier.clickable { onRegisterClick() },
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }
