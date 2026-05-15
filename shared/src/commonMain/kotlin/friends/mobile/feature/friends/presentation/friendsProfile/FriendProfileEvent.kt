@@ -1,4 +1,4 @@
-package friends.mobile.feature.friends.presentation
+package friends.mobile.feature.friends.presentation.friendsProfile
 
 /**
  * MVI events for the friend profile screen.

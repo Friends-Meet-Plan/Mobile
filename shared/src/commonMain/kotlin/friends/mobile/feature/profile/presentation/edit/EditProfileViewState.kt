@@ -9,7 +9,6 @@ sealed class EditProfileViewState {
         val username: String = "",
         val bio: String = "",
         val avatarUrl: String = "",
-        val isSaving: Boolean = false,
-        val saveError: String? = null
+        val isSaving: Boolean = false
     ) : EditProfileViewState()
 }
