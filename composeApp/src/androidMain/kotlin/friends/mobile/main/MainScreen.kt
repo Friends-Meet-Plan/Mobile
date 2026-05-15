@@ -19,19 +19,34 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import friends.mobile.friends.FriendsScreen
 import friends.mobile.profile.EditProfileScreen
 import friends.mobile.profile.ProfileScreen
+import kotlinx.serialization.Serializable
+
+@Serializable
+sealed interface Screen {
+    @Serializable data object Home : Screen
+    @Serializable data object Friends : Screen
+    @Serializable data object Profile : Screen
+    @Serializable data class ProfileEdit(
+        val username: String,
+        val bio: String?,
+        val avatarUrl: String?
+    ) : Screen
+}
 
 @Composable
 fun MainScreen(
     onLogout: () -> Unit
 ) {
     val navController = rememberNavController()
-    val items = listOf(
-        BottomNavItem.Home,
-        BottomNavItem.Friends,
-        BottomNavItem.Profile
+    
+    val bottomNavItems = listOf(
+        Triple(Screen.Home, "Home", BottomNavItem.Home.icon),
+        Triple(Screen.Friends, "Friends", BottomNavItem.Friends.icon),
+        Triple(Screen.Profile, "Profile", BottomNavItem.Profile.icon)
     )
 
     Scaffold(
@@ -39,13 +54,15 @@ fun MainScreen(
             NavigationBar {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
-                items.forEach { item ->
+                
+                bottomNavItems.forEach { (screen, title, icon) ->
+                    val routeName = screen::class.qualifiedName ?: ""
                     NavigationBarItem(
-                        icon = { Icon(item.icon, contentDescription = item.title) },
-                        label = { Text(item.title) },
-                        selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                        icon = { Icon(icon, contentDescription = title) },
+                        label = { Text(title) },
+                        selected = currentDestination?.hierarchy?.any { it.route?.contains(routeName) == true } == true,
                         onClick = {
-                            navController.navigate(item.route) {
+                            navController.navigate(screen) {
                                 popUpTo(navController.graph.findStartDestination().id) {
                                     saveState = true
                                 }
@@ -60,40 +77,35 @@ fun MainScreen(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = BottomNavItem.Home.route,
+            startDestination = Screen.Home,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(BottomNavItem.Home.route) {
+            composable<Screen.Home> {
                 PlaceholderScreen("Home Screen")
             }
-            composable(BottomNavItem.Friends.route) {
+            composable<Screen.Friends> {
                 FriendsScreen()
             }
-            composable(BottomNavItem.Profile.route) {
+            composable<Screen.Profile> {
                 ProfileScreen(
                     onLogout = onLogout,
                     onEditClick = { profile ->
-                        // Переходим на экран редактирования и передаем данные
-                        // Для простоты используем навигацию с аргументами или без,
-                        // если ViewModel будет подтягивать данные сама, но здесь передадим через аргументы
                         navController.navigate(
-                            "profile_edit/${profile.username}/${profile.bio ?: " "}/${profile.avatarUrl ?: " "}"
+                            Screen.ProfileEdit(
+                                username = profile.username,
+                                bio = profile.bio,
+                                avatarUrl = profile.avatarUrl
+                            )
                         )
                     }
                 )
             }
-            // Редактирование профиля (вне нижнего бара, но внутри NavHost)
-            composable(
-                route = "profile_edit/{username}/{bio}/{avatarUrl}"
-            ) { backStackEntry ->
-                val username = backStackEntry.arguments?.getString("username") ?: ""
-                val bio = backStackEntry.arguments?.getString("bio") ?: ""
-                val avatarUrl = backStackEntry.arguments?.getString("avatarUrl") ?: ""
-
+            composable<Screen.ProfileEdit> { backStackEntry ->
+                val args = backStackEntry.toRoute<Screen.ProfileEdit>()
                 EditProfileScreen(
-                    initialUsername = username,
-                    initialBio = if (bio == " ") "" else bio,
-                    initialAvatarUrl = if (avatarUrl == " ") "" else avatarUrl,
+                    initialUsername = args.username,
+                    initialBio = args.bio ?: "",
+                    initialAvatarUrl = args.avatarUrl ?: "",
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -103,10 +115,7 @@ fun MainScreen(
 
 @Composable
 fun PlaceholderScreen(title: String) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text(title, style = MaterialTheme.typography.headlineMedium)
     }
 }

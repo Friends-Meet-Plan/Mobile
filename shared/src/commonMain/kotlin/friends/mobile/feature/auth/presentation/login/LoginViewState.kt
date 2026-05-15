@@ -4,6 +4,8 @@ sealed class LoginViewState {
     data object Loading : LoginViewState()
     data class Error(val message: String) : LoginViewState()
     data class Content(
-        val hint: String? = null,
+        val username: String = "",
+        val password: String = "",
+        val isLoggingIn: Boolean = false
     ) : LoginViewState()
 }

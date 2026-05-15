@@ -7,7 +7,7 @@ import friends.mobile.feature.friends.data.remote.FriendsApi
 import friends.mobile.feature.friends.domain.model.FriendStatus
 import friends.mobile.feature.friends.domain.model.User
 import friends.mobile.feature.friends.domain.repository.FriendsRepository
-import friends.mobile.feature.friends.presentation.FriendshipStatus
+import friends.mobile.feature.friends.presentation.friendsProfile.FriendshipStatus
 
 internal class FriendsRepositoryImpl(
     private val api: FriendsApi,
