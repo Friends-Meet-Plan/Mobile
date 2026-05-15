@@ -12,6 +12,7 @@ struct EventDetailView: View {
     let eventId: String
     
     @State private var reducer: EventDetailReducer
+    @Environment(Router.self) private var router
     
     init(eventId: String) {
         self.eventId = eventId
@@ -83,6 +84,17 @@ struct EventDetailView: View {
                     }
                 }
                 .padding()
+            }
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        router.root()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .padding()
+                    }
+                }
             }
         }
     }

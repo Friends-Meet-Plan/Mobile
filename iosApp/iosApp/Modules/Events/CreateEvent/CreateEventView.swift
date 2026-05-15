@@ -73,7 +73,7 @@ struct CreateEventView: View {
         }
         .task {
             reducer.onNavigateToEventDetail = { eventId in
-                router.path = NavigationPath([AppRouter.eventDetail(id: eventId)])
+                router.push(screen: .eventDetail(id: eventId))
             }
         }
         .sheet(isPresented: Binding(
