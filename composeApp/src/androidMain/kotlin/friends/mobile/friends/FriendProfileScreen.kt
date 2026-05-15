@@ -160,7 +160,9 @@ private fun UserProfileCard(user: User) {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Box(
-            modifier = Modifier.size(80.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHighest),
+            modifier = Modifier.size(80.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -194,11 +196,22 @@ private fun ActionButtons(
             modifier = Modifier.fillMaxWidth(),
             enabled = false
         ) { Text("Request Sent") }
-        FriendshipStatus.INCOMING -> Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = { callbacks.onAcceptRequest(user.id) }, modifier = Modifier.weight(1f), enabled = !isLoading) {
+        FriendshipStatus.INCOMING -> Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Button(
+                onClick = { callbacks.onAcceptRequest(user.id) },
+                modifier = Modifier.weight(1f),
+                enabled = !isLoading
+            ) {
                 Text("Accept")
             }
-            OutlinedButton(onClick = { callbacks.onRejectRequest(user.id) }, modifier = Modifier.weight(1f), enabled = !isLoading) {
+            OutlinedButton(
+                onClick = { callbacks.onRejectRequest(user.id) },
+                modifier = Modifier.weight(1f),
+                enabled = !isLoading
+            ) {
                 Text("Decline")
             }
         }

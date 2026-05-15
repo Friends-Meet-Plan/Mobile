@@ -23,8 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import friends.mobile.feature.profile.domain.model.Profile
 import friends.mobile.feature.profile.presentation.profile.ProfileAction
@@ -111,7 +109,6 @@ private fun ProfileContent(
     ) {
         Text(text = profile.username, style = MaterialTheme.typography.headlineMedium)
         profile.bio?.let { Text(text = it, style = MaterialTheme.typography.bodyLarge) }
-        
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
