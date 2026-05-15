@@ -79,6 +79,7 @@ class FriendProfileViewModel(
                     viewState = currentState.copy(
                         isActionPending = false,
                     )
+                    viewAction = FriendProfileAction.ShowError(getErrorMessage(userError))
                 }
             }
         }

@@ -7,9 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import friends.mobile.feature.friends.domain.model.User
+import friends.mobile.feature.friends.presentation.friendsProfile.FriendProfileAction
 import friends.mobile.feature.friends.presentation.friendsProfile.FriendProfileEvent
 import friends.mobile.feature.friends.presentation.friendsProfile.FriendProfileViewModel
 import friends.mobile.feature.friends.presentation.friendsProfile.FriendProfileViewState
@@ -62,10 +61,15 @@ fun FriendProfileScreenContent(
     viewModel: FriendProfileViewModel = koinViewModel()
 ) {
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(viewModel) {
         viewModel.viewActions.collectLatest { action ->
-            // Handle effects if needed
+            when (action) {
+                is FriendProfileAction.ShowError -> {
+                    snackbarHostState.showSnackbar(action.message)
+                }
+            }
         }
     }
 
@@ -73,24 +77,30 @@ fun FriendProfileScreenContent(
         viewModel.obtainEvent(FriendProfileEvent.ScreenOpened(userId = userId))
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface),
-    ) {
-        when (val currentState = state) {
-            is FriendProfileViewState.Loading -> LoadingState()
-            is FriendProfileViewState.Error -> ErrorBanner(
-                message = currentState.message,
-                modifier = Modifier.fillMaxWidth()
-            )
-            is FriendProfileViewState.Content -> FriendProfileContent(
-                content = currentState,
-                onSendRequest = { id -> viewModel.obtainEvent(FriendProfileEvent.OnSendRequest(id)) },
-                onAcceptRequest = { id -> viewModel.obtainEvent(FriendProfileEvent.OnAcceptRequest(id)) },
-                onRejectRequest = { id -> viewModel.obtainEvent(FriendProfileEvent.OnRejectRequest(id)) },
-                onRemoveFriend = { id -> viewModel.obtainEvent(FriendProfileEvent.OnRemoveFriend(id)) }
-            )
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Color.Transparent // BottomSheet already has background
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(padding)
+                .background(MaterialTheme.colorScheme.surface),
+        ) {
+            when (val currentState = state) {
+                is FriendProfileViewState.Loading -> LoadingState()
+                is FriendProfileViewState.Error -> ErrorBanner(
+                    message = currentState.message,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                is FriendProfileViewState.Content -> FriendProfileContent(
+                    content = currentState,
+                    onSendRequest = { id -> viewModel.obtainEvent(FriendProfileEvent.OnSendRequest(id)) },
+                    onAcceptRequest = { id -> viewModel.obtainEvent(FriendProfileEvent.OnAcceptRequest(id)) },
+                    onRejectRequest = { id -> viewModel.obtainEvent(FriendProfileEvent.OnRejectRequest(id)) },
+                    onRemoveFriend = { id -> viewModel.obtainEvent(FriendProfileEvent.OnRemoveFriend(id)) }
+                )
+            }
         }
     }
 }
@@ -126,11 +136,6 @@ private fun FriendProfileContent(
         UserProfileCard(user = content.user)
 
         Spacer(modifier = Modifier.height(24.dp))
-
-        content.actionError?.let {
-            ErrorBanner(message = it, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(16.dp))
-        }
 
         ActionButtons(
             user = content.user,

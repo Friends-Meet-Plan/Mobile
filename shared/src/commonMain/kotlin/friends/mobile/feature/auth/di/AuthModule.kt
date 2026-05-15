@@ -16,6 +16,9 @@ import friends.mobile.feature.auth.domain.usecase.GetStoredSessionUseCase
 import friends.mobile.feature.auth.domain.usecase.LoginUseCase
 import friends.mobile.feature.auth.domain.usecase.LogoutUseCase
 import friends.mobile.feature.auth.domain.usecase.RegisterUseCase
+import friends.mobile.feature.auth.presentation.RootViewModel
+import friends.mobile.feature.auth.presentation.login.LoginViewModel
+import friends.mobile.feature.auth.presentation.register.RegisterViewModel
 import io.ktor.client.HttpClient
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -27,11 +30,9 @@ val authModule = module {
             client = authClient,
             storage = get(),
             onRefresh = {
-                // Используем getOrThrow() для лаконичного получения токена
                 get<AuthRepository>().refresh().getOrThrow()
             },
             onUnauthorized = {
-                // Игнорируем результат логаута, так как нам нужно просто вызвать действие
                 get<AuthRepository>().logout()
             },
         )
@@ -65,4 +66,8 @@ val authModule = module {
     factory<RegisterUseCase> { RegisterUseCaseImpl(repository = get()) }
     factory<LogoutUseCase> { LogoutUseCaseImpl(repository = get()) }
     factory<GetStoredSessionUseCase> { GetStoredSessionUseCaseImpl(repository = get()) }
+
+    factory { RootViewModel(get(), get()) }
+    factory { LoginViewModel(get()) }
+    factory { RegisterViewModel(get()) }
 }

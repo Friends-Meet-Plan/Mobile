@@ -20,5 +20,6 @@ sealed class FriendsViewState {
         val searchResults: List<User>? = null,
         val isSearching: Boolean = false,
         val isActionPending: Boolean = false,
+        val isTabLoading: Boolean = false
     ) : FriendsViewState()
 }
