@@ -14,5 +14,5 @@ interface EventsRepository {
         time: String?,
         location: String?,
         invitedFriendIds: List<String>,
-    ): ResultWrapper<Event>
+    ): ResultWrapper<String>
 }

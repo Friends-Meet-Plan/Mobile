@@ -51,7 +51,7 @@ final class CreateEventReducer {
                     self.isLoadingFriends = false
                 case let content as CreateEventViewState.Content:
                     self.title = content.title
-                    self.description = content.description
+                    self.description = content.description_
                     self.location = content.location
                     self.time = content.time
                     self.availableFriends = content.availableFriends

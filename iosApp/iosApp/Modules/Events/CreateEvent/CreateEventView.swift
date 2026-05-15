@@ -11,6 +11,7 @@ import Shared
 struct CreateEventView: View {
     
     @State var reducer: CreateEventReducer
+    @Environment(Router.self) private var router
     
     init(date: String) {
         self.reducer = CreateEventReducer(dateString: date)
@@ -70,41 +71,45 @@ struct CreateEventView: View {
                 ProgressView()
             }
         }
+        .task {
+            reducer.onNavigateToEventDetail = { eventId in
+                router.path = NavigationPath([AppRouter.eventDetail(id: eventId)])
+            }
+        }
         .sheet(isPresented: Binding(
             get: { reducer.showFriendsSheet },
             set: { reducer.showFriendsSheet = $0 }
         )) {
-            NavigationStack {
-                VStack {
-                    if reducer.isLoadingFriends {
-                        ProgressView()
-                    } else if let error = reducer.friendsError {
-                        Text(error)
-                            .foregroundStyle(.red)
-                    } else if reducer.availableFriends.isEmpty {
-                        Text("No friends available")
-                    } else {
-                        List(reducer.availableFriends, id: \.id) { friend in
-                            Button(action: {
-                                reducer.toggleFriend(friend.id)
-                            }) {
-                                HStack {
-                                    Text(friend.username)
-                                    Spacer()
-                                    if reducer.selectedFriendIds.contains(friend.id) {
-                                        Text("✓")
+            VStack {
+                if reducer.isLoadingFriends {
+                    ProgressView()
+                } else if let error = reducer.friendsError {
+                    Text(error)
+                        .foregroundStyle(.red)
+                } else if reducer.availableFriends.isEmpty {
+                    Text("No friends available on selected date")
+                } else {
+                    List(reducer.availableFriends, id: \.id) { friend in
+                        Button {
+                            reducer.toggleFriend(friend.id)
+                        } label: {
+                            HStack {
+                                Text(friend.username)
+                                    .background {
+                                        Color.blue
+                                            .opacity(reducer.selectedFriendIds.contains(friend.id) ? 1 : 0)
                                     }
-                                }
+                                Spacer()
                             }
                         }
                     }
                 }
-                .navigationTitle("Select Friends")
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button("Done") {
-                            reducer.showFriendsSheet = false
-                        }
+            }
+            .navigationTitle("Select Friends")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") {
+                        reducer.showFriendsSheet = false
                     }
                 }
             }

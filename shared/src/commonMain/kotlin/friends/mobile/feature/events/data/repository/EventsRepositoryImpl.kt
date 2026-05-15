@@ -2,17 +2,14 @@ package friends.mobile.feature.events.data.repository
 
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.network.safeApiCall
-import friends.mobile.feature.events.data.mapper.EventDtoMapper
 import friends.mobile.feature.events.data.remote.EventsApi
 import friends.mobile.feature.events.data.remote.dto.CreateEventRequestDto
-import friends.mobile.feature.events.domain.model.Event
 import friends.mobile.feature.events.domain.repository.EventsRepository
 import friends.mobile.feature.friends.data.mapper.UserDtoMapper
 import friends.mobile.feature.friends.domain.model.User
 
 internal class EventsRepositoryImpl(
     private val api: EventsApi,
-    private val eventDtoMapper: EventDtoMapper,
     private val userDtoMapper: UserDtoMapper,
 ) : EventsRepository {
 
@@ -29,7 +26,7 @@ internal class EventsRepositoryImpl(
         time: String?,
         location: String?,
         invitedFriendIds: List<String>,
-    ): ResultWrapper<Event> = safeApiCall {
+    ): ResultWrapper<String> = safeApiCall {
         val body = CreateEventRequestDto(
             title = title,
             description = description,
@@ -39,6 +36,6 @@ internal class EventsRepositoryImpl(
             invitedFriendIds = invitedFriendIds,
         )
         val response = api.createEvent(body)
-        eventDtoMapper.toDomain(response)
+        response.id
     }
 }

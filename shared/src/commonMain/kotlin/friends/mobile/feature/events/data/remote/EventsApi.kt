@@ -2,6 +2,7 @@ package friends.mobile.feature.events.data.remote
 
 import friends.mobile.feature.events.data.remote.dto.CheckAvailabilityResponseDto
 import friends.mobile.feature.events.data.remote.dto.CreateEventRequestDto
+import friends.mobile.feature.events.data.remote.dto.CreateEventResponseDto
 import friends.mobile.feature.events.data.remote.dto.EventResponseDto
 import friends.mobile.feature.main.data.remote.dto.EventListItemDto
 import io.ktor.client.HttpClient
@@ -15,7 +16,7 @@ internal class EventsApi(
     private val client: HttpClient,
 ) {
 
-    suspend fun createEvent(body: CreateEventRequestDto): EventResponseDto =
+    suspend fun createEvent(body: CreateEventRequestDto): CreateEventResponseDto =
         client.post("/events") {
             setBody(body)
         }.body()

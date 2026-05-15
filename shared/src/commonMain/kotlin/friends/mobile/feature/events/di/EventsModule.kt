@@ -1,6 +1,5 @@
 package friends.mobile.feature.events.di
 
-import friends.mobile.feature.events.data.mapper.EventDtoMapper
 import friends.mobile.feature.events.data.remote.EventsApi
 import friends.mobile.feature.events.data.repository.EventsRepositoryImpl
 import friends.mobile.feature.events.data.usecase.CheckFriendsAvailabilityUseCaseImpl
@@ -17,14 +16,9 @@ val eventsModule = module {
         EventsApi(client = get(named("auth")))
     }
 
-    single<EventDtoMapper> {
-        EventDtoMapper()
-    }
-
     single<EventsRepository> {
         EventsRepositoryImpl(
             api = get(),
-            eventDtoMapper = get(),
             userDtoMapper = get(),
         )
     }

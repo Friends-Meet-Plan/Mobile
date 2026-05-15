@@ -32,7 +32,7 @@ class CreateEventViewModel(
             is CreateEventEvent.OnDescriptionChanged -> updateContent { it.copy(description = event.description) }
             is CreateEventEvent.OnLocationChanged -> updateContent { it.copy(location = event.location) }
             is CreateEventEvent.OnToggleFriend -> onToggleFriend(event.friendId)
-            is CreateEventEvent.OnSelectFriendsSheet -> {} // Handled by UI (sheet visibility)
+            is CreateEventEvent.OnSelectFriendsSheet -> {}
             is CreateEventEvent.OnCreateEvent -> onCreateEvent()
         }
     }
@@ -99,7 +99,7 @@ class CreateEventViewModel(
                 invitedFriendIds = invitedIds,
             )) {
                 is ResultWrapper.Success -> {
-                    viewAction = CreateEventAction.NavigateToEventDetail(eventId = result.data.id)
+                    viewAction = CreateEventAction.NavigateToEventDetail(eventId = result.data)
                 }
                 is ResultWrapper.Error -> {
                     val userError = mapApiErrorToUserFriendly(result.error)
