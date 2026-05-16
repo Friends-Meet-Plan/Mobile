@@ -9,20 +9,22 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-class FriendsViewModel(
-    private val getFriendsUseCase: GetFriendsUseCase,
-    private val getIncomingFriendRequestsUseCase: GetIncomingFriendRequestsUseCase,
-    private val getOutgoingFriendRequestsUseCase: GetOutgoingFriendRequestsUseCase,
-    private val sendFriendRequestUseCase: SendFriendRequestUseCase,
-    private val acceptFriendRequestUseCase: AcceptFriendRequestUseCase,
-    private val rejectFriendRequestUseCase: RejectFriendRequestUseCase,
-    private val cancelFriendRequestUseCase: CancelFriendRequestUseCase,
-    private val searchUserUseCase: SearchUserUseCase
-) : BaseViewModel<FriendsViewState, FriendsAction, FriendsEvent>(
+class FriendsViewModel : BaseViewModel<FriendsViewState, FriendsAction, FriendsEvent>(
     initState = FriendsViewState.Loading,
-) {
+), KoinComponent {
+
+    private val getFriendsUseCase: GetFriendsUseCase by inject()
+    private val getIncomingFriendRequestsUseCase: GetIncomingFriendRequestsUseCase by inject()
+    private val getOutgoingFriendRequestsUseCase: GetOutgoingFriendRequestsUseCase by inject()
+    private val sendFriendRequestUseCase: SendFriendRequestUseCase by inject()
+    private val acceptFriendRequestUseCase: AcceptFriendRequestUseCase by inject()
+    private val rejectFriendRequestUseCase: RejectFriendRequestUseCase by inject()
+    private val cancelFriendRequestUseCase: CancelFriendRequestUseCase by inject()
+    private val searchUserUseCase: SearchUserUseCase by inject()
 
     private val searchQueryFlow = MutableSharedFlow<String>()
     private val loadTriggerFlow = MutableSharedFlow<Boolean>()

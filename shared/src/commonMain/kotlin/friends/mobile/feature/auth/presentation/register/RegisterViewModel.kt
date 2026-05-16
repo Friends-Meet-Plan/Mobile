@@ -6,12 +6,14 @@ import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.auth.domain.usecase.RegisterUseCase
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class RegisterViewModel(
-    private val registerUseCase: RegisterUseCase
-) : BaseViewModel<RegisterViewState, RegisterAction, RegisterEvent>(
+class RegisterViewModel : BaseViewModel<RegisterViewState, RegisterAction, RegisterEvent>(
     initState = RegisterViewState.Content(),
-) {
+), KoinComponent {
+
+    private val registerUseCase: RegisterUseCase by inject()
 
     override fun obtainEvent(event: RegisterEvent) {
         when (event) {

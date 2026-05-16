@@ -59,6 +59,9 @@ struct FriendsView: View {
                     }
                 }
         }
+        .task {
+            reducer.reloadCurrentTab()
+        }
         .sheet(item: $friendToPresent) { friend in
             FriendProfileView(reducer: FriendProfileReducer(userId: friend.id))
                 .onDisappear {

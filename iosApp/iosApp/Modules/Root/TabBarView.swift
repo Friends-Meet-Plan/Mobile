@@ -15,7 +15,6 @@ private enum Tab {
 }
 
 struct TabBarView: View {
-    var onLogout: () -> Void
     
     @Environment(Router.self) var router
     @State private var selectedTab: Tab = .main
@@ -32,7 +31,7 @@ struct TabBarView: View {
                     Label("Friends", systemImage: "person.2.fill")
                 }
                 .tag(Tab.friends)
-            ProfileView(onLogout: onLogout)
+            ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }

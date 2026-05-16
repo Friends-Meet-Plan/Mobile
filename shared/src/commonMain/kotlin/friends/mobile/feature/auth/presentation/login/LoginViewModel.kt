@@ -6,12 +6,14 @@ import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.auth.domain.usecase.LoginUseCase
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class LoginViewModel(
-    private val loginUseCase: LoginUseCase
-) : BaseViewModel<LoginViewState, LoginAction, LoginEvent>(
+class LoginViewModel : BaseViewModel<LoginViewState, LoginAction, LoginEvent>(
     initState = LoginViewState.Content(),
-) {
+), KoinComponent {
+
+    private val loginUseCase: LoginUseCase by inject()
 
     override fun obtainEvent(event: LoginEvent) {
         when (event) {

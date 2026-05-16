@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import Shared
 
 @Observable
 final class Router {
     
     var path = NavigationPath()
+    var session: AuthSession?
     
     func push(screen: AppRouter) {
         path.append(screen)
@@ -22,5 +24,9 @@ final class Router {
     
     func root() {
         path = NavigationPath()
+    }
+    
+    func login() {
+        session = nil
     }
 }

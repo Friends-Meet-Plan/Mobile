@@ -16,6 +16,7 @@ final class ProfileReducer {
     var errorMessage: String?
     
     var onLogoutRequested: (() -> Void)?
+    var onEditProfileRequested: (() -> Void)?
     
     private let sharedVM = ProfileViewModel()
     private var stateTask: Task<Void, Never>?
@@ -45,8 +46,14 @@ final class ProfileReducer {
             let stream = sharedVM.viewActions.asAsyncStream(scope: scope)
             for await rawAction in stream {
                 guard let action = rawAction as? ProfileAction else { continue }
-                if action is ProfileAction.LogoutRequested {
-                    onLogoutRequested?()
+                switch action {
+                case is ProfileAction.NavigateToLogin:
+                    self.onLogoutRequested?()
+                case is ProfileAction.NavigateToEdit:
+                    self.onEditProfileRequested?()
+                case let message as ProfileAction.ShowMessage:
+                    self.errorMessage = message.message
+                default: break
                 }
             }
         }
@@ -64,5 +71,9 @@ final class ProfileReducer {
     
     func logout() {
         sharedVM.obtainEvent(event: ProfileEvent.OnLogoutClick())
+    }
+    
+    func navigateToEdit() {
+        sharedVM.obtainEvent(event: ProfileEvent.OnEditClick())
     }
 }

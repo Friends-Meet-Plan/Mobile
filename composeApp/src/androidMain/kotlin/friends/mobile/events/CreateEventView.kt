@@ -154,7 +154,7 @@ fun CreateEventView(
                         viewModel.obtainEvent(CreateEventEvent.OnToggleFriend(friendId))
                     },
                     onCreateClick = {
-                        viewModel.obtainEvent(CreateEventEvent.OnCreateEvent())
+                        viewModel.obtainEvent(CreateEventEvent.OnCreateEvent)
                     },
                     modifier = Modifier.padding(innerPadding),
                 )
@@ -230,7 +230,7 @@ private fun CreateEventContent(
 
             if (state.friendsError != null) {
                 Text(
-                    text = state.friendsError,
+                    text = state.friendsError!!,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                 )

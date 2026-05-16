@@ -9,7 +9,6 @@ import SwiftUI
 import Shared
 
 struct ProfileView: View {
-    var onLogout: (() -> Void)?
     
     @Environment(Router.self) private var router
     @State private var profileReducer = ProfileReducer()
@@ -24,7 +23,7 @@ struct ProfileView: View {
                 Spacer()
                 
                 Button("Edit Profile") {
-                    router.push(screen: .editProfile(profile: profile))
+                    profileReducer.navigateToEdit()
                 }
                 .tint(.blue)
                 
@@ -35,12 +34,17 @@ struct ProfileView: View {
             }
             .padding()
             .navigationTitle("Profile")
-            .task {
-                profileReducer.onLogoutRequested = onLogout
-            }
             .onAppear {
                 // TODO: костыль обновления
                 profileReducer.loadProfile()
+            }
+            .task {
+                profileReducer.onLogoutRequested = {
+                    router.login()
+                }
+                profileReducer.onEditProfileRequested = {
+                    router.push(screen: .editProfile(profile: profile))
+                }
             }
         } else {
             LoadingView()

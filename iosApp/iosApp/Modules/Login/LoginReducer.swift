@@ -44,8 +44,10 @@ final class LoginReducer {
             let stream = sharedVM.viewActions.asAsyncStream(scope: scope)
             for await rawAction in stream {
                 guard let action = rawAction as? LoginAction else { continue }
-                if let success = action as? LoginAction.LoginSucceeded {
-                    onLoginSuccess?(success.session)
+                if let navigateHome = action as? LoginAction.NavigateToHome {
+                    onLoginSuccess?(navigateHome.session)
+                } else if let showMessage = action as? LoginAction.ShowMessage {
+                    self.errorMessage = showMessage.message
                 }
             }
         }
@@ -57,12 +59,17 @@ final class LoginReducer {
         sharedVM.clear()
     }
     
+    func setUsername(_ username: String) {
+        self.username = username
+        sharedVM.obtainEvent(event: LoginEvent.OnUsernameChanged(value: username))
+    }
+
+    func setPassword(_ password: String) {
+        self.password = password
+        sharedVM.obtainEvent(event: LoginEvent.OnPasswordChanged(value: password))
+    }
+    
     func login() {
-        sharedVM.obtainEvent(
-            event: LoginEvent.OnLoginClick(
-                username: username,
-                password: password
-            )
-        )
+        sharedVM.obtainEvent(event: LoginEvent.OnLoginClick())
     }
 }

@@ -10,16 +10,18 @@ import friends.mobile.feature.friends.domain.usecase.RejectFriendRequestUseCase
 import friends.mobile.feature.friends.domain.usecase.RemoveFriendUseCase
 import friends.mobile.feature.friends.domain.usecase.SendFriendRequestUseCase
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class FriendProfileViewModel(
-    private val getFriendStatusUseCase: GetFriendStatusUseCase,
-    private val sendFriendRequestUseCase: SendFriendRequestUseCase,
-    private val acceptFriendRequestUseCase: AcceptFriendRequestUseCase,
-    private val rejectFriendRequestUseCase: RejectFriendRequestUseCase,
-    private val removeFriendUseCase: RemoveFriendUseCase,
-) : BaseViewModel<FriendProfileViewState, FriendProfileAction, FriendProfileEvent>(
+class FriendProfileViewModel : BaseViewModel<FriendProfileViewState, FriendProfileAction, FriendProfileEvent>(
     initState = FriendProfileViewState.Loading,
-) {
+), KoinComponent {
+
+    private val getFriendStatusUseCase: GetFriendStatusUseCase by inject()
+    private val sendFriendRequestUseCase: SendFriendRequestUseCase by inject()
+    private val acceptFriendRequestUseCase: AcceptFriendRequestUseCase by inject()
+    private val rejectFriendRequestUseCase: RejectFriendRequestUseCase by inject()
+    private val removeFriendUseCase: RemoveFriendUseCase by inject()
 
     override fun obtainEvent(event: FriendProfileEvent) {
         when (event) {

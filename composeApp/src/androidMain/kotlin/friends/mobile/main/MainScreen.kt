@@ -1,5 +1,6 @@
 package friends.mobile.main
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import friends.mobile.events.CreateEventView
+import friends.mobile.events.EventDetailView
 import friends.mobile.friends.FriendsScreen
 import friends.mobile.profile.EditProfileScreen
 import friends.mobile.profile.ProfileScreen

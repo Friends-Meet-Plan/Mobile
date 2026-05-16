@@ -57,12 +57,19 @@ final class RegisterReducer {
         sharedVM.clear()
     }
     
+    func setUsername(_ username: String) {
+        self.username = username
+        sharedVM.obtainEvent(event: RegisterEvent.OnUsernameChanged(value: username))
+    }
+
+    func setPassword(_ password: String) {
+        self.password = password
+        sharedVM.obtainEvent(event: RegisterEvent.OnPasswordChanged(value: password))
+    }
+    
     func register() {
         sharedVM.obtainEvent(
-            event: RegisterEvent.OnRegisterClick(
-                username: username,
-                password: password
-            )
+            event: RegisterEvent.OnRegisterClick()
         )
     }
 }
