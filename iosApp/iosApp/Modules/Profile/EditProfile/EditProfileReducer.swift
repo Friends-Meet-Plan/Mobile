@@ -44,7 +44,6 @@ final class EditProfileReducer {
                     self.bio = content.bio
                     self.avatarUrl = content.avatarUrl
                     self.isSaving = content.isSaving
-                    self.saveError = content.saveError
                     self.isLoading = false
                 case let error as EditProfileViewState.Error:
                     self.saveError = error.message

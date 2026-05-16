@@ -6,12 +6,14 @@ import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.profile.domain.usecase.GetMeUseCase
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class ProfileViewModel(
-    private val getMeUseCase: GetMeUseCase,
-) : BaseViewModel<ProfileViewState, ProfileAction, ProfileEvent>(
+class ProfileViewModel : BaseViewModel<ProfileViewState, ProfileAction, ProfileEvent>(
     initState = ProfileViewState.Loading,
-) {
+), KoinComponent {
+
+    private val getMeUseCase: GetMeUseCase by inject()
 
     init {
         obtainEvent(ProfileEvent.OnLoadProfile)

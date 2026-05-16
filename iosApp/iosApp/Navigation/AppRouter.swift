@@ -10,5 +10,8 @@ import Shared
 
 enum AppRouter: Hashable {
     
+    case login
     case editProfile(profile: Profile)
+    case createEvent(date: String)
+    case eventDetail(id: String)
 }

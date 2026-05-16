@@ -1,5 +1,6 @@
 package friends.mobile.main
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import friends.mobile.events.CreateEventView
+import friends.mobile.events.EventDetailView
 import friends.mobile.friends.FriendsScreen
 import friends.mobile.profile.EditProfileScreen
 import friends.mobile.profile.ProfileScreen
@@ -80,8 +83,36 @@ fun MainScreen(
             startDestination = Screen.Home,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable<Screen.Home> {
-                PlaceholderScreen("Home Screen")
+            composable(BottomNavItem.Home.route) {
+                MainView(
+                    onEventDetailClick = { eventId ->
+                        Log.d("MainScreen", "Navigate to event detail: $eventId")
+                        navController.navigate("event_detail/$eventId")
+                    },
+                    onCreateEventClick = { date ->
+                        Log.d("MainScreen", "Navigate to create event with date: $date")
+                        navController.navigate("create_event/$date")
+                    }
+                )
+            }
+            composable("event_detail/{eventId}") { backStackEntry ->
+                val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+                EventDetailView(
+                    eventId = eventId,
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+            composable("create_event/{date}") { backStackEntry ->
+                val date = backStackEntry.arguments?.getString("date") ?: ""
+                CreateEventView(
+                    selectedDate = date,
+                    onEventCreated = { eventId ->
+                        navController.navigate("event_detail/$eventId") {
+                            popUpTo("create_event/$date") { inclusive = true }
+                        }
+                    },
+                    onBackClick = { navController.popBackStack() }
+                )
             }
             composable<Screen.Friends> {
                 FriendsScreen()

@@ -6,12 +6,14 @@ import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.profile.domain.usecase.UpdateProfileUseCase
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class EditProfileViewModel(
-    private val updateProfileUseCase: UpdateProfileUseCase,
-) : BaseViewModel<EditProfileViewState, EditProfileAction, EditProfileEvent>(
+class EditProfileViewModel : BaseViewModel<EditProfileViewState, EditProfileAction, EditProfileEvent>(
     initState = EditProfileViewState.Loading,
-) {
+), KoinComponent {
+
+    private val updateProfileUseCase: UpdateProfileUseCase by inject()
 
     override fun obtainEvent(event: EditProfileEvent) {
         when (event) {

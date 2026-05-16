@@ -39,27 +39,4 @@ val friendsModule = module {
             getStoredSessionUseCase = get(),
         )
     }
-
-    factory { 
-        FriendsViewModel(
-            getFriendsUseCase = get(),
-            getIncomingFriendRequestsUseCase = get(),
-            getOutgoingFriendRequestsUseCase = get(),
-            sendFriendRequestUseCase = get(),
-            acceptFriendRequestUseCase = get(),
-            rejectFriendRequestUseCase = get(),
-            cancelFriendRequestUseCase = get(),
-            searchUserUseCase = get()
-        ) 
-    }
-    
-    factory { 
-        FriendProfileViewModel(
-            getFriendStatusUseCase = get(),
-            sendFriendRequestUseCase = get(),
-            acceptFriendRequestUseCase = get(),
-            rejectFriendRequestUseCase = get(),
-            removeFriendUseCase = get()
-        ) 
-    }
 }

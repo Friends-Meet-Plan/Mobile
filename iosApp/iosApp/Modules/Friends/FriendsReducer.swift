@@ -12,15 +12,15 @@ import SwiftUI
 final class FriendsReducer {
     var currentTab: Shared.RequestTab = .friends
     var searchText = ""
-
+    
     var friendsList: [Shared.User] = []
     var incomingRequests: [Shared.User] = []
     var outgoingRequests: [Shared.User] = []
     var searchResults: [Shared.User]?
     
-    var isLoading = false
+    var isLoading = true
     var isSearching = false
-    var isRequestPending = false
+    var isActionPending = false
     var errorMessage: String?
     
     private let sharedVM = FriendsViewModel()
@@ -46,11 +46,11 @@ final class FriendsReducer {
                     self.outgoingRequests = content.outgoingRequests
                     self.searchResults = content.searchResults
                     self.isSearching = content.isSearching
-                    self.isRequestPending = content.isRequestPending
+                    self.isActionPending = content.isActionPending
                 default:
                     isLoading = false
                     isSearching = false
-                    isRequestPending = false
+                    isActionPending = false
                     errorMessage = nil
                 }
             }
