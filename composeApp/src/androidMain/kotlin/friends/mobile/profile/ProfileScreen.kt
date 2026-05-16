@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import friends.mobile.calendar.BusyDaysView
 import friends.mobile.feature.profile.domain.model.Profile
 import friends.mobile.feature.profile.presentation.profile.ProfileAction
 import friends.mobile.feature.profile.presentation.profile.ProfileEvent
@@ -172,6 +173,14 @@ private fun ProfileContent(
                 isLoggingOut = isLoggingOut,
                 onEditClick = onEditClick,
                 onLogoutClick = onLogoutClick
+            )
+        }
+
+        item {
+
+            BusyDaysView(
+                userId = profile.id,
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
