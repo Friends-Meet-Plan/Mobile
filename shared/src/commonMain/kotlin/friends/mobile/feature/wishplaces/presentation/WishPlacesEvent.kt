@@ -5,11 +5,10 @@ package friends.mobile.feature.wishplaces.presentation
 //    data class CreatePlace(val title: String, val description: String?, val location: String?, val link: String?) : WishPlacesEvent()
 //    data class ArchivePlace(val id: String) : WishPlacesEvent()
 //}
-sealed interface WishPlacesEvent {
-
+sealed class WishPlacesEvent {
     data class LoadPlaces(
         val userId: String
-    ) : WishPlacesEvent
+    ) : WishPlacesEvent()
 
     data class CreatePlace(
         val userId: String,
@@ -17,10 +16,10 @@ sealed interface WishPlacesEvent {
         val description: String?,
         val location: String?,
         val link: String?,
-    ) : WishPlacesEvent
+    ) : WishPlacesEvent()
 
     data class ArchivePlace(
         val userId: String,
         val id: String,
-    ) : WishPlacesEvent
+    ) : WishPlacesEvent()
 }
