@@ -1,13 +1,36 @@
 package friends.mobile.friends
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,6 +44,11 @@ import friends.mobile.feature.friends.presentation.friendsProfile.FriendProfileE
 import friends.mobile.feature.friends.presentation.friendsProfile.FriendProfileViewModel
 import friends.mobile.feature.friends.presentation.friendsProfile.FriendProfileViewState
 import friends.mobile.feature.friends.presentation.friendsProfile.FriendshipStatus
+import friends.mobile.feature.wishplaces.domain.model.WishPlace
+import friends.mobile.wishplaces.WishPlaceDetailBottomSheet
+import friends.mobile.wishplaces.WishPlaceItem
+import friends.mobile.wishplaces.WishPlacesMode
+import friends.mobile.wishplaces.WishPlacesSection
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 
@@ -55,6 +83,7 @@ fun FriendProfileBottomSheet(
     }
 }
 
+
 @Composable
 fun FriendProfileScreenContent(
     userId: String,
@@ -62,6 +91,7 @@ fun FriendProfileScreenContent(
 ) {
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    var selectedPlace by remember { mutableStateOf<WishPlace?>(null) }
 
     LaunchedEffect(viewModel) {
         viewModel.viewActions.collectLatest { action ->
@@ -79,13 +109,13 @@ fun FriendProfileScreenContent(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color.Transparent // BottomSheet already has background
+        containerColor = Color.Transparent
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(padding)
-                .background(MaterialTheme.colorScheme.surface),
+                .background(MaterialTheme.colorScheme.surface)
         ) {
             when (val currentState = state) {
                 is FriendProfileViewState.Loading -> LoadingState()
@@ -93,15 +123,25 @@ fun FriendProfileScreenContent(
                     message = currentState.message,
                     modifier = Modifier.fillMaxWidth()
                 )
-                is FriendProfileViewState.Content -> FriendProfileContent(
-                    content = currentState,
-                    onSendRequest = { id -> viewModel.obtainEvent(FriendProfileEvent.OnSendRequest(id)) },
-                    onAcceptRequest = { id -> viewModel.obtainEvent(FriendProfileEvent.OnAcceptRequest(id)) },
-                    onRejectRequest = { id -> viewModel.obtainEvent(FriendProfileEvent.OnRejectRequest(id)) },
-                    onRemoveFriend = { id -> viewModel.obtainEvent(FriendProfileEvent.OnRemoveFriend(id)) }
-                )
+                is FriendProfileViewState.Content -> {
+                    FriendProfileContent(
+                        content = currentState,
+                        onSendRequest = { id -> viewModel.obtainEvent(FriendProfileEvent.OnSendRequest(id)) },
+                        onAcceptRequest = { id -> viewModel.obtainEvent(FriendProfileEvent.OnAcceptRequest(id)) },
+                        onRejectRequest = { id -> viewModel.obtainEvent(FriendProfileEvent.OnRejectRequest(id)) },
+                        onRemoveFriend = { id -> viewModel.obtainEvent(FriendProfileEvent.OnRemoveFriend(id)) },
+                        onPlaceClick = { selectedPlace = it }
+                    )
+                }
             }
         }
+    }
+
+    selectedPlace?.let { place ->
+        WishPlaceDetailBottomSheet(
+            place = place,
+            onDismiss = { selectedPlace = null }
+        )
     }
 }
 
@@ -125,6 +165,7 @@ private fun FriendProfileContent(
     onAcceptRequest: (String) -> Unit,
     onRejectRequest: (String) -> Unit,
     onRemoveFriend: (String) -> Unit,
+    onPlaceClick: (WishPlace) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -134,16 +175,37 @@ private fun FriendProfileContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         UserProfileCard(user = content.user)
-
         Spacer(modifier = Modifier.height(24.dp))
-
         ActionButtons(
             user = content.user,
             status = content.status,
             isLoading = content.isActionPending,
-            callbacks = FriendActionCallbacks(onSendRequest, onAcceptRequest, onRejectRequest, onRemoveFriend)
+            callbacks = FriendActionCallbacks(
+                onSendRequest = onSendRequest,
+                onAcceptRequest = onAcceptRequest,
+                onRejectRequest = onRejectRequest,
+                onRemoveFriend = onRemoveFriend
+            )
         )
 
+        if (content.status == FriendshipStatus.FRIENDS) {
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text(
+                text = "${content.user.username}'s Wish Places",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(bottom = 16.dp)
+            )
+
+            WishPlacesSection(
+                userId = content.user.id,
+                mode = WishPlacesMode.READ_ONLY,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
@@ -160,7 +222,8 @@ private fun UserProfileCard(user: User) {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Box(
-            modifier = Modifier.size(80.dp)
+            modifier = Modifier
+                .size(80.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.surfaceContainerHighest),
             contentAlignment = Alignment.Center
@@ -195,7 +258,9 @@ private fun ActionButtons(
             onClick = {},
             modifier = Modifier.fillMaxWidth(),
             enabled = false
-        ) { Text("Request Sent") }
+        ) {
+            Text("Request Sent")
+        }
         FriendshipStatus.INCOMING -> Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -219,6 +284,8 @@ private fun ActionButtons(
             onClick = { callbacks.onRemoveFriend(user.id) },
             modifier = Modifier.fillMaxWidth(),
             enabled = !isLoading
-        ) { Text("Remove Friend") }
+        ) {
+            Text("Remove Friend")
+        }
     }
 }

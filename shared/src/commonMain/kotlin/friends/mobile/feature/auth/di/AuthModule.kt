@@ -68,4 +68,6 @@ val authModule = module {
     factory<GetStoredSessionUseCase> { GetStoredSessionUseCaseImpl(repository = get()) }
 
     factory { RootViewModel(get(), get()) }
+    factory { LoginViewModel() }
+    factory { RegisterViewModel() }
 }

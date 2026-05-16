@@ -26,4 +26,6 @@ val profileModule = module {
     }
     single<GetMeUseCase> { GetMeUseCaseImpl(get()) }
     single<UpdateProfileUseCase> { UpdateProfileUseCaseImpl(get()) }
+    factory { ProfileViewModel() }
+    factory { EditProfileViewModel() }
 }
