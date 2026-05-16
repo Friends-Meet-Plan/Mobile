@@ -31,6 +31,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface Screen {
     @Serializable data object Home : Screen
+    @Serializable data class EventDetail(val eventId: String) : Screen
+    @Serializable data class CreateEvent(val date: String) : Screen
     @Serializable data object Friends : Screen
     @Serializable data object Profile : Screen
     @Serializable data class ProfileEdit(
@@ -45,7 +47,6 @@ fun MainScreen(
     onLogout: () -> Unit
 ) {
     val navController = rememberNavController()
-    
     val bottomNavItems = listOf(
         Triple(Screen.Home, "Home", BottomNavItem.Home.icon),
         Triple(Screen.Friends, "Friends", BottomNavItem.Friends.icon),
@@ -83,32 +84,30 @@ fun MainScreen(
             startDestination = Screen.Home,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(BottomNavItem.Home.route) {
+            composable<Screen.Home> {
                 MainView(
                     onEventDetailClick = { eventId ->
-                        Log.d("MainScreen", "Navigate to event detail: $eventId")
-                        navController.navigate("event_detail/$eventId")
+                        navController.navigate(Screen.EventDetail(eventId))
                     },
                     onCreateEventClick = { date ->
-                        Log.d("MainScreen", "Navigate to create event with date: $date")
-                        navController.navigate("create_event/$date")
+                        navController.navigate(Screen.CreateEvent(date))
                     }
                 )
             }
-            composable("event_detail/{eventId}") { backStackEntry ->
-                val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+            composable<Screen.EventDetail> { backStackEntry ->
+                val args = backStackEntry.toRoute<Screen.EventDetail>()
                 EventDetailView(
-                    eventId = eventId,
+                    eventId = args.eventId,
                     onBackClick = { navController.popBackStack() }
                 )
             }
-            composable("create_event/{date}") { backStackEntry ->
-                val date = backStackEntry.arguments?.getString("date") ?: ""
+            composable<Screen.CreateEvent> { backStackEntry ->
+                val args = backStackEntry.toRoute<Screen.CreateEvent>()
                 CreateEventView(
-                    selectedDate = date,
+                    selectedDate = args.date,
                     onEventCreated = { eventId ->
-                        navController.navigate("event_detail/$eventId") {
-                            popUpTo("create_event/$date") { inclusive = true }
+                        navController.navigate(Screen.EventDetail(eventId)) {
+                            popUpTo(Screen.CreateEvent(args.date)) { inclusive = true }
                         }
                     },
                     onBackClick = { navController.popBackStack() }
@@ -122,11 +121,7 @@ fun MainScreen(
                     onLogout = onLogout,
                     onEditClick = { profile ->
                         navController.navigate(
-                            Screen.ProfileEdit(
-                                username = profile.username,
-                                bio = profile.bio,
-                                avatarUrl = profile.avatarUrl
-                            )
+                            Screen.ProfileEdit(profile.username, profile.bio, profile.avatarUrl)
                         )
                     }
                 )
@@ -141,12 +136,5 @@ fun MainScreen(
                 )
             }
         }
-    }
-}
-
-@Composable
-fun PlaceholderScreen(title: String) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(title, style = MaterialTheme.typography.headlineMedium)
     }
 }

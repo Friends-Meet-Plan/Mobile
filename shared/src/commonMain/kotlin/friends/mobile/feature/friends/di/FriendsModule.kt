@@ -39,4 +39,6 @@ val friendsModule = module {
             getStoredSessionUseCase = get(),
         )
     }
+    factory { FriendsViewModel() }
+    factory { FriendProfileViewModel() }
 }
