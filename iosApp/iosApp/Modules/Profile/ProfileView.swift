@@ -16,23 +16,36 @@ struct ProfileView: View {
     
     var body: some View {
         if let profile = profileReducer.profile {
-            VStack(spacing: 24) {
-                UserView(user: profile, dimension: .vertical)
-                    .frame(maxWidth: .infinity)
-                
-                Spacer()
-                
-                Button("Edit Profile") {
-                    profileReducer.navigateToEdit()
+            ScrollView {
+                VStack(spacing: 24) {
+                    UserView(user: profile, dimension: .vertical)
+                        .frame(maxWidth: .infinity)
+                    
+                    Divider()
+                    
+                    WishPlacesView(userId: profile.id, mode: .editable)
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
+                    
+                    Divider()
+                    
+                    VStack(spacing: 12) {
+                        Button("Edit Profile") {
+                            profileReducer.navigateToEdit()
+                        }
+                        .tint(.blue)
+                        .frame(maxWidth: .infinity)
+                        
+                        Button("Log Out") {
+                            profileReducer.logout()
+                        }
+                        .tint(.red)
+                        .frame(maxWidth: .infinity)
+                    }
+                    
+                    Spacer()
                 }
-                .tint(.blue)
-                
-                Button("Log Out") {
-                    profileReducer.logout()
-                }
-                .tint(.red)
+                .padding()
             }
-            .padding()
             .navigationTitle("Profile")
             .onAppear {
                 // TODO: костыль обновления
