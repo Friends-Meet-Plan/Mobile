@@ -20,14 +20,10 @@ struct ProfileView: View {
                 VStack(spacing: 24) {
                     UserView(user: profile, dimension: .vertical)
                         .frame(maxWidth: .infinity)
-                    
-                    Divider()
-                    
+                    BusyDayView(userId: profile.id)
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
                     WishPlacesView(userId: profile.id, mode: .editable)
                         .frame(maxWidth: .infinity, alignment: .topLeading)
-                    
-                    Divider()
-                    
                     VStack(spacing: 12) {
                         Button("Edit Profile") {
                             profileReducer.navigateToEdit()
@@ -41,8 +37,6 @@ struct ProfileView: View {
                         .tint(.red)
                         .frame(maxWidth: .infinity)
                     }
-                    
-                    Spacer()
                 }
                 .padding()
             }
