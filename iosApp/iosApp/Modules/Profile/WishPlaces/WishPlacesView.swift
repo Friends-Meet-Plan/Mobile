@@ -23,7 +23,7 @@ struct WishPlacesView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("My Wish Places")
+            Text(mode == .readOnly ? "Wish Places" : "My Wish Places")
                 .font(.headline)
                 .fontWeight(.semibold)
             

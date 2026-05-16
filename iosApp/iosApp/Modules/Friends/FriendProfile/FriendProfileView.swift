@@ -19,19 +19,26 @@ struct FriendProfileView: View {
     var body: some View {
         VStack(spacing: 0) {
             if let user = reducer.user {
-                VStack(spacing: 24) {
-                    UserView(user: user, dimension: .vertical)
-                        .frame(maxWidth: .infinity)
-                    
-                    if let actionError = reducer.actionError {
-                        ErrorBanner(message: actionError)
+                ScrollView {
+                    VStack(spacing: 24) {
+                        UserView(user: user, dimension: .vertical)
+                            .frame(maxWidth: .infinity)
+
+                        if let actionError = reducer.actionError {
+                            ErrorBanner(message: actionError)
+                        }
+
+                        actionButtons(reducer: reducer)
+
+                        Divider()
+                            .padding(.vertical, 16)
+
+                        WishPlacesView(userId: user.id, mode: .readOnly)
+
+                        Spacer()
                     }
-                    
-                    actionButtons(reducer: reducer)
-                    
-                    Spacer()
+                    .padding()
                 }
-                .padding()
                 .opacity(reducer.isActionPending ? 0.6 : 1)
                 .disabled(reducer.isActionPending)
             } else if reducer.isLoading {
