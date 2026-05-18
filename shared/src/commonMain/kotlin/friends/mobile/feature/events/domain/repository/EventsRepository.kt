@@ -15,4 +15,10 @@ interface EventsRepository {
         location: String?,
         invitedFriendIds: List<String>,
     ): ResultWrapper<String>
+
+    suspend fun getPendingEvents(): ResultWrapper<List<Event>>
+
+    suspend fun acceptEvent(eventId: String): ResultWrapper<Unit>
+
+    suspend fun declineEvent(eventId: String): ResultWrapper<Unit>
 }
