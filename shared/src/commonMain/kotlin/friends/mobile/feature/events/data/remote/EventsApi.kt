@@ -35,7 +35,9 @@ internal class EventsApi(
         client.get("/events/$eventId").body()
 
     suspend fun getPendingEvents(): List<EventResponseDto> =
-        client.get("/events/pending").body()
+        client.get("/events") {
+            parameter("scope", "invited")
+        }.body()
 
     suspend fun acceptEvent(eventId: String): Unit =
         client.post("/events/$eventId/accept").body()

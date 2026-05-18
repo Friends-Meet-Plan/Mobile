@@ -22,6 +22,8 @@ struct RootView: View {
                         CreateEventView(date: date)
                     case let .eventDetail(id):
                         EventDetailView(eventId: id)
+                    case .pendingEvents:
+                        PendingEventListView()
                     default:
                         EmptyView()
                     }

@@ -29,6 +29,13 @@ struct MainView: View {
                 Text(errorMessage)
                     .foregroundColor(.red)
             } else {
+                Button {
+                    router.push(screen: .pendingEvents)
+                } label: {
+                    Image(systemName: "bell.fill")
+                        .padding()
+                }
+                
                 List(reducer.upcomingEvents, id: \.id) { event in
                     VStack(alignment: .leading) {
                         Text(event.title)
@@ -64,7 +71,7 @@ struct MainView: View {
             .datePickerStyle(.graphical)
             .padding()
             .presentationDetents([.medium])
-            
+
             Button("Create") {
                 router.push(screen: .createEvent(date: dateFormatter.string(from: selectedDate)))
                 isCreatingEventInProgress = false
