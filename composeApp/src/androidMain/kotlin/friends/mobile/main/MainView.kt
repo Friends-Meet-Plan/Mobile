@@ -11,14 +11,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,6 +51,7 @@ import java.util.Locale
 fun MainView(
     onEventDetailClick: (eventId: String) -> Unit,
     onCreateEventClick: (date: String) -> Unit,
+    onPendingEventsClick: () -> Unit = {},
 ) {
     val viewModel: MainViewModel = viewModel()
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
@@ -68,100 +75,118 @@ fun MainView(
     val upcomingEvents =
         (state as? MainViewState.Content)?.upcomingEvents ?: emptyList()
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        when {
-            isLoading && upcomingEvents.isEmpty() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            errorMessage != null && upcomingEvents.isEmpty() -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    Text(
-                        text = errorMessage,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    Button(
-                        onClick = {
-                            viewModel.obtainEvent(MainEventAction.OnRefresh)
-                        },
-                        modifier = Modifier.padding(top = 16.dp),
-                    ) {
-                        Text("Retry")
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Home") },
+                actions = {
+                    IconButton(onClick = onPendingEventsClick) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Pending Invitations"
+                        )
                     }
                 }
-            }
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+        ) {
+            when {
+                isLoading && upcomingEvents.isEmpty() -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
 
-            else -> {
-                Column(
-                    modifier = Modifier.weight(1f),
-                ) {
-                    if (upcomingEvents.isEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            contentAlignment = Alignment.Center,
+                errorMessage != null && upcomingEvents.isEmpty() -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text(
+                            text = errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Button(
+                            onClick = {
+                                viewModel.obtainEvent(MainEventAction.OnRefresh)
+                            },
+                            modifier = Modifier.padding(top = 16.dp),
                         ) {
-                            Text(
-                                text = "No events yet",
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
+                            Text("Retry")
                         }
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            items(
-                                upcomingEvents,
-                                key = { it.id }
-                            ) { event ->
-                                EventCard(
-                                    event = event,
-                                    onClick = {
-                                        onEventDetailClick(event.id)
-                                    },
+                    }
+                }
+
+                else -> {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        if (upcomingEvents.isEmpty()) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(
+                                    text = "No events yet",
+                                    style = MaterialTheme.typography.bodyMedium,
                                 )
+                            }
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentPadding = PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                            ) {
+                                items(
+                                    upcomingEvents,
+                                    key = { it.id }
+                                ) { event ->
+                                    EventCard(
+                                        event = event,
+                                        onClick = {
+                                            onEventDetailClick(event.id)
+                                        },
+                                    )
+                                }
+                            }
+                        }
+
+                        if (isRefreshing) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                CircularProgressIndicator()
                             }
                         }
                     }
 
-                    if (isRefreshing) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            CircularProgressIndicator()
-                        }
+                    Button(
+                        onClick = {
+                            showDatePickerDialog = true
+                        },
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(16.dp),
+                    ) {
+                        Text("Create event")
                     }
-                }
-
-                Button(
-                    onClick = {
-                        showDatePickerDialog = true
-                    },
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(16.dp),
-                ) {
-                    Text("Create event")
                 }
             }
         }

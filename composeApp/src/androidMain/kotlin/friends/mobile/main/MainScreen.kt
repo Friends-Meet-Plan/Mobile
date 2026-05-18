@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import friends.mobile.events.CreateEventView
 import friends.mobile.events.EventDetailView
+import friends.mobile.events.PendingEventListView
 import friends.mobile.friends.FriendsScreen
 import friends.mobile.profile.EditProfileScreen
 import friends.mobile.profile.ProfileScreen
@@ -40,6 +41,7 @@ sealed interface Screen {
         val bio: String?,
         val avatarUrl: String?
     ) : Screen
+    @Serializable data object PendingEvents : Screen
 }
 
 @Composable
@@ -91,6 +93,9 @@ fun MainScreen(
                     },
                     onCreateEventClick = { date ->
                         navController.navigate(Screen.CreateEvent(date))
+                    },
+                    onPendingEventsClick = {
+                        navController.navigate(Screen.PendingEvents)
                     }
                 )
             }
@@ -133,6 +138,11 @@ fun MainScreen(
                     initialBio = args.bio ?: "",
                     initialAvatarUrl = args.avatarUrl ?: "",
                     onBack = { navController.popBackStack() }
+                )
+            }
+            composable<Screen.PendingEvents> {
+                PendingEventListView(
+                    onBackClick = { navController.popBackStack() }
                 )
             }
         }
