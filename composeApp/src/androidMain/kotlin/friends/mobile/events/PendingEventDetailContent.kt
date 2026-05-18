@@ -89,11 +89,13 @@ fun PendingEventDetailContent(
                                 .padding(12.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            if (eventDetail.description != null && eventDetail.description.isNotEmpty()) {
-                                Text(
-                                    text = eventDetail.description,
-                                    style = MaterialTheme.typography.bodySmall,
-                                )
+                            eventDetail.description?.let { desc ->
+                                if (desc.isNotEmpty()) {
+                                    Text(
+                                        text = desc,
+                                        style = MaterialTheme.typography.bodySmall,
+                                    )
+                                }
                             }
                         }
                     }
@@ -121,39 +123,43 @@ fun PendingEventDetailContent(
                                 text = "Date: ${eventDetail.date}",
                                 style = MaterialTheme.typography.bodySmall,
                             )
-                            if (eventDetail.time != null && eventDetail.time.isNotEmpty()) {
-                                Text(
-                                    text = "Time: ${eventDetail.time}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                )
+                            eventDetail.time?.let { time ->
+                                if (time.isNotEmpty()) {
+                                    Text(
+                                        text = "Time: $time",
+                                        style = MaterialTheme.typography.bodySmall,
+                                    )
+                                }
                             }
                         }
                     }
                 }
 
-                if (eventDetail.location != null && eventDetail.location.isNotEmpty()) {
-                    item {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            ),
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                eventDetail.location?.let { location ->
+                    if (location.isNotEmpty()) {
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                ),
                             ) {
-                                Text(
-                                    text = "Location",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                )
-                                Text(
-                                    text = eventDetail.location,
-                                    style = MaterialTheme.typography.bodySmall,
-                                )
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    Text(
+                                        text = "Location",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                    )
+                                    Text(
+                                        text = location,
+                                        style = MaterialTheme.typography.bodySmall,
+                                    )
+                                }
                             }
                         }
                     }
@@ -277,6 +283,7 @@ private fun ParticipantCard(participant: EventParticipant) {
     }
 }
 
+@Composable
 private fun getStatusColor(status: String): Color {
     return when (status.lowercase()) {
         "confirmed" -> Color(0xFF4CAF50)  // Green
@@ -287,6 +294,7 @@ private fun getStatusColor(status: String): Color {
     }
 }
 
+@Composable
 private fun getResponseStatusColor(status: String): Color {
     return when (status.lowercase()) {
         "accepted" -> Color(0xFF4CAF50)  // Green

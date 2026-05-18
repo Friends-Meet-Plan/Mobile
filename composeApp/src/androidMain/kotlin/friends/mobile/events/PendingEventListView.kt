@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import friends.mobile.feature.events.domain.model.Event
 import friends.mobile.feature.events.presentation.pendingevents.PendingAction
 import friends.mobile.feature.events.presentation.pendingevents.PendingEvent
@@ -50,8 +51,15 @@ fun PendingEventListView(
     onBackClick: () -> Unit,
 ) {
     val viewModel: PendingEventViewModel = koinViewModel()
-    val state by viewModel.viewStates.collectAsStateWithLifecycle()
-    val actions by viewModel.viewActions.collectAsStateWithLifecycle()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val state by viewModel.viewStates.collectAsStateWithLifecycle(
+        initialValue = PendingViewState.Loading,
+        lifecycle = lifecycle
+    )
+    val actions by viewModel.viewActions.collectAsStateWithLifecycle(
+        initialValue = PendingAction.ShowMessage(""),
+        lifecycle = lifecycle
+    )
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
