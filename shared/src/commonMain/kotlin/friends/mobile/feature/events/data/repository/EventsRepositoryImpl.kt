@@ -2,6 +2,8 @@ package friends.mobile.feature.events.data.repository
 
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.network.safeApiCall
+import friends.mobile.feature.eventdetail.data.mapper.EventDetailMapper
+import friends.mobile.feature.eventdetail.domain.model.EventDetail
 import friends.mobile.feature.events.data.remote.EventsApi
 import friends.mobile.feature.events.data.remote.dto.CreateEventRequestDto
 import friends.mobile.feature.events.domain.model.Event
@@ -14,6 +16,7 @@ import friends.mobile.feature.friends.domain.model.User
 internal class EventsRepositoryImpl(
     private val api: EventsApi,
     private val userDtoMapper: UserDtoMapper,
+    private val eventDetailMapper: EventDetailMapper,
 ) : EventsRepository {
 
     override suspend fun checkFriendsAvailability(date: String): ResultWrapper<List<User>> =
@@ -63,6 +66,11 @@ internal class EventsRepositoryImpl(
                 },
             )
         }
+    }
+
+    override suspend fun getEventDetail(eventId: String): ResultWrapper<EventDetail> = safeApiCall {
+        val response = api.getEvent(eventId)
+        eventDetailMapper.toDomain(response)
     }
 
     override suspend fun acceptEvent(eventId: String): ResultWrapper<Unit> = safeApiCall {
