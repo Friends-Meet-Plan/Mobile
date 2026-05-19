@@ -24,6 +24,7 @@ kotlin = "2.3.0"
 material3 = "1.10.0-alpha05"
 androidx-navigation = "2.8.5"
 accompanist = "0.34.0"
+androidx-material-icons = "1.7.3"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -59,6 +60,7 @@ compose-components-resources = { module = "org.jetbrains.compose.components:comp
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
 compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "composeIcons" }
+androidx-material-icons = { module = "androidx.compose.material:material-icons-core", version.ref = "androidx-material-icons" }
 accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanist" }
 
 [plugins]
