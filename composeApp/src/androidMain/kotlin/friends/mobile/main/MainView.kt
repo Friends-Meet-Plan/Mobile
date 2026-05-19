@@ -15,7 +15,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Calendar
+import androidx.compose.material.icons.filled.Clock
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
@@ -31,8 +34,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerLayoutType
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,15 +48,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import friends.mobile.feature.main.domain.model.MainEvent
 import friends.mobile.feature.main.presentation.MainViewAction as MainEventAction
 import friends.mobile.feature.main.presentation.MainViewModel
 import friends.mobile.feature.main.presentation.MainViewState
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -65,12 +75,18 @@ fun MainView(
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
 
     var showDatePickerDialog by rememberSaveable { mutableStateOf(false) }
+    var showTimePickerDialog by rememberSaveable { mutableStateOf(false) }
     var filterMode by rememberSaveable { mutableStateOf(FilterMode.ACTIVE) }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = System.currentTimeMillis()
     )
+    val timePickerState = rememberTimePickerState(
+        initialHour = 12,
+        initialMinute = 0
+    )
 
     val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val dateTimeFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
 
     LaunchedEffect(Unit) {
         // Log screen open event for analytics
@@ -90,6 +106,9 @@ fun MainView(
         FilterMode.ACTIVE -> activeEvents
         FilterMode.PENDING -> pendingEvents
     }
+
+    // Detect unified empty state: both activeEvents AND pendingEvents are empty
+    val hasNoEventsAtAll = activeEvents.isEmpty() && pendingEvents.isEmpty()
 
     Scaffold(
         topBar = {
@@ -166,6 +185,31 @@ fun MainView(
                     }
                 }
 
+                hasNoEventsAtAll -> {
+                    // Unified empty state: no events at all
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Calendar,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .padding(bottom = 16.dp),
+                            tint = Color.Gray,
+                        )
+                        Text(
+                            text = "You have no events, create it now!",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray,
+                        )
+                    }
+                }
+
                 else -> {
                     Column(
                         modifier = Modifier
@@ -199,55 +243,53 @@ fun MainView(
                             }
                         }
 
-                        // Events List
-                        Column(
+                        // Events List with Pull-to-Refresh
+                        val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
+                        SwipeRefresh(
+                            state = swipeRefreshState,
+                            onRefresh = {
+                                viewModel.obtainEvent(MainEventAction.OnRefresh)
+                            },
                             modifier = Modifier.weight(1f),
                         ) {
-                            if (eventsToDisplay.isEmpty()) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(16.dp),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    val emptyMessage = when (filterMode) {
-                                        FilterMode.ACTIVE -> "No active events yet"
-                                        FilterMode.PENDING -> "No pending invitations"
-                                    }
-                                    Text(
-                                        text = emptyMessage,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                    )
-                                }
-                            } else {
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    contentPadding = PaddingValues(16.dp),
-                                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                                ) {
-                                    items(
-                                        eventsToDisplay,
-                                        key = { it.id }
-                                    ) { event ->
-                                        EventCard(
-                                            event = event,
-                                            onClick = {
-                                                onEventDetailClick(event.id)
-                                            },
-                                            isPending = filterMode == FilterMode.PENDING,
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                            ) {
+                                if (eventsToDisplay.isEmpty()) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(16.dp),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        val emptyMessage = when (filterMode) {
+                                            FilterMode.ACTIVE -> "No active events yet"
+                                            FilterMode.PENDING -> "No pending invitations"
+                                        }
+                                        Text(
+                                            text = emptyMessage,
+                                            style = MaterialTheme.typography.bodyMedium,
                                         )
                                     }
-                                }
-                            }
-
-                            if (isRefreshing) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    CircularProgressIndicator()
+                                } else {
+                                    LazyColumn(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        contentPadding = PaddingValues(16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                                    ) {
+                                        items(
+                                            eventsToDisplay,
+                                            key = { it.id }
+                                        ) { event ->
+                                            EventCard(
+                                                event = event,
+                                                onClick = {
+                                                    onEventDetailClick(event.id)
+                                                },
+                                                isPending = filterMode == FilterMode.PENDING,
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -269,7 +311,7 @@ fun MainView(
         }
     }
 
-    if (showDatePickerDialog) {
+    if (showDatePickerDialog && !showTimePickerDialog) {
         DatePickerDialog(
             onDismissRequest = {
                 showDatePickerDialog = false
@@ -277,15 +319,11 @@ fun MainView(
             confirmButton = {
                 Button(
                     onClick = {
-                        val selectedDateMs = datePickerState.selectedDateMillis
-                        if (selectedDateMs != null) {
-                            val dateString = dateFormatter.format(Date(selectedDateMs))
-                            onCreateEventClick(dateString)
-                            showDatePickerDialog = false
-                        }
+                        showDatePickerDialog = false
+                        showTimePickerDialog = true
                     },
                 ) {
-                    Text("Create")
+                    Text("Next")
                 }
             },
             dismissButton = {
@@ -301,6 +339,43 @@ fun MainView(
             DatePicker(state = datePickerState)
         }
     }
+
+    if (showTimePickerDialog) {
+        DateTimePickerDialog(
+            onDismissRequest = {
+                showTimePickerDialog = false
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val selectedDateMs = datePickerState.selectedDateMillis
+                        if (selectedDateMs != null) {
+                            val calendar = Calendar.getInstance().apply {
+                                timeInMillis = selectedDateMs
+                                set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                                set(Calendar.MINUTE, timePickerState.minute)
+                            }
+                            val dateTimeString = dateTimeFormatter.format(calendar.time)
+                            onCreateEventClick(dateTimeString)
+                            showTimePickerDialog = false
+                        }
+                    },
+                ) {
+                    Text("Create")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        showTimePickerDialog = false
+                    },
+                ) {
+                    Text("Cancel")
+                }
+            },
+            timePickerState = timePickerState,
+        )
+    }
 }
 
 @Composable
@@ -309,6 +384,13 @@ private fun EventCard(
     onClick: () -> Unit,
     isPending: Boolean = false,
 ) {
+    // Light orange/peach background for pending events (similar to iOS)
+    val backgroundColor = if (isPending) {
+        Color(red = 1.0f, green = 0.97f, blue = 0.92f).copy(alpha = 0.6f)
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -317,6 +399,7 @@ private fun EventCard(
     ) {
         Column(
             modifier = Modifier
+                .background(backgroundColor)
                 .padding(16.dp)
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -337,43 +420,106 @@ private fun EventCard(
                     Box(
                         modifier = Modifier
                             .background(
-                                MaterialTheme.colorScheme.primary,
+                                Color(red = 1.0f, green = 0.647f, blue = 0.0f), // Orange color
                                 shape = MaterialTheme.shapes.small,
                             )
-                            .padding(4.dp)
-                            .clip(MaterialTheme.shapes.small),
+                            .clip(MaterialTheme.shapes.small)
+                            .padding(horizontal = 8.dp, vertical = 2.dp),
                     ) {
                         Text(
                             text = "Pending",
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.padding(4.dp),
+                            color = Color.White,
                         )
                     }
                 }
             }
 
+            // Date with calendar icon
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
+                Icon(
+                    imageVector = Icons.Default.Calendar,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = Color.Gray,
+                )
                 Text(
-                    text = "Date: ${event.date}",
+                    text = event.date,
                     style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(start = 4.dp),
                 )
             }
+
+            // Time with clock icon (if present)
             if (!event.time.isNullOrEmpty()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Clock,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = Color.Gray,
+                    )
+                    Text(
+                        text = event.time,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(start = 4.dp),
+                    )
+                }
+            }
+
+            // Participants with person icon
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = Color.Gray,
+                )
                 Text(
-                    text = "Time: ${event.time}",
+                    text = "${event.participantCount} participants",
                     style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(start = 4.dp),
                 )
             }
-            Text(
-                text = "Participants: ${event.participantCount}",
-                style = MaterialTheme.typography.bodySmall,
-            )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DateTimePickerDialog(
+    onDismissRequest: () -> Unit,
+    confirmButton: @Composable () -> Unit,
+    dismissButton: @Composable () -> Unit,
+    timePickerState: androidx.compose.material3.TimePickerState,
+) {
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = { Text("Select Time") },
+        text = {
+            TimePicker(
+                state = timePickerState,
+                layoutType = TimePickerLayoutType.Vertical,
+            )
+        },
+        confirmButton = confirmButton,
+        dismissButton = dismissButton,
+    )
 }
 
 enum class FilterMode {
