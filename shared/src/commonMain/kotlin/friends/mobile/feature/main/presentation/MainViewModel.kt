@@ -4,6 +4,7 @@ import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
 import friends.mobile.core.viewmodel.BaseViewModel
+import friends.mobile.feature.main.domain.model.AvailabilityResult
 import friends.mobile.feature.main.domain.repository.MainRepository
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -55,5 +56,12 @@ class MainViewModel : BaseViewModel<MainViewState, MainAction, MainViewAction>(
             viewState = currentState.copy(isRefreshing = true)
         }
         loadEvents()
+    }
+
+    suspend fun checkAvailability(date: String): AvailabilityResult? {
+        return when (val result = mainRepository.checkUserAvailability(date)) {
+            is ResultWrapper.Success -> result.data
+            is ResultWrapper.Error -> null
+        }
     }
 }

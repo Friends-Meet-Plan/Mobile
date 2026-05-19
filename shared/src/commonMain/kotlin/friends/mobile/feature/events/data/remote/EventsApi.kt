@@ -4,6 +4,7 @@ import friends.mobile.feature.events.data.remote.dto.CheckAvailabilityResponseDt
 import friends.mobile.feature.events.data.remote.dto.CreateEventRequestDto
 import friends.mobile.feature.events.data.remote.dto.CreateEventResponseDto
 import friends.mobile.feature.events.data.remote.dto.EventResponseDto
+import friends.mobile.feature.events.data.remote.dto.UserAvailabilityResponseDto
 import friends.mobile.feature.main.data.remote.dto.EventListItemDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -23,6 +24,11 @@ internal class EventsApi(
 
     suspend fun checkFriendsAvailability(date: String): CheckAvailabilityResponseDto =
         client.get("/events/check-availability") {
+            parameter("date", date)
+        }.body()
+
+    suspend fun checkUserAvailability(date: String): UserAvailabilityResponseDto =
+        client.get("/events/check-user-availability") {
             parameter("date", date)
         }.body()
 

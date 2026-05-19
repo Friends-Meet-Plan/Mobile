@@ -43,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -55,10 +56,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import friends.mobile.feature.main.domain.model.AvailabilityResult
 import friends.mobile.feature.main.domain.model.MainEvent
 import friends.mobile.feature.main.presentation.MainViewAction as MainEventAction
 import friends.mobile.feature.main.presentation.MainViewModel
 import friends.mobile.feature.main.presentation.MainViewState
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -73,9 +76,12 @@ fun MainView(
 ) {
     val viewModel: MainViewModel = viewModel()
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
+    val coroutineScope = rememberCoroutineScope()
 
     var showDatePickerDialog by rememberSaveable { mutableStateOf(false) }
     var showTimePickerDialog by rememberSaveable { mutableStateOf(false) }
+    var showBusyAlert by rememberSaveable { mutableStateOf(false) }
+    var isCheckingAvailability by rememberSaveable { mutableStateOf(false) }
     var filterMode by rememberSaveable { mutableStateOf(FilterMode.ACTIVE) }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = System.currentTimeMillis()
@@ -355,13 +361,38 @@ fun MainView(
                                 set(Calendar.HOUR_OF_DAY, timePickerState.hour)
                                 set(Calendar.MINUTE, timePickerState.minute)
                             }
+                            val dateString = dateFormatter.format(calendar.time)
                             val dateTimeString = dateTimeFormatter.format(calendar.time)
-                            onCreateEventClick(dateTimeString)
-                            showTimePickerDialog = false
+
+                            isCheckingAvailability = true
+                            coroutineScope.launch {
+                                val availabilityResult = viewModel.checkAvailability(dateString)
+                                isCheckingAvailability = false
+
+                                when (availabilityResult) {
+                                    is AvailabilityResult.Busy -> {
+                                        showBusyAlert = true
+                                    }
+                                    is AvailabilityResult.Available -> {
+                                        onCreateEventClick(dateTimeString)
+                                        showTimePickerDialog = false
+                                    }
+                                    null -> {
+                                        // Network error or other issue - proceed with creation anyway
+                                        onCreateEventClick(dateTimeString)
+                                        showTimePickerDialog = false
+                                    }
+                                }
+                            }
                         }
                     },
+                    enabled = !isCheckingAvailability,
                 ) {
-                    Text("Create")
+                    if (isCheckingAvailability) {
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp))
+                    } else {
+                        Text("Create")
+                    }
                 }
             },
             dismissButton = {
@@ -369,11 +400,35 @@ fun MainView(
                     onClick = {
                         showTimePickerDialog = false
                     },
+                    enabled = !isCheckingAvailability,
                 ) {
                     Text("Cancel")
                 }
             },
             timePickerState = timePickerState,
+        )
+    }
+
+    if (showBusyAlert) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = {
+                showBusyAlert = false
+            },
+            title = {
+                Text("Not Available")
+            },
+            text = {
+                Text("You are busy on this day. Please select another date.")
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showBusyAlert = false
+                    },
+                ) {
+                    Text("OK")
+                }
+            },
         )
     }
 }

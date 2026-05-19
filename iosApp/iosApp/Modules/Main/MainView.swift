@@ -13,6 +13,8 @@ struct MainView: View {
     @State private var reducer = MainEventsReducer()
     @State private var isCreatingEventInProgress = false
     @State private var selectedDate = Date()
+    @State private var showBusyAlert = false
+    @State private var selectedDateForEvent: String?
     @Environment(Router.self) private var router
 
     private let dateFormatter: DateFormatter = {
@@ -144,19 +146,36 @@ struct MainView: View {
         }
         .navigationTitle("Home")
         .sheet(isPresented: $isCreatingEventInProgress) {
-            DatePicker(
-                "Select event date",
-                selection: $selectedDate,
-                in: Date()...,
-                displayedComponents: [.date, .hourAndMinute]
-            )
-            .datePickerStyle(.graphical)
-            .padding()
-            .presentationDetents([.medium])
+            VStack(spacing: 16) {
+                DatePicker(
+                    "Select event date",
+                    selection: $selectedDate,
+                    in: Date()...,
+                    displayedComponents: [.date, .hourAndMinute]
+                )
+                .datePickerStyle(.graphical)
+                .padding()
 
-            Button("Create") {
-                router.push(screen: .createEvent(date: dateFormatter.string(from: selectedDate)))
-                isCreatingEventInProgress = false
+                Button("Create") {
+                    let dateString = dateFormatter.string(from: selectedDate)
+                    Task {
+                        let isAvailable = await reducer.checkAvailability(date: dateString)
+                        if isAvailable {
+                            router.push(screen: .createEvent(date: dateString))
+                            isCreatingEventInProgress = false
+                        } else {
+                            selectedDateForEvent = dateString
+                            showBusyAlert = true
+                        }
+                    }
+                }
+                .disabled(reducer.isCheckingAvailability)
+            }
+            .presentationDetents([.medium])
+        }
+        .alert("You are busy on this day", isPresented: $showBusyAlert) {
+            Button("OK") {
+                showBusyAlert = false
             }
         }
     }

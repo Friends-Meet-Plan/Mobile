@@ -24,16 +24,17 @@ enum EventFilter: Int, CaseIterable {
 
 @Observable
 final class MainEventsReducer {
-    
+
     var activeEvents: [MainEvent] = []
     var pendingEvents: [MainEvent] = []
     var isRefreshing: Bool = false
-    
+
     var isLoading: Bool = false
     var errorMessage: String?
-    
+
     var selectedFilter: EventFilter = .active
-    
+    var isCheckingAvailability: Bool = false
+
     private let sharedVM: MainViewModel
     private var stateTask: Task<Void, Never>?
     
@@ -73,7 +74,28 @@ final class MainEventsReducer {
     func refresh() {
         sharedVM.obtainEvent(event: MainViewAction.OnRefresh())
     }
-    
+
+    func checkAvailability(date: String) async -> Bool {
+        isCheckingAvailability = true
+        defer { isCheckingAvailability = false }
+        do {
+            let result = try await sharedVM.checkAvailability(date: date)
+            guard let availability = result else { return true }
+            
+            switch availability {
+            case is AvailabilityResult.Busy:
+                return false
+            case is AvailabilityResult.Available:
+                return true
+            default:
+                return true
+            }
+        } catch {
+            self.errorMessage = error.localizedDescription
+            return false
+        }
+    }
+
     var filteredEvents: [MainEvent] {
         switch selectedFilter {
         case .active:
@@ -82,7 +104,7 @@ final class MainEventsReducer {
             return pendingEvents
         }
     }
-    
+
     var pendingCount: Int {
         pendingEvents.count
     }

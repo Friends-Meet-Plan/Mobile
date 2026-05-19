@@ -5,6 +5,7 @@ import friends.mobile.core.network.safeApiCall
 import friends.mobile.feature.events.data.remote.EventsApi
 import friends.mobile.feature.events.data.remote.dto.EventResponseDto
 import friends.mobile.feature.main.data.mapper.MainEventMapper
+import friends.mobile.feature.main.domain.model.AvailabilityResult
 import friends.mobile.feature.main.domain.model.MainEvent
 import friends.mobile.feature.main.domain.repository.MainRepository
 
@@ -33,5 +34,15 @@ internal class MainRepositoryImpl(
                 eventMapper.toDomainFromEventResponse(activeEvents),
                 eventMapper.toDomainFromEventResponse(pendingEvents)
             )
+        }
+
+    override suspend fun checkUserAvailability(date: String): ResultWrapper<AvailabilityResult> =
+        safeApiCall {
+            val response = api.checkUserAvailability(date)
+            if (response.isAvailable) {
+                AvailabilityResult.Available
+            } else {
+                AvailabilityResult.Busy
+            }
         }
 }
