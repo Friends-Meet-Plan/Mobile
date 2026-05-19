@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class MainViewModel : BaseViewModel<MainViewState, MainAction, MainEvent>(
+class MainViewModel : BaseViewModel<MainViewState, MainAction, MainViewAction>(
     initState = MainViewState.Loading,
 ),
     KoinComponent {
@@ -22,18 +22,20 @@ class MainViewModel : BaseViewModel<MainViewState, MainAction, MainEvent>(
         }
     }
 
-    override fun obtainEvent(event: MainEvent) {
+    override fun obtainEvent(event: MainViewAction) {
         when (event) {
-            is MainEvent.OnRefresh -> onRefresh()
+            is MainViewAction.OnRefresh -> onRefresh()
         }
     }
 
     private fun loadEvents() {
         viewModelScope.launch {
-            when (val result = mainRepository.getAcceptedEvents()) {
+            when (val result = mainRepository.getActiveAndPendingEvents()) {
                 is ResultWrapper.Success -> {
+                    val (activeEvents, pendingEvents) = result.data
                     viewState = MainViewState.Content(
-                        upcomingEvents = result.data,
+                        activeEvents = activeEvents,
+                        pendingEvents = pendingEvents,
                         isRefreshing = false,
                     )
                 }

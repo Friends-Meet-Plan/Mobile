@@ -1,5 +1,6 @@
 package friends.mobile.main
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,10 +10,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,12 +39,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import friends.mobile.feature.main.domain.model.MainEvent
-import friends.mobile.feature.main.presentation.MainEvent as MainEventAction
+import friends.mobile.feature.main.presentation.MainViewAction as MainEventAction
 import friends.mobile.feature.main.presentation.MainViewModel
 import friends.mobile.feature.main.presentation.MainViewState
 import java.text.SimpleDateFormat
@@ -72,19 +78,44 @@ fun MainView(
     val errorMessage = (state as? MainViewState.Error)?.message
     val isRefreshing =
         (state as? MainViewState.Content)?.isRefreshing ?: false
-    val upcomingEvents =
-        (state as? MainViewState.Content)?.upcomingEvents ?: emptyList()
+    val activeEvents =
+        (state as? MainViewState.Content)?.activeEvents ?: emptyList()
+    val pendingEvents =
+        (state as? MainViewState.Content)?.pendingEvents ?: emptyList()
+
+    val hasAnyEvents = activeEvents.isNotEmpty() || pendingEvents.isNotEmpty()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Home") },
                 actions = {
-                    IconButton(onClick = onPendingEventsClick) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Pending Invitations"
-                        )
+                    BadgedBox(
+                        badge = {
+                            if (pendingEvents.isNotEmpty()) {
+                                Badge(
+                                    modifier = Modifier
+                                        .background(
+                                            MaterialTheme.colorScheme.error,
+                                            shape = CircleShape
+                                        )
+                                        .size(20.dp),
+                                ) {
+                                    Text(
+                                        text = pendingEvents.size.toString(),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onError,
+                                    )
+                                }
+                            }
+                        }
+                    ) {
+                        IconButton(onClick = onPendingEventsClick) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "Pending Invitations"
+                            )
+                        }
                     }
                 }
             )
@@ -96,7 +127,7 @@ fun MainView(
                 .padding(innerPadding),
         ) {
             when {
-                isLoading && upcomingEvents.isEmpty() -> {
+                isLoading && activeEvents.isEmpty() -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
@@ -105,7 +136,7 @@ fun MainView(
                     }
                 }
 
-                errorMessage != null && upcomingEvents.isEmpty() -> {
+                errorMessage != null && activeEvents.isEmpty() -> {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -130,62 +161,123 @@ fun MainView(
                 }
 
                 else -> {
-                    Column(
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        if (upcomingEvents.isEmpty()) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center,
+                    if (!hasAnyEvents) {
+                        // Empty state
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
                             ) {
                                 Text(
-                                    text = "No events yet",
+                                    text = "You have no events, create it now!",
                                     style = MaterialTheme.typography.bodyMedium,
                                 )
-                            }
-                        } else {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxWidth(),
-                                contentPadding = PaddingValues(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp),
-                            ) {
-                                items(
-                                    upcomingEvents,
-                                    key = { it.id }
-                                ) { event ->
-                                    EventCard(
-                                        event = event,
-                                        onClick = {
-                                            onEventDetailClick(event.id)
-                                        },
-                                    )
+                                Button(
+                                    onClick = {
+                                        showDatePickerDialog = true
+                                    },
+                                    modifier = Modifier.padding(top = 16.dp),
+                                ) {
+                                    Text("Create event")
                                 }
                             }
                         }
+                    } else {
+                        // Events displayed in sections
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(0.dp),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                        ) {
+                            // Active Events Section
+                            if (activeEvents.isNotEmpty()) {
+                                item {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                                    ) {
+                                        Text(
+                                            text = "Active",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                        activeEvents.forEach { event ->
+                                            EventCard(
+                                                event = event,
+                                                onClick = {
+                                                    onEventDetailClick(event.id)
+                                                },
+                                                isPending = false,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
 
-                        if (isRefreshing) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                CircularProgressIndicator()
+                            // Pending Events Section
+                            if (pendingEvents.isNotEmpty()) {
+                                item {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                                    ) {
+                                        Text(
+                                            text = "Pending",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                        pendingEvents.forEach { event ->
+                                            EventCard(
+                                                event = event,
+                                                onClick = {
+                                                    onEventDetailClick(event.id)
+                                                },
+                                                isPending = true,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Loading indicator during refresh
+                            if (isRefreshing) {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        CircularProgressIndicator()
+                                    }
+                                }
+                            }
+
+                            // Create Event Button
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 16.dp),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Button(
+                                        onClick = {
+                                            showDatePickerDialog = true
+                                        },
+                                    ) {
+                                        Text("Create event")
+                                    }
+                                }
                             }
                         }
-                    }
-
-                    Button(
-                        onClick = {
-                            showDatePickerDialog = true
-                        },
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(16.dp),
-                    ) {
-                        Text("Create event")
                     }
                 }
             }
@@ -230,6 +322,7 @@ fun MainView(
 private fun EventCard(
     event: MainEvent,
     onClick: () -> Unit,
+    isPending: Boolean = false,
 ) {
     Card(
         modifier = Modifier
@@ -243,11 +336,38 @@ private fun EventCard(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text(
-                text = event.title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-            )
+            // Title with pending badge
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = event.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f),
+                )
+                if (isPending) {
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                MaterialTheme.colorScheme.primary,
+                                shape = MaterialTheme.shapes.small,
+                            )
+                            .padding(4.dp)
+                            .clip(MaterialTheme.shapes.small),
+                    ) {
+                        Text(
+                            text = "Pending",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.padding(4.dp),
+                        )
+                    }
+                }
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,

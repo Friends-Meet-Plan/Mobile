@@ -10,13 +10,14 @@ import Shared
 
 @Observable
 final class MainEventsReducer {
-    
-    var upcomingEvents: [MainEvent] = []
+
+    var activeEvents: [MainEvent] = []
+    var pendingEvents: [MainEvent] = []
     var isRefreshing: Bool = false
-    
+
     var isLoading: Bool = false
     var errorMessage: String?
-
+    
     private let sharedVM: MainViewModel
     private var stateTask: Task<Void, Never>?
     
@@ -35,7 +36,8 @@ final class MainEventsReducer {
                     self.errorMessage = error.message
                     self.isLoading = false
                 case let content as MainViewState.Content:
-                    self.upcomingEvents = content.upcomingEvents
+                    self.activeEvents = content.activeEvents
+                    self.pendingEvents = content.pendingEvents
                     self.isRefreshing = content.isRefreshing
                     self.isLoading = false
                     self.errorMessage = nil
@@ -53,6 +55,10 @@ final class MainEventsReducer {
     }
     
     func refresh() {
-        // TODO: ON REFRESH
+        sharedVM.obtainEvent(event: MainViewAction.OnRefresh())
+    }
+
+    var pendingCount: Int {
+        pendingEvents.count
     }
 }

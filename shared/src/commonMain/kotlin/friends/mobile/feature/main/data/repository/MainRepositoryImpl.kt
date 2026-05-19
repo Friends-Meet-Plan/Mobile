@@ -17,4 +17,20 @@ internal class MainRepositoryImpl(
             val response = api.getEvents(scope = "upcoming")
             eventMapper.toDomain(response)
         }
+
+    override suspend fun getPendingEvents(): ResultWrapper<List<MainEvent>> =
+        safeApiCall {
+            val response = api.getPendingEvents()
+            eventMapper.toDomainFromEventResponse(response)
+        }
+
+    override suspend fun getActiveAndPendingEvents(): ResultWrapper<Pair<List<MainEvent>, List<MainEvent>>> =
+        safeApiCall {
+            val activeResponse = api.getEvents(scope = "upcoming")
+            val pendingResponse = api.getPendingEvents()
+            Pair(
+                eventMapper.toDomain(activeResponse),
+                eventMapper.toDomainFromEventResponse(pendingResponse)
+            )
+        }
 }

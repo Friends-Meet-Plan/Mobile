@@ -5,4 +5,8 @@ import friends.mobile.feature.main.domain.model.MainEvent
 
 interface MainRepository {
     suspend fun getAcceptedEvents(): ResultWrapper<List<MainEvent>>
+
+    suspend fun getPendingEvents(): ResultWrapper<List<MainEvent>>
+
+    suspend fun getActiveAndPendingEvents(): ResultWrapper<Pair<List<MainEvent>, List<MainEvent>>>
 }

@@ -17,6 +17,7 @@ sealed class CreateEventViewState {
         val selectedFriendIds: Set<String> = emptySet(),
         val isLoadingFriends: Boolean = false,
         val friendsError: String? = null,
+        val isOwnerAvailable: Boolean = true,
         val isCreatingEvent: Boolean = false,
         val isCreateButtonEnabled: Boolean = false,
     ) : CreateEventViewState()

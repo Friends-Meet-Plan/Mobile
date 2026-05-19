@@ -1,5 +1,5 @@
 package friends.mobile.feature.main.presentation
 
-sealed class MainEvent {
-    data object OnRefresh : MainEvent()
+sealed class MainViewAction {
+    data object OnRefresh : MainViewAction()
 }
