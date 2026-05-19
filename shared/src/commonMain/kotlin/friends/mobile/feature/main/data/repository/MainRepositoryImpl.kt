@@ -3,6 +3,7 @@ package friends.mobile.feature.main.data.repository
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.network.safeApiCall
 import friends.mobile.feature.events.data.remote.EventsApi
+import friends.mobile.feature.events.data.remote.dto.EventResponseDto
 import friends.mobile.feature.main.data.mapper.MainEventMapper
 import friends.mobile.feature.main.domain.model.MainEvent
 import friends.mobile.feature.main.domain.repository.MainRepository
@@ -14,23 +15,23 @@ internal class MainRepositoryImpl(
 
     override suspend fun getAcceptedEvents(): ResultWrapper<List<MainEvent>> =
         safeApiCall {
-            val response = api.getEvents(scope = "upcoming")
-            eventMapper.toDomain(response)
+            val activeEvents = api.getActiveEvents()
+            eventMapper.toDomainFromEventResponse(activeEvents)
         }
 
     override suspend fun getPendingEvents(): ResultWrapper<List<MainEvent>> =
         safeApiCall {
-            val response = api.getPendingEvents()
-            eventMapper.toDomainFromEventResponse(response)
+            val pendingEvents = api.getPendingEvents()
+            eventMapper.toDomainFromEventResponse(pendingEvents)
         }
 
     override suspend fun getActiveAndPendingEvents(): ResultWrapper<Pair<List<MainEvent>, List<MainEvent>>> =
         safeApiCall {
-            val activeResponse = api.getEvents(scope = "upcoming")
-            val pendingResponse = api.getPendingEvents()
+            val activeEvents = api.getActiveEvents()
+            val pendingEvents = api.getPendingEvents()
             Pair(
-                eventMapper.toDomain(activeResponse),
-                eventMapper.toDomainFromEventResponse(pendingResponse)
+                eventMapper.toDomainFromEventResponse(activeEvents),
+                eventMapper.toDomainFromEventResponse(pendingEvents)
             )
         }
 }

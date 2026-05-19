@@ -28,6 +28,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
@@ -63,6 +65,7 @@ fun MainView(
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
 
     var showDatePickerDialog by rememberSaveable { mutableStateOf(false) }
+    var filterMode by rememberSaveable { mutableStateOf(FilterMode.ACTIVE) }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = System.currentTimeMillis()
     )
@@ -83,7 +86,10 @@ fun MainView(
     val pendingEvents =
         (state as? MainViewState.Content)?.pendingEvents ?: emptyList()
 
-    val hasAnyEvents = activeEvents.isNotEmpty() || pendingEvents.isNotEmpty()
+    val eventsToDisplay = when (filterMode) {
+        FilterMode.ACTIVE -> activeEvents
+        FilterMode.PENDING -> pendingEvents
+    }
 
     Scaffold(
         topBar = {
@@ -161,122 +167,101 @@ fun MainView(
                 }
 
                 else -> {
-                    if (!hasAnyEvents) {
-                        // Empty state
-                        Box(
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(0.dp),
+                    ) {
+                        // Filter Toggle
+                        Row(
                             modifier = Modifier
-                                .fillMaxSize()
+                                .fillMaxWidth()
                                 .padding(16.dp),
-                            contentAlignment = Alignment.Center,
+                            horizontalArrangement = Arrangement.Center,
                         ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center,
+                            SingleChoiceSegmentedButtonRow(
+                                modifier = Modifier.fillMaxWidth(),
                             ) {
-                                Text(
-                                    text = "You have no events, create it now!",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                )
-                                Button(
-                                    onClick = {
-                                        showDatePickerDialog = true
-                                    },
-                                    modifier = Modifier.padding(top = 16.dp),
-                                ) {
-                                    Text("Create event")
+                                FilterMode.entries.forEachIndexed { index, mode ->
+                                    SegmentedButton(
+                                        selected = filterMode == mode,
+                                        onClick = { filterMode = mode },
+                                        shape = MaterialTheme.shapes.small,
+                                        modifier = Modifier.weight(1f),
+                                    ) {
+                                        val label = when (mode) {
+                                            FilterMode.ACTIVE -> "Active (${activeEvents.size})"
+                                            FilterMode.PENDING -> "Pending (${pendingEvents.size})"
+                                        }
+                                        Text(label)
+                                    }
                                 }
                             }
                         }
-                    } else {
-                        // Events displayed in sections
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(0.dp),
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
+
+                        // Events List
+                        Column(
+                            modifier = Modifier.weight(1f),
                         ) {
-                            // Active Events Section
-                            if (activeEvents.isNotEmpty()) {
-                                item {
-                                    Column(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                                    ) {
-                                        Text(
-                                            text = "Active",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold,
+                            if (eventsToDisplay.isEmpty()) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    val emptyMessage = when (filterMode) {
+                                        FilterMode.ACTIVE -> "No active events yet"
+                                        FilterMode.PENDING -> "No pending invitations"
+                                    }
+                                    Text(
+                                        text = emptyMessage,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                    )
+                                }
+                            } else {
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentPadding = PaddingValues(16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                                ) {
+                                    items(
+                                        eventsToDisplay,
+                                        key = { it.id }
+                                    ) { event ->
+                                        EventCard(
+                                            event = event,
+                                            onClick = {
+                                                onEventDetailClick(event.id)
+                                            },
+                                            isPending = filterMode == FilterMode.PENDING,
                                         )
-                                        activeEvents.forEach { event ->
-                                            EventCard(
-                                                event = event,
-                                                onClick = {
-                                                    onEventDetailClick(event.id)
-                                                },
-                                                isPending = false,
-                                            )
-                                        }
                                     }
                                 }
                             }
 
-                            // Pending Events Section
-                            if (pendingEvents.isNotEmpty()) {
-                                item {
-                                    Column(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                                    ) {
-                                        Text(
-                                            text = "Pending",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold,
-                                        )
-                                        pendingEvents.forEach { event ->
-                                            EventCard(
-                                                event = event,
-                                                onClick = {
-                                                    onEventDetailClick(event.id)
-                                                },
-                                                isPending = true,
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Loading indicator during refresh
                             if (isRefreshing) {
-                                item {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(16.dp),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        CircularProgressIndicator()
-                                    }
-                                }
-                            }
-
-                            // Create Event Button
-                            item {
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(top = 16.dp),
+                                        .padding(16.dp),
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    Button(
-                                        onClick = {
-                                            showDatePickerDialog = true
-                                        },
-                                    ) {
-                                        Text("Create event")
-                                    }
+                                    CircularProgressIndicator()
                                 }
                             }
+                        }
+
+                        // Create Event Button
+                        Button(
+                            onClick = {
+                                showDatePickerDialog = true
+                            },
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .padding(16.dp),
+                        ) {
+                            Text("Create event")
                         }
                     }
                 }
@@ -389,6 +374,11 @@ private fun EventCard(
             )
         }
     }
+}
+
+enum class FilterMode {
+    ACTIVE,
+    PENDING,
 }
 
 private fun logScreenOpen(screenName: String) {

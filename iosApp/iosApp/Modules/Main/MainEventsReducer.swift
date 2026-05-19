@@ -8,15 +8,31 @@
 import SwiftUI
 import Shared
 
+enum EventFilter: Int, CaseIterable {
+    case active = 0
+    case pending = 1
+    
+    var title: String {
+        switch self {
+        case .active:
+            return "Active"
+        case .pending:
+            return "Pending"
+        }
+    }
+}
+
 @Observable
 final class MainEventsReducer {
-
+    
     var activeEvents: [MainEvent] = []
     var pendingEvents: [MainEvent] = []
     var isRefreshing: Bool = false
-
+    
     var isLoading: Bool = false
     var errorMessage: String?
+    
+    var selectedFilter: EventFilter = .active
     
     private let sharedVM: MainViewModel
     private var stateTask: Task<Void, Never>?
@@ -57,7 +73,16 @@ final class MainEventsReducer {
     func refresh() {
         sharedVM.obtainEvent(event: MainViewAction.OnRefresh())
     }
-
+    
+    var filteredEvents: [MainEvent] {
+        switch selectedFilter {
+        case .active:
+            return activeEvents
+        case .pending:
+            return pendingEvents
+        }
+    }
+    
     var pendingCount: Int {
         pendingEvents.count
     }
