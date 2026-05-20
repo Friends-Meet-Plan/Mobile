@@ -24,7 +24,6 @@ kotlin {
             implementation(libs.koin.androidx.compose)
             implementation(libs.androidx.navigation.compose)
             implementation(libs.accompanist.swiperefresh)
-            implementation(libs.androidx.material.icons)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)

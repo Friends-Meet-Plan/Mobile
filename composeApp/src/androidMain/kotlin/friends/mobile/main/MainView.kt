@@ -15,8 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Badge
@@ -200,14 +198,6 @@ fun MainView(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.DateRange,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(48.dp)
-                                .padding(bottom = 16.dp),
-                            tint = Color.Gray,
-                        )
                         Text(
                             text = "You have no events, create it now!",
                             style = MaterialTheme.typography.bodyMedium,
@@ -490,46 +480,20 @@ private fun EventCard(
                 }
             }
 
-            // Date with calendar icon
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = Icons.Default.DateRange,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = Color.Gray,
-                )
+            // Date
+            Text(
+                text = event.date,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray,
+            )
+
+            // Time (if present)
+            event.time?.let { time ->
                 Text(
-                    text = event.date,
+                    text = time,
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray,
-                    modifier = Modifier.padding(start = 4.dp),
                 )
-            }
-
-            // Time with clock icon (if present)
-            event.time?.let { time ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Schedule,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = Color.Gray,
-                    )
-                    Text(
-                        text = time,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(start = 4.dp),
-                    )
-                }
             }
 
             // Participants with person icon
