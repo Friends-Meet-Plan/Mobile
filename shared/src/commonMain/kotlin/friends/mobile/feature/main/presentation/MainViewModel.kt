@@ -4,12 +4,13 @@ import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
 import friends.mobile.core.viewmodel.BaseViewModel
+import friends.mobile.feature.main.domain.model.AvailabilityResult
 import friends.mobile.feature.main.domain.repository.MainRepository
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class MainViewModel : BaseViewModel<MainViewState, MainAction, MainEvent>(
+class MainViewModel : BaseViewModel<MainViewState, MainAction, MainViewAction>(
     initState = MainViewState.Loading,
 ),
     KoinComponent {
@@ -22,18 +23,20 @@ class MainViewModel : BaseViewModel<MainViewState, MainAction, MainEvent>(
         }
     }
 
-    override fun obtainEvent(event: MainEvent) {
+    override fun obtainEvent(event: MainViewAction) {
         when (event) {
-            is MainEvent.OnRefresh -> onRefresh()
+            is MainViewAction.OnRefresh -> onRefresh()
         }
     }
 
     private fun loadEvents() {
         viewModelScope.launch {
-            when (val result = mainRepository.getAcceptedEvents()) {
+            when (val result = mainRepository.getActiveAndPendingEvents()) {
                 is ResultWrapper.Success -> {
+                    val (activeEvents, pendingEvents) = result.data
                     viewState = MainViewState.Content(
-                        upcomingEvents = result.data,
+                        activeEvents = activeEvents,
+                        pendingEvents = pendingEvents,
                         isRefreshing = false,
                     )
                 }
@@ -53,5 +56,12 @@ class MainViewModel : BaseViewModel<MainViewState, MainAction, MainEvent>(
             viewState = currentState.copy(isRefreshing = true)
         }
         loadEvents()
+    }
+
+    suspend fun checkAvailability(date: String): AvailabilityResult? {
+        return when (val result = mainRepository.checkUserAvailability(date)) {
+            is ResultWrapper.Success -> result.data
+            is ResultWrapper.Error -> null
+        }
     }
 }

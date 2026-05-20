@@ -4,6 +4,7 @@ import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
 import friends.mobile.core.viewmodel.BaseViewModel
+import friends.mobile.feature.auth.domain.usecase.GetStoredSessionUseCase
 import friends.mobile.feature.events.domain.usecase.CheckFriendsAvailabilityUseCase
 import friends.mobile.feature.events.domain.usecase.CreateEventUseCase
 import kotlinx.coroutines.launch
@@ -19,6 +20,7 @@ class CreateEventViewModel(
 
     private val checkFriendsAvailabilityUseCase: CheckFriendsAvailabilityUseCase by inject()
     private val createEventUseCase: CreateEventUseCase by inject()
+    private val getStoredSessionUseCase: GetStoredSessionUseCase by inject()
 
     init {
         viewModelScope.launch {
@@ -41,10 +43,21 @@ class CreateEventViewModel(
         viewModelScope.launch {
             when (val result = checkFriendsAvailabilityUseCase(selectedDate)) {
                 is ResultWrapper.Success -> {
+                    // Check if the owner (current user) is available on this date
+                    val currentSession = getStoredSessionUseCase()
+                    val ownerId = currentSession?.user?.id
+
+                    // The API returns only available friends, so owner is available if:
+                    // 1. Owner ID exists in the available friends list, OR
+                    // 2. If owner is not in the list, it means they're busy
+                    val availableFriendsIds = result.data.map { it.id }.toSet()
+                    val isOwnerAvailable = ownerId != null && availableFriendsIds.contains(ownerId)
+
                     viewState = CreateEventViewState.Content(
                         selectedDate = selectedDate,
                         availableFriends = result.data,
                         isLoadingFriends = false,
+                        isOwnerAvailable = isOwnerAvailable,
                     )
                 }
                 is ResultWrapper.Error -> {
@@ -85,6 +98,11 @@ class CreateEventViewModel(
             return
         }
 
+        if (!currentState.isOwnerAvailable) {
+            viewState = CreateEventViewState.Error(message = "You are not available on this date. Please select a different date for the event.")
+            return
+        }
+
         val invitedIds = currentState.selectedFriendIds.toList()
 
         viewState = currentState.copy(isCreatingEvent = true)
@@ -121,6 +139,7 @@ class CreateEventViewModel(
     }
 
     private fun computeIsCreateButtonEnabled(title: String, selectedFriendIds: Set<String>): Boolean {
-        return title.isNotBlank() && selectedFriendIds.isNotEmpty()
+        val currentState = viewState as? CreateEventViewState.Content ?: return false
+        return title.isNotBlank() && selectedFriendIds.isNotEmpty() && currentState.isOwnerAvailable
     }
 }

@@ -8,7 +8,8 @@ sealed class MainViewState {
     data class Error(val message: String) : MainViewState()
 
     data class Content(
-        val upcomingEvents: List<MainEvent> = emptyList(),
+        val activeEvents: List<MainEvent> = emptyList(),
+        val pendingEvents: List<MainEvent> = emptyList(),
         val isRefreshing: Boolean = false,
     ) : MainViewState()
 }
