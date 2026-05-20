@@ -60,7 +60,7 @@ compose-components-resources = { module = "org.jetbrains.compose.components:comp
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
 compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "composeIcons" }
-androidx-material-icons = { module = "androidx.compose.material:material-icons-core", version.ref = "androidx-material-icons" }
+androidx-material-icons = { module = "androidx.compose.material:material-icons-extended", version.ref = "androidx-material-icons" }
 accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanist" }
 
 [plugins]
