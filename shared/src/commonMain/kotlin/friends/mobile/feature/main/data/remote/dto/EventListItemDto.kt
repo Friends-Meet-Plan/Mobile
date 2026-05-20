@@ -9,6 +9,7 @@ data class EventListItemDto(
     @SerialName("title") val title: String,
     @SerialName("date") val date: String,
     @SerialName("creator_id") val creatorId: String,
+    @SerialName("status") val status: String,
     @SerialName("participants") val participants: List<EventParticipantItemDto>,
 )
 

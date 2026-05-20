@@ -21,6 +21,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import friends.mobile.archive.ArchiveEventsView
 import friends.mobile.events.CreateEventView
 import friends.mobile.events.EventDetailView
 import friends.mobile.events.PendingEventListView
@@ -42,6 +43,7 @@ sealed interface Screen {
         val avatarUrl: String?
     ) : Screen
     @Serializable data object PendingEvents : Screen
+    @Serializable data object Archive : Screen
 }
 
 @Composable
@@ -52,7 +54,8 @@ fun MainScreen(
     val bottomNavItems = listOf(
         Triple(Screen.Home, "Home", BottomNavItem.Home.icon),
         Triple(Screen.Friends, "Friends", BottomNavItem.Friends.icon),
-        Triple(Screen.Profile, "Profile", BottomNavItem.Profile.icon)
+        Triple(Screen.Profile, "Profile", BottomNavItem.Profile.icon),
+        Triple(Screen.Archive, "Archive", BottomNavItem.Archive.icon)
     )
 
     Scaffold(
@@ -143,6 +146,13 @@ fun MainScreen(
             composable<Screen.PendingEvents> {
                 PendingEventListView(
                     onBackClick = { navController.popBackStack() }
+                )
+            }
+            composable<Screen.Archive> {
+                ArchiveEventsView(
+                    onEventDetailClick = { eventId ->
+                        navController.navigate(Screen.EventDetail(eventId))
+                    }
                 )
             }
         }

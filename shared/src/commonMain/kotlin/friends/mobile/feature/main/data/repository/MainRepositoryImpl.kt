@@ -36,6 +36,12 @@ internal class MainRepositoryImpl(
             )
         }
 
+    override suspend fun getArchivedEvents(): ResultWrapper<List<MainEvent>> =
+        safeApiCall {
+            val pastEvents = api.getEvents(scope = "past")
+            eventMapper.toDomain(pastEvents.filter { it.status == "completed" })
+        }
+
     override suspend fun checkUserAvailability(date: String): ResultWrapper<AvailabilityResult> =
         safeApiCall {
             val response = api.checkUserAvailability(date)

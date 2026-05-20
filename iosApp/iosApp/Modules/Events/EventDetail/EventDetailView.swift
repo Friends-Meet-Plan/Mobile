@@ -64,7 +64,7 @@ struct EventDetailView: View {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(participant.username)
                                         .font(.body)
-                                        .foregroundStyle(.primary)
+                                        .foregroundStyle(.black)
                                     Text(participant.role)
                                         .font(.caption)
                                         .foregroundStyle(.gray)
