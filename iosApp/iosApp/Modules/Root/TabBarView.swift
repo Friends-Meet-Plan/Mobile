@@ -11,6 +11,7 @@ import Shared
 private enum Tab {
     case main
     case friends
+    case archive
     case profile
 }
 
@@ -31,6 +32,11 @@ struct TabBarView: View {
                     Label("Friends", systemImage: "person.2.fill")
                 }
                 .tag(Tab.friends)
+            ArchiveView()
+                .tabItem {
+                    Label("Archive", systemImage: "checkmark.square.fill")
+                }
+                .tag(Tab.archive)
             ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")

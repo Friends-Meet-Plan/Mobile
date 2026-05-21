@@ -11,5 +11,7 @@ interface MainRepository {
 
     suspend fun getActiveAndPendingEvents(): ResultWrapper<Pair<List<MainEvent>, List<MainEvent>>>
 
+    suspend fun getArchivedEvents(): ResultWrapper<List<MainEvent>>
+
     suspend fun checkUserAvailability(date: String): ResultWrapper<AvailabilityResult>
 }
