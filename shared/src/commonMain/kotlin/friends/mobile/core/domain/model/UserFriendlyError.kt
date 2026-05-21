@@ -11,35 +11,26 @@ object ErrorMessages {
     const val UNKNOWN = "Произошла неизвестная ошибка"
 }
 
-sealed class UserFriendlyError {
-    data object Network : UserFriendlyError()
-    data object Unauthorized : UserFriendlyError()
-    data object Forbidden : UserFriendlyError()
-    data object NotFound : UserFriendlyError()
-    data object Conflict : UserFriendlyError()
-    data object ClientError : UserFriendlyError()
-    data object Server : UserFriendlyError()
-    data object Unknown : UserFriendlyError()
+sealed class UserFriendlyError(open val message: String) {
+    data class Network(override val message: String = ErrorMessages.NETWORK) : UserFriendlyError(message)
+    data class Unauthorized(override val message: String = ErrorMessages.UNAUTHORIZED) : UserFriendlyError(message)
+    data class Forbidden(override val message: String = ErrorMessages.FORBIDDEN) : UserFriendlyError(message)
+    data class NotFound(override val message: String = ErrorMessages.NOT_FOUND) : UserFriendlyError(message)
+    data class Conflict(override val message: String = ErrorMessages.CONFLICT) : UserFriendlyError(message)
+    data class ClientError(override val message: String = ErrorMessages.CLIENT_ERROR) : UserFriendlyError(message)
+    data class Server(override val message: String = ErrorMessages.SERVER_ERROR) : UserFriendlyError(message)
+    data class Unknown(override val message: String = ErrorMessages.UNKNOWN) : UserFriendlyError(message)
 }
 
 fun mapApiErrorToUserFriendly(error: ApiError): UserFriendlyError = when (error.code) {
-    401 -> UserFriendlyError.Unauthorized
-    403 -> UserFriendlyError.Forbidden
-    404 -> UserFriendlyError.NotFound
-    409 -> UserFriendlyError.Conflict
-    in 400..499 -> UserFriendlyError.ClientError
-    in 500..599 -> UserFriendlyError.Server
-    -1 -> UserFriendlyError.Network
-    else -> UserFriendlyError.Unknown
+    401 -> UserFriendlyError.Unauthorized(error.message)
+    403 -> UserFriendlyError.Forbidden(error.message)
+    404 -> UserFriendlyError.NotFound(error.message)
+    409 -> UserFriendlyError.Conflict(error.message)
+    in 400..499 -> UserFriendlyError.ClientError(error.message)
+    in 500..599 -> UserFriendlyError.Server(error.message)
+    -1 -> UserFriendlyError.Network(error.message)
+    else -> UserFriendlyError.Unknown(error.message)
 }
 
-fun getErrorMessage(error: UserFriendlyError): String = when (error) {
-    UserFriendlyError.Network -> ErrorMessages.NETWORK
-    UserFriendlyError.Unauthorized -> ErrorMessages.UNAUTHORIZED
-    UserFriendlyError.Forbidden -> ErrorMessages.FORBIDDEN
-    UserFriendlyError.NotFound -> ErrorMessages.NOT_FOUND
-    UserFriendlyError.Conflict -> ErrorMessages.CONFLICT
-    UserFriendlyError.ClientError -> ErrorMessages.CLIENT_ERROR
-    UserFriendlyError.Server -> ErrorMessages.SERVER_ERROR
-    UserFriendlyError.Unknown -> ErrorMessages.UNKNOWN
-}
+fun getErrorMessage(error: UserFriendlyError): String = error.message
