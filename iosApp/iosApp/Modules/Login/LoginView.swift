@@ -15,41 +15,78 @@ struct LoginView: View {
     @State private var isRegisterPresented = false
     
     var body: some View {
-        VStack(spacing: 16) {
-            TextField("Username", text: .init(
-                get: { reducer.username },
-                set: { reducer.setUsername($0) }
-            ))
-            
-            SecureField("Password", text: .init(
-                get: { reducer.password },
-                set: { reducer.setPassword($0) }
-            ))
-            
-            if let error = reducer.errorMessage {
-                Text(error).foregroundColor(.red).font(.caption)
+        ScrollView {
+            VStack(spacing: DesignTheme.Spacing.xxxl) {
+                Image("OnboardingImage")
+                    .resizable()
+                    .scaledToFit()
+                    .padding(.top, DesignTheme.Spacing.sm)
+                    .padding(.horizontal, DesignTheme.Spacing.sm)
+                    .frame(maxWidth: .infinity)
+                
+                VStack(spacing: DesignTheme.Spacing.lg) {
+                    TextField("Username", text: .init(
+                        get: { reducer.username },
+                        set: { reducer.setUsername($0) }
+                    ))
+                    .formTextField()
+
+                    SecureField("Password", text: .init(
+                        get: { reducer.password },
+                        set: { reducer.setPassword($0) }
+                    ))
+                    .formSecureField()
+
+                    if let error = reducer.errorMessage {
+                        FormErrorMessage(message: error)
+                    }
+                }
+                .padding(.horizontal, DesignTheme.Spacing.xl)
+                
+                Button(action: {
+                    reducer.login()
+                }) {
+                    if reducer.isLoading {
+                        HStack(spacing: DesignTheme.Spacing.sm) {
+                            ProgressView()
+                                .scaleEffect(0.9)
+                                .tint(.white)
+                            Text("Logging in...")
+                                .font(DesignTheme.Typography.button)
+                        }
+                    } else {
+                        Text("Login")
+                            .font(DesignTheme.Typography.button)
+                    }
+                }
+                .primaryButton(isLoading: reducer.isLoading, isEnabled: !(reducer.isLoading || reducer.username.isEmpty || reducer.password.isEmpty))
+                .padding(.horizontal, DesignTheme.Spacing.xl)
+                
+                HStack(spacing: DesignTheme.Spacing.xs) {
+                    Text("Don't have an account?")
+                        .font(DesignTheme.Typography.caption)
+                        .foregroundColor(.gray)
+
+                    Button(action: { isRegisterPresented = true }) {
+                        Text("Sign up")
+                            .font(DesignTheme.Typography.captionSemibold)
+                            .foregroundColor(DesignTheme.accentColorHex)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                
+                Spacer(minLength: DesignTheme.Spacing.xl)
             }
-            
-            Button("Login") {
-                reducer.login()
-            }
-            .disabled(reducer.isLoading)
-            
-            Button("Register now") {
-                isRegisterPresented = true
-            }
-            
-            if reducer.isLoading {
-                ProgressView()
-            }
+            .padding(.top, DesignTheme.Spacing.md)
         }
         .onAppear {
             reducer.onLoginSuccess = onLoginSuccess
         }
         .sheet(isPresented: $isRegisterPresented) {
-            RegisterView {
+            RegisterView(onRegisterSuccess: {
                 isRegisterPresented = false
-            }
+            })
+            .presentationDetents([.medium, .large])
         }
     }
 }

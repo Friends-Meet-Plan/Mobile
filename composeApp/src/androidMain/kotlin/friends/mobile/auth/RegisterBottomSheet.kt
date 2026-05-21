@@ -1,20 +1,23 @@
 package friends.mobile.auth
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -22,12 +25,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import friends.mobile.designkit.DesignTheme
+import friends.mobile.designkit.FormErrorMessage
+import friends.mobile.designkit.FormInfoMessage
+import friends.mobile.designkit.FormSecureField
+import friends.mobile.designkit.FormTextField
+import friends.mobile.designkit.PrimaryButton
 import friends.mobile.feature.auth.presentation.register.RegisterAction
 import friends.mobile.feature.auth.presentation.register.RegisterEvent
 import friends.mobile.feature.auth.presentation.register.RegisterViewModel
@@ -58,29 +65,41 @@ fun RegisterBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
     ) {
-        Box(modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp)) {
-            when (val currentState = state) {
-                is RegisterViewState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center).padding(32.dp))
+        when (val currentState = state) {
+            is RegisterViewState.Loading -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .padding(bottom = DesignTheme.Spacing.xxxl),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator()
                 }
-                is RegisterViewState.Error -> {
-                    Column(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(text = currentState.message, color = MaterialTheme.colorScheme.error)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { viewModel.obtainEvent(RegisterEvent.OnUsernameChanged("")) }) {
-                            Text("Try Again")
-                        }
-                    }
-                }
-                is RegisterViewState.Content -> {
-                    RegisterForm(
-                        state = currentState,
-                        onEvent = viewModel::obtainEvent
+            }
+            is RegisterViewState.Error -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(DesignTheme.Spacing.xl),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    FormErrorMessage(message = currentState.message)
+                    Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
+                    PrimaryButton(
+                        text = "Try Again",
+                        onClick = { viewModel.obtainEvent(RegisterEvent.OnUsernameChanged("")) },
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
+            }
+            is RegisterViewState.Content -> {
+                RegisterForm(
+                    state = currentState,
+                    onEvent = viewModel::obtainEvent,
+                    onDismiss = onDismiss
+                )
             }
         }
     }
@@ -89,50 +108,106 @@ fun RegisterBottomSheet(
 @Composable
 private fun RegisterForm(
     state: RegisterViewState.Content,
-    onEvent: (RegisterEvent) -> Unit
+    onEvent: (RegisterEvent) -> Unit,
+    onDismiss: () -> Unit
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.padding(16.dp),
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = DesignTheme.Spacing.xl),
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.lg),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+            vertical = DesignTheme.Spacing.lg,
+            horizontal = 0.dp
+        )
     ) {
-        Text(text = "Create Account", style = MaterialTheme.typography.headlineSmall)
-
-        OutlinedTextField(
-            value = state.username,
-            onValueChange = { onEvent(RegisterEvent.OnUsernameChanged(it)) },
-            label = { Text("Username") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.None,
-                autoCorrectEnabled = false
-            ),
-            modifier = Modifier.fillMaxWidth(),
-        )
-
-        OutlinedTextField(
-            value = state.password,
-            onValueChange = { onEvent(RegisterEvent.OnPasswordChanged(it)) },
-            label = { Text("Password") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            modifier = Modifier.fillMaxWidth(),
-        )
-
-        Button(
-            onClick = { onEvent(RegisterEvent.OnRegisterClick) },
-            enabled = !state.isRegistering && state.username.isNotBlank() && state.password.isNotBlank(),
-            modifier = Modifier.fillMaxWidth().height(50.dp),
-        ) {
-            if (state.isRegistering) {
-                CircularProgressIndicator(
-                    color = Color.White,
-                    modifier = Modifier.size(20.dp),
-                    strokeWidth = 2.dp
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Create Account",
+                    style = DesignTheme.Typography.heading,
+                    color = androidx.compose.ui.graphics.Color.Black
                 )
-            } else {
-                Text("Register")
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close",
+                        tint = androidx.compose.ui.graphics.Color.Gray.copy(alpha = 0.5f)
+                    )
+                }
             }
+        }
+
+        item {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.lg),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                FormTextField(
+                    value = state.username,
+                    onValueChange = { onEvent(RegisterEvent.OnUsernameChanged(it)) },
+                    placeholder = "Username",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(54.dp),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.None,
+                        autoCorrectEnabled = false
+                    )
+                )
+
+                FormSecureField(
+                    value = state.password,
+                    onValueChange = { onEvent(RegisterEvent.OnPasswordChanged(it)) },
+                    placeholder = "Password",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(54.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                )
+
+                FormInfoMessage(message = "At least 8 characters")
+            }
+        }
+
+        item {
+            PrimaryButton(
+                text = if (state.isRegistering) "Creating account..." else "Create Account",
+                onClick = { onEvent(RegisterEvent.OnRegisterClick) },
+                modifier = Modifier.fillMaxWidth(),
+                isLoading = state.isRegistering,
+                isEnabled = state.username.isNotBlank() && state.password.isNotBlank()
+            )
+        }
+
+        item {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Already have an account?",
+                    style = DesignTheme.Typography.caption,
+                    color = androidx.compose.ui.graphics.Color.Gray
+                )
+                Spacer(modifier = Modifier.width(DesignTheme.Spacing.xs))
+                Text(
+                    text = "Login",
+                    modifier = Modifier.clickable { onDismiss() },
+                    style = DesignTheme.Typography.captionSemibold,
+                    color = DesignTheme.Colors.primaryHex
+                )
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(DesignTheme.Spacing.xl))
         }
     }
 }
