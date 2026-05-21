@@ -11,6 +11,10 @@ import UIKit
 enum DesignTheme {
     static let accentColor = Color.blue
     static let accentColorHex = Color(red: 0.0, green: 0.48, blue: 1.0)
+    static let error = Color(red: 1.0, green: 0.23, blue: 0.19)
+    static let errorLight = Color.red.opacity(0.08)
+    static let infoLight = Color.blue.opacity(0.06)
+    static let secondaryAccent = Color.green
 
     enum Spacing {
         static let xs: CGFloat = 4

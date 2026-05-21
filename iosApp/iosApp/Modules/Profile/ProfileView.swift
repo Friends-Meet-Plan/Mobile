@@ -9,40 +9,65 @@ import SwiftUI
 import Shared
 
 struct ProfileView: View {
-    
+
     @Environment(Router.self) private var router
     @State private var profileReducer = ProfileReducer()
     @State private var showEditProfile = false
-    
+
     var body: some View {
         if let profile = profileReducer.profile {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: DesignTheme.Spacing.xxl) {
                     UserView(user: profile, dimension: .vertical)
                         .frame(maxWidth: .infinity)
-                    BusyDayView(userId: profile.id)
-                        .frame(maxWidth: .infinity, alignment: .topLeading)
+
+                    VStack(spacing: DesignTheme.Spacing.md) {
+                        Button(action: { profileReducer.loadProfile() }) {
+                            HStack(spacing: DesignTheme.Spacing.sm) {
+                                Image(systemName: "arrow.clockwise")
+                                Text("Refresh Activity")
+                            }
+                            .font(DesignTheme.Typography.button)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 44)
+                            .background(DesignTheme.accentColor)
+                            .foregroundColor(.white)
+                            .cornerRadius(DesignTheme.CornerRadius.capsule)
+                        }
+
+                        BusyDayView(userId: profile.id)
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
+                    }
+
                     WishPlacesView(userId: profile.id, mode: .editable)
                         .frame(maxWidth: .infinity, alignment: .topLeading)
-                    VStack(spacing: 12) {
-                        Button("Edit Profile") {
-                            profileReducer.navigateToEdit()
+
+                    VStack(spacing: DesignTheme.Spacing.md) {
+                        Button(action: { profileReducer.navigateToEdit() }) {
+                            Text("Edit Profile")
+                                .font(DesignTheme.Typography.button)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 44)
+                                .background(DesignTheme.accentColor)
+                                .foregroundColor(.white)
+                                .cornerRadius(DesignTheme.CornerRadius.capsule)
                         }
-                        .tint(.blue)
-                        .frame(maxWidth: .infinity)
-                        
-                        Button("Log Out") {
-                            profileReducer.logout()
+
+                        Button(action: { profileReducer.logout() }) {
+                            Text("Log Out")
+                                .font(DesignTheme.Typography.button)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 44)
+                                .background(DesignTheme.error)
+                                .foregroundColor(.white)
+                                .cornerRadius(DesignTheme.CornerRadius.capsule)
                         }
-                        .tint(.red)
-                        .frame(maxWidth: .infinity)
                     }
                 }
-                .padding()
+                .padding(DesignTheme.Spacing.lg)
             }
             .navigationTitle("Profile")
             .onAppear {
-                // TODO: костыль обновления
                 profileReducer.loadProfile()
             }
             .task {
