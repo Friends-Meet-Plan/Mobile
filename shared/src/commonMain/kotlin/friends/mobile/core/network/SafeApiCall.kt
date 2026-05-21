@@ -2,6 +2,7 @@ package friends.mobile.core.network
 
 import friends.mobile.core.domain.model.ApiError
 import friends.mobile.core.domain.model.ResultWrapper
+import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.io.IOException
@@ -21,17 +22,21 @@ suspend fun <T> safeApiCall(apiCall: suspend () -> T): ResultWrapper<T> {
     } catch (e: ResponseException) {
         val code = e.response.status.value
 
-        val message = when (code) {
-            in CLIENT_ERROR_RANGE -> {
-                "Ошибка запроса: ${e.message}"
-            }
+        val message = try {
+            e.response.body<String>()
+        } catch (_: Exception) {
+            when (code) {
+                in CLIENT_ERROR_RANGE -> {
+                    "Ошибка запроса"
+                }
 
-            in SERVER_ERROR_RANGE -> {
-                "Ошибка сервера: ${e.message}"
-            }
+                in SERVER_ERROR_RANGE -> {
+                    "Ошибка сервера"
+                }
 
-            else -> {
-                e.message ?: "HTTP error"
+                else -> {
+                    "HTTP error"
+                }
             }
         }
 
