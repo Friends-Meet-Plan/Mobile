@@ -16,91 +16,68 @@ struct LoginView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 32) {
+            VStack(spacing: DesignTheme.Spacing.xxxl) {
                 Image("OnboardingImage")
                     .resizable()
                     .scaledToFit()
-                    .padding(.top, 8)
-                    .padding(.horizontal, 8)
+                    .padding(.top, DesignTheme.Spacing.sm)
+                    .padding(.horizontal, DesignTheme.Spacing.sm)
                     .frame(maxWidth: .infinity)
                 
-                VStack(spacing: 16) {
+                VStack(spacing: DesignTheme.Spacing.lg) {
                     TextField("Username", text: .init(
                         get: { reducer.username },
                         set: { reducer.setUsername($0) }
                     ))
-                    .textFieldStyle(.plain)
-                    .padding(14)
-                    .background(Color(UIColor.systemGray6))
-                    .cornerRadius(12)
-                    .font(.system(size: 16, weight: .regular, design: .default))
-                    
+                    .formTextField()
+
                     SecureField("Password", text: .init(
                         get: { reducer.password },
                         set: { reducer.setPassword($0) }
                     ))
-                    .textFieldStyle(.plain)
-                    .padding(14)
-                    .background(Color(UIColor.systemGray6))
-                    .cornerRadius(12)
-                    .font(.system(size: 16, weight: .regular, design: .default))
-                    
+                    .formSecureField()
+
                     if let error = reducer.errorMessage {
-                        HStack(spacing: 10) {
-                            Image(systemName: "exclamationmark.circle.fill")
-                                .foregroundColor(.red)
-                            Text(error)
-                                .font(.system(size: 14, weight: .regular, design: .default))
-                                .foregroundColor(.red)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(12)
-                        .background(Color.red.opacity(0.08))
-                        .cornerRadius(10)
+                        FormErrorMessage(message: error)
                     }
                 }
-                .padding(.horizontal, 20)
+                .padding(.horizontal, DesignTheme.Spacing.xl)
                 
                 Button(action: {
                     reducer.login()
                 }) {
                     if reducer.isLoading {
-                        HStack(spacing: 10) {
+                        HStack(spacing: DesignTheme.Spacing.sm) {
                             ProgressView()
                                 .scaleEffect(0.9)
                                 .tint(.white)
                             Text("Logging in...")
-                                .font(.system(size: 16, weight: .semibold, design: .default))
+                                .font(DesignTheme.Typography.button)
                         }
                     } else {
                         Text("Login")
-                            .font(.system(size: 16, weight: .semibold, design: .default))
+                            .font(DesignTheme.Typography.button)
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: 54)
-                .foregroundColor(.white)
-                .background(Color.blue.opacity(0.5), in: .capsule)
-                .disabled(reducer.isLoading || reducer.username.isEmpty || reducer.password.isEmpty)
-                .opacity((reducer.isLoading || reducer.username.isEmpty || reducer.password.isEmpty) ? 0.6 : 1)
-                .padding(.horizontal, 20)
+                .primaryButton(isLoading: reducer.isLoading, isEnabled: !(reducer.isLoading || reducer.username.isEmpty || reducer.password.isEmpty))
+                .padding(.horizontal, DesignTheme.Spacing.xl)
                 
-                HStack(spacing: 4) {
+                HStack(spacing: DesignTheme.Spacing.xs) {
                     Text("Don't have an account?")
-                        .font(.system(size: 15, weight: .regular, design: .default))
+                        .font(DesignTheme.Typography.caption)
                         .foregroundColor(.gray)
-                    
+
                     Button(action: { isRegisterPresented = true }) {
                         Text("Sign up")
-                            .font(.system(size: 15, weight: .semibold, design: .default))
-                            .foregroundColor(Color(red: 0.0, green: 0.48, blue: 1.0))
+                            .font(DesignTheme.Typography.captionSemibold)
+                            .foregroundColor(DesignTheme.accentColorHex)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
                 
-                Spacer(minLength: 20)
+                Spacer(minLength: DesignTheme.Spacing.xl)
             }
-            .padding(.top, 12)
+            .padding(.top, DesignTheme.Spacing.md)
         }
         .onAppear {
             reducer.onLoginSuccess = onLoginSuccess
