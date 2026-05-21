@@ -22,78 +22,85 @@ struct WishPlacesView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(mode == .readOnly ? "Wish Places" : "My Wish Places")
-                .font(.headline)
-                .fontWeight(.semibold)
-            
-            if mode == .editable {
-                Button {
-                    reducer.showCreateSheet = true
-                } label: {
-                    HStack {
+        VStack(alignment: .leading, spacing: DesignTheme.Spacing.lg) {
+            HStack {
+                Text(mode == .readOnly ? "Wish Places" : "My Wish Places")
+                    .font(DesignTheme.Typography.heading)
+
+                Spacer()
+
+                if mode == .editable {
+                    Button(action: { reducer.showCreateSheet = true }) {
                         Image(systemName: "plus.circle.fill")
-                        Text("Create Wish Place")
+                            .font(.system(size: 24))
+                            .foregroundColor(DesignTheme.accentColor)
                     }
                 }
             }
-            
-            ZStack {
-                if reducer.isLoading {
-                    ProgressView()
-                } else if let errorMessage = reducer.errorMessage {
-                    VStack(spacing: 12) {
-                        Text(errorMessage)
-                            .foregroundColor(.red)
-                        Button("Retry") {
-                            reducer.retry()
-                        }
-                        .tint(.blue)
+
+            if reducer.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, alignment: .center)
+            } else if let errorMessage = reducer.errorMessage {
+                VStack(spacing: DesignTheme.Spacing.md) {
+                    Text(errorMessage)
+                        .font(DesignTheme.Typography.caption)
+                        .foregroundColor(DesignTheme.error)
+                    Button(action: { reducer.retry() }) {
+                        Text("Retry")
+                            .font(DesignTheme.Typography.button)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 44)
+                            .background(DesignTheme.accentColor)
+                            .foregroundColor(.white)
+                            .cornerRadius(DesignTheme.CornerRadius.capsule)
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                } else if reducer.places.isEmpty {
-                    Text("No wish places yet")
-                        .foregroundColor(.gray)
-                        .padding()
-                } else {
-                    LazyVStack {
-                        ForEach(reducer.places, id: \.id) { place in
-                            WishPlaceItem(
-                                place: place,
-                                canDelete: mode == .editable,
-                                onTap: {
-                                    reducer.selectedPlace = place
-                                },
-                                onDelete: {
-                                    withAnimation {
-                                        reducer.deletePlace(id: place.id)
-                                    }
-                                }
-                            )
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
-                            .listStyle(.plain)
-                        }
-                        .onDelete { indexSet in
-                            reducer.places.remove(atOffsets: indexSet)
+                }
+            } else if reducer.places.isEmpty {
+                Text("No wish places yet")
+                    .font(DesignTheme.Typography.caption)
+                    .foregroundColor(.gray)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(DesignTheme.Spacing.lg)
+            } else {
+                List {
+                    ForEach(reducer.places, id: \.id) { place in
+                        WishPlaceItem(
+                            place: place,
+                            onTap: {
+                                reducer.selectedPlace = place
+                            }
+                        )
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: DesignTheme.Spacing.sm, leading: 0, bottom: DesignTheme.Spacing.sm, trailing: 0))
+                    }
+                    .onDelete { indexSet in
+                        for index in indexSet {
+                            withAnimation {
+                                reducer.deletePlace(id: reducer.places[index].id)
+                            }
                         }
                     }
                 }
+                .listStyle(.plain)
+                .scrollDisabled(true)
+                .frame(height: CGFloat(reducer.places.count) * 120)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            
+
             if reducer.isActionPending {
-                HStack(spacing: 8) {
+                HStack(spacing: DesignTheme.Spacing.sm) {
                     ProgressView()
                         .scaleEffect(0.8)
                     Text("Processing...")
-                        .font(.caption)
+                        .font(DesignTheme.Typography.caption)
                         .foregroundColor(.gray)
                 }
             }
+
+            Spacer()
         }
-        .padding()
+        .padding(DesignTheme.Spacing.lg)
         .sheet(isPresented: $reducer.showCreateSheet) {
             CreateWishPlaceSheet(
                 onDismiss: {

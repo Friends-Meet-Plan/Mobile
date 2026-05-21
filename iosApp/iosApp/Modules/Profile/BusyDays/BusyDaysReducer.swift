@@ -53,4 +53,8 @@ final class BusyDaysReducer {
     func retry() {
         sharedVM.obtainEvent(event: BusyDaysEvent.OnRetry())
     }
+
+    func refresh() {
+        sharedVM.obtainEvent(event: BusyDaysEvent.OnRetry())
+    }
 }

@@ -12,11 +12,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -28,10 +29,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import friends.mobile.calendar.BusyDaysView
+import friends.mobile.designkit.DesignTheme
+import friends.mobile.designkit.PrimaryButton
 import friends.mobile.feature.profile.domain.model.Profile
 import friends.mobile.feature.profile.presentation.profile.ProfileAction
 import friends.mobile.feature.profile.presentation.profile.ProfileEvent
@@ -162,8 +164,8 @@ private fun ProfileContent(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+        contentPadding = PaddingValues(DesignTheme.Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xxl)
     ) {
 
         item {
@@ -177,18 +179,35 @@ private fun ProfileContent(
         }
 
         item {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
+            ) {
+                PrimaryButton(
+                    text = "Refresh Activity",
+                    onClick = {  },
+                    modifier = Modifier.fillMaxWidth(),
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Refresh",
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                )
 
-            BusyDaysView(
-                userId = profile.id,
-                modifier = Modifier.fillMaxWidth()
-            )
+                BusyDaysView(
+                    userId = profile.id,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
 
         item {
 
             Text(
                 text = "My Wish Places",
-                style = MaterialTheme.typography.titleLarge
+                style = DesignTheme.Typography.heading
             )
         }
 
@@ -202,7 +221,7 @@ private fun ProfileContent(
         }
 
         item {
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(DesignTheme.Spacing.xxxl))
         }
     }
 }
@@ -218,58 +237,41 @@ private fun ProfileHeader(
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
     ) {
 
         Text(
             text = profile.username,
-            style = MaterialTheme.typography.headlineMedium
+            style = DesignTheme.Typography.heading
         )
 
         profile.bio?.let { bio ->
 
             Text(
                 text = bio,
-                style = MaterialTheme.typography.bodyLarge
+                style = DesignTheme.Typography.body
             )
         }
 
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
         ) {
 
-            Button(
+            PrimaryButton(
                 onClick = onEditClick,
-                modifier = Modifier.weight(1f),
-                enabled = !isLoggingOut
-            ) {
+                text = "Edit Profile",
+                modifier = Modifier.fillMaxWidth(),
+                isEnabled = !isLoggingOut
+            )
 
-                Text("Edit Profile")
-            }
-
-            Button(
+            PrimaryButton(
                 onClick = onLogoutClick,
-                modifier = Modifier.weight(1f),
-                enabled = !isLoggingOut,
-
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
-                )
-            ) {
-
-                if (isLoggingOut) {
-
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        color = Color.White
-                    )
-
-                } else {
-
-                    Text("Logout")
-                }
-            }
+                text = if (isLoggingOut) "Logging out..." else "Log Out",
+                modifier = Modifier.fillMaxWidth(),
+                isLoading = isLoggingOut,
+                isEnabled = !isLoggingOut
+            )
         }
     }
 }
@@ -281,23 +283,25 @@ private fun ErrorContent(
 ) {
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(DesignTheme.Spacing.lg),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
 
         Text(
             text = message,
-            color = MaterialTheme.colorScheme.error
+            style = DesignTheme.Typography.body,
+            color = DesignTheme.Colors.error
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
 
-        Button(
-            onClick = onRetry
-        ) {
-
-            Text("Retry")
-        }
+        PrimaryButton(
+            text = "Retry",
+            onClick = onRetry,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }

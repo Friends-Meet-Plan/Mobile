@@ -10,54 +10,59 @@ import Shared
 
 struct EditProfileView: View {
     @Environment(Router.self) private var router
-    
+
     @State private var reducer: EditProfileReducer
-    
+
     init(profile: Profile) {
         self.reducer = EditProfileReducer(profile: profile)
     }
-    
+
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignTheme.Spacing.lg) {
             TextField("Username", text: Binding(
                 get: { reducer.username },
                 set: { reducer.updateUsername($0) }
             ))
-            .textFieldStyle(.roundedBorder)
-            
+            .formTextField()
+
             TextField("Bio", text: Binding(
                 get: { reducer.bio },
                 set: { reducer.updateBio($0) }
             ))
-            .textFieldStyle(.roundedBorder)
-            .lineLimit(3...5)
-            
+            .formTextField()
+
             TextField("Avatar URL", text: Binding(
                 get: { reducer.avatarUrl },
                 set: { reducer.updateAvatarUrl($0) }
             ))
-            .textFieldStyle(.roundedBorder)
-            
+            .formTextField()
+
             if let error = reducer.saveError {
                 Text(error)
-                    .font(.caption)
-                    .foregroundColor(.red)
+                    .font(DesignTheme.Typography.caption)
+                    .foregroundColor(DesignTheme.error)
             }
-            
+
             Spacer()
-            
-            Button {
-                reducer.save()
-            } label: {
+
+            Button(action: { reducer.save() }) {
                 if reducer.isSaving {
                     ProgressView()
                         .progressViewStyle(.circular)
+                        .tint(.white)
                 } else {
                     Text("Save")
+                        .font(DesignTheme.Typography.button)
                 }
             }
-            .tint(reducer.isSaving ? .gray : .green)
+            .frame(maxWidth: .infinity)
+            .frame(height: 54)
+            .foregroundColor(.white)
+            .background(DesignTheme.accentColor)
+            .cornerRadius(DesignTheme.CornerRadius.capsule)
+            .disabled(reducer.isSaving)
         }
+        .padding(DesignTheme.Spacing.lg)
         .navigationTitle("Edit Profile")
         .navigationBarTitleDisplayMode(.inline)
         .task {

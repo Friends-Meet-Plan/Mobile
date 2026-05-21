@@ -1,6 +1,5 @@
 package friends.mobile.profile
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,20 +8,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,9 +23,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import friends.mobile.designkit.DesignTheme
+import friends.mobile.designkit.FormTextField
+import friends.mobile.designkit.PrimaryButton
 import friends.mobile.feature.profile.presentation.edit.EditProfileAction
 import friends.mobile.feature.profile.presentation.edit.EditProfileEvent
 import friends.mobile.feature.profile.presentation.edit.EditProfileViewModel
@@ -101,71 +96,61 @@ private fun EditContent(
     state: EditProfileViewState.Content,
     onEvent: (EditProfileEvent) -> Unit
 ) {
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(DesignTheme.Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.lg)
     ) {
-        // Avatar Placeholder
-        Box(
-            modifier = Modifier
-                .size(100.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+        item {
+            FormTextField(
+                value = state.username,
+                onValueChange = { onEvent(EditProfileEvent.OnUsernameChanged(it)) },
+                placeholder = "Username",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        item {
+            FormTextField(
+                value = state.bio,
+                onValueChange = { onEvent(EditProfileEvent.OnBioChanged(it)) },
+                placeholder = "Bio",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp)
+            )
+        }
 
-        OutlinedTextField(
-            value = state.username,
-            onValueChange = { onEvent(EditProfileEvent.OnUsernameChanged(it)) },
-            label = { Text("Username") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
+        item {
+            FormTextField(
+                value = state.avatarUrl,
+                onValueChange = { onEvent(EditProfileEvent.OnAvatarUrlChanged(it)) },
+                placeholder = "Avatar URL",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp)
+            )
+        }
 
-        OutlinedTextField(
-            value = state.avatarUrl,
-            onValueChange = { onEvent(EditProfileEvent.OnAvatarUrlChanged(it)) },
-            label = { Text("Avatar URL") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
+        item {
+            Spacer(modifier = Modifier.height(DesignTheme.Spacing.xxxl))
+        }
 
-        OutlinedTextField(
-            value = state.bio,
-            onValueChange = { onEvent(EditProfileEvent.OnBioChanged(it)) },
-            label = { Text("Bio") },
-            modifier = Modifier.fillMaxWidth(),
-            minLines = 3
-        )
+        item {
+            PrimaryButton(
+                text = if (state.isSaving) "Saving..." else "Save",
+                onClick = { onEvent(EditProfileEvent.OnSaveClick) },
+                modifier = Modifier.fillMaxWidth(),
+                isLoading = state.isSaving,
+                isEnabled = !state.isSaving
+            )
+        }
 
-        Spacer(modifier = Modifier.weight(1f))
-
-        Button(
-            onClick = { onEvent(EditProfileEvent.OnSaveClick) },
-            modifier = Modifier.fillMaxWidth().height(50.dp),
-            enabled = !state.isSaving
-        ) {
-            if (state.isSaving) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    strokeWidth = 2.dp
-                )
-            } else {
-                Text("Save Changes")
-            }
+        item {
+            Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
         }
     }
 }
@@ -173,18 +158,22 @@ private fun EditContent(
 @Composable
 private fun ErrorState(message: String, onBack: () -> Unit) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(DesignTheme.Spacing.lg),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = message,
-            color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodyLarge
+            color = DesignTheme.Colors.error,
+            style = DesignTheme.Typography.body
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onBack) {
-            Text("Go Back")
-        }
+        Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
+        PrimaryButton(
+            text = "Go Back",
+            onClick = onBack,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
