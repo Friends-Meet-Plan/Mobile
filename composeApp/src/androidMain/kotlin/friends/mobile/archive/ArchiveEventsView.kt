@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -41,6 +42,7 @@ import friends.mobile.feature.archive.presentation.ArchiveViewAction
 import friends.mobile.feature.archive.presentation.ArchiveViewState
 import friends.mobile.feature.main.domain.model.MainEvent
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArchiveEventsView(
     onEventDetailClick: (eventId: String) -> Unit = {},
