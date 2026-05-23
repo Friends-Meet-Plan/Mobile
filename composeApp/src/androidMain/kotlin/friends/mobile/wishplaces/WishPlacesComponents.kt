@@ -33,7 +33,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -52,6 +51,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import friends.mobile.designkit.DesignTheme
+import friends.mobile.designkit.FormTextField
+import friends.mobile.designkit.PrimaryButton
 import friends.mobile.feature.wishplaces.domain.model.WishPlace
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -183,47 +184,49 @@ fun CreateWishPlaceBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         dragHandle = { BottomSheetDefaults.DragHandle() },
+        containerColor = Color.White,
+        scrimColor = Color.Black.copy(alpha = 0.3f)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(DesignTheme.Spacing.lg)
                 .navigationBarsPadding()
                 .imePadding()
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
         ) {
-            Text("Add Wish Place", style = MaterialTheme.typography.headlineSmall)
-            
-            OutlinedTextField(
+            Text("Add Wish Place", style = DesignTheme.Typography.heading)
+
+            FormTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Title") },
+                placeholder = "Title",
                 modifier = Modifier.fillMaxWidth()
             )
-            OutlinedTextField(
+            FormTextField(
                 value = location,
                 onValueChange = { location = it },
-                label = { Text("Location") },
+                placeholder = "Location",
                 modifier = Modifier.fillMaxWidth()
             )
-            OutlinedTextField(
+            FormTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("Description") },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3
+                placeholder = "Description",
+                modifier = Modifier.fillMaxWidth()
             )
-            OutlinedTextField(
+            FormTextField(
                 value = link,
                 onValueChange = { link = it },
-                label = { Text("Link") },
+                placeholder = "Link",
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(DesignTheme.Spacing.md))
 
-            Button(
+            PrimaryButton(
+                text = "Create",
                 onClick = {
                     onCreate(
                         title,
@@ -232,15 +235,10 @@ fun CreateWishPlaceBottomSheet(
                         link.ifBlank { null }
                     )
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                enabled = title.isNotBlank()
-            ) {
-                Text("Create")
-            }
-            
-            Spacer(modifier = Modifier.height(32.dp))
+                isEnabled = title.isNotBlank()
+            )
+
+            Spacer(modifier = Modifier.height(DesignTheme.Spacing.xxxl))
         }
     }
 }
