@@ -14,16 +14,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,9 +34,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import friends.mobile.designkit.DesignTheme
+import friends.mobile.designkit.PrimaryButton
 import friends.mobile.feature.friends.domain.model.User
 import friends.mobile.feature.friends.presentation.friendsProfile.FriendProfileAction
 import friends.mobile.feature.friends.presentation.friendsProfile.FriendProfileEvent
@@ -148,13 +148,15 @@ fun FriendProfileScreenContent(
 @Composable
 private fun LoadingState() {
     Column(
-        modifier = Modifier.fillMaxWidth().padding(32.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(DesignTheme.Spacing.xxxl),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         CircularProgressIndicator(modifier = Modifier.size(48.dp))
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Loading profile...", style = MaterialTheme.typography.bodyMedium)
+        Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
+        Text(text = "Loading profile...", style = DesignTheme.Typography.body)
     }
 }
 
@@ -170,12 +172,12 @@ private fun FriendProfileContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(DesignTheme.Spacing.lg)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         UserProfileCard(user = content.user)
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(DesignTheme.Spacing.xxl))
         ActionButtons(
             user = content.user,
             status = content.status,
@@ -190,14 +192,14 @@ private fun FriendProfileContent(
 
         if (content.status == FriendshipStatus.FRIENDS) {
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(DesignTheme.Spacing.xxxl))
 
             Text(
                 text = "${content.user.username}'s Wish Places",
-                style = MaterialTheme.typography.titleMedium,
+                style = DesignTheme.Typography.heading,
                 modifier = Modifier
                     .align(Alignment.Start)
-                    .padding(bottom = 16.dp)
+                    .padding(bottom = DesignTheme.Spacing.lg)
             )
 
             WishPlacesSection(
@@ -206,7 +208,7 @@ private fun FriendProfileContent(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(DesignTheme.Spacing.xxxl))
     }
 }
 
@@ -215,26 +217,26 @@ private fun UserProfileCard(user: User) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerLow)
-            .padding(16.dp),
+            .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
+            .background(DesignTheme.Colors.textField)
+            .padding(DesignTheme.Spacing.lg),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
     ) {
         Box(
             modifier = Modifier
                 .size(80.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                .background(DesignTheme.Colors.primary.copy(alpha = 0.1f)),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = user.username.firstOrNull()?.uppercase() ?: "?",
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold)
+                style = DesignTheme.Typography.heading.copy(color = DesignTheme.Colors.primary)
             )
         }
-        Text(text = user.username, style = MaterialTheme.typography.headlineSmall)
-        user.bio?.let { Text(text = it, style = MaterialTheme.typography.bodyMedium) }
+        Text(text = user.username, style = DesignTheme.Typography.heading)
+        user.bio?.let { Text(text = it, style = DesignTheme.Typography.body) }
     }
 }
 
@@ -246,46 +248,86 @@ private fun ActionButtons(
     callbacks: FriendActionCallbacks
 ) {
     when (status) {
-        FriendshipStatus.NONE -> Button(
+        FriendshipStatus.NONE -> PrimaryButton(
+            text = "Add Friend",
             onClick = { callbacks.onSendRequest(user.id) },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isLoading
-        ) {
-            if (isLoading) CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White)
-            else Text("Add Friend")
-        }
-        FriendshipStatus.REQUESTING -> Button(
+            isLoading = isLoading,
+            isEnabled = !isLoading
+        )
+        FriendshipStatus.REQUESTING -> PrimaryButton(
+            text = "Request Sent",
             onClick = {},
-            modifier = Modifier.fillMaxWidth(),
-            enabled = false
-        ) {
-            Text("Request Sent")
-        }
+            isEnabled = false
+        )
         FriendshipStatus.INCOMING -> Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
         ) {
-            Button(
+            PrimaryButton(
+                text = "Accept",
                 onClick = { callbacks.onAcceptRequest(user.id) },
                 modifier = Modifier.weight(1f),
-                enabled = !isLoading
-            ) {
-                Text("Accept")
-            }
-            OutlinedButton(
+                isLoading = isLoading,
+                isEnabled = !isLoading
+            )
+            DeclineButton(
                 onClick = { callbacks.onRejectRequest(user.id) },
-                modifier = Modifier.weight(1f),
-                enabled = !isLoading
-            ) {
-                Text("Decline")
-            }
+                isLoading = isLoading,
+                isEnabled = !isLoading,
+                modifier = Modifier.weight(1f)
+            )
         }
-        FriendshipStatus.FRIENDS -> OutlinedButton(
+        FriendshipStatus.FRIENDS -> DeclineButton(
+            text = "Remove Friend",
             onClick = { callbacks.onRemoveFriend(user.id) },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isLoading
+            isLoading = isLoading,
+            isEnabled = !isLoading
+        )
+    }
+}
+
+@Composable
+private fun DeclineButton(
+    text: String = "Decline",
+    onClick: () -> Unit,
+    isLoading: Boolean = false,
+    isEnabled: Boolean = true,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(54.dp)
+            .clip(RoundedCornerShape(DesignTheme.CornerRadius.capsule))
+            .background(
+                if (isEnabled) DesignTheme.Colors.primary.copy(alpha = 0.1f)
+                else DesignTheme.Colors.primary.copy(alpha = 0.05f)
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        TextButton(
+            onClick = onClick,
+            enabled = isEnabled && !isLoading,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(54.dp)
         ) {
-            Text("Remove Friend")
+            if (isLoading) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = DesignTheme.Colors.primary,
+                        strokeWidth = 2.dp
+                    )
+                    Text(text, style = DesignTheme.Typography.button.copy(color = DesignTheme.Colors.primary))
+                }
+            } else {
+                Text(text, style = DesignTheme.Typography.button.copy(color = DesignTheme.Colors.primary))
+            }
         }
     }
 }
