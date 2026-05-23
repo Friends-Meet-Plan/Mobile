@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,8 +21,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -48,6 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import friends.mobile.designkit.DesignTheme
 import friends.mobile.feature.wishplaces.domain.model.WishPlace
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -244,37 +248,149 @@ fun CreateWishPlaceBottomSheet(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        scrimColor = Color.Black.copy(alpha = 0.3f),
+        containerColor = Color.White,
+        shape = RoundedCornerShape(
+            topStart = 12.dp,
+            topEnd = 12.dp
+        )
+    ) {
         Column(
             modifier = Modifier
-                .padding(16.dp)
                 .fillMaxWidth()
-                .padding(bottom = 32.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(DesignTheme.Spacing.lg)
+                .height(175.dp),
+            verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    text = place.title,
+                    style = DesignTheme.Typography.heading,
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier.size(24.dp),
+                    shape = RoundedCornerShape(50),
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent
+                    ),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
+            place.location?.let {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = DesignTheme.Colors.primary
+                    )
+                    Text(
+                        text = it,
+                        style = DesignTheme.Typography.body,
+                        color = Color.Black,
+                        maxLines = 1
+                    )
+                }
+            }
+
+            if (!place.description.isNullOrEmpty()) {
+                Text(
+                    text = place.description!!,
+                    style = DesignTheme.Typography.body,
+                    color = Color.Black,
+                    maxLines = 2
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                StatusBadgeCompact(status = place.status.name)
+
+                if (!place.link.isNullOrEmpty()) {
+                    androidx.compose.material3.TextButton(
+                        onClick = {
+                            val intent = android.content.Intent(
+                                android.content.Intent.ACTION_VIEW,
+                                android.net.Uri.parse(place.link)
+                            )
+                            // Context needed - will be handled in caller
+                        },
+                        modifier = Modifier.height(28.dp),
+                        shape = RoundedCornerShape(DesignTheme.CornerRadius.capsule),
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                            containerColor = DesignTheme.Colors.primary
+                        ),
+                        contentPadding = PaddingValues(
+                            horizontal = DesignTheme.Spacing.md,
+                            vertical = DesignTheme.Spacing.xs
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.OpenInNew,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(DesignTheme.Spacing.xs))
+                        Text(
+                            "Link",
+                            style = DesignTheme.Typography.bodySmall,
+                            color = Color.White
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+            }
+
             Text(
-                text = place.title,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+                text = "Added ${place.createdAt.take(10)}",
+                style = DesignTheme.Typography.bodySmallest,
+                color = Color.Gray
             )
-            DetailRow("Location", place.location ?: "Not specified")
-            DetailRow("Description", place.description ?: "No description")
-            DetailRow("Link", place.link ?: "No link")
-            DetailRow("Status", place.status.name)
-            DetailRow("Added", place.createdAt)
         }
     }
 }
 
 @Composable
-private fun DetailRow(label: String, value: String) {
-    Column {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Text(text = value, style = MaterialTheme.typography.bodyLarge)
-    }
+private fun StatusBadgeCompact(status: String) {
+    Text(
+        text = status.lowercase().replaceFirstChar { it.uppercase() },
+        style = DesignTheme.Typography.bodySmallest,
+        color = Color.White,
+        modifier = Modifier
+            .background(
+                color = DesignTheme.Colors.primary,
+                shape = RoundedCornerShape(DesignTheme.CornerRadius.capsule)
+            )
+            .padding(
+                horizontal = DesignTheme.Spacing.md,
+                vertical = DesignTheme.Spacing.xs
+            )
+    )
 }
