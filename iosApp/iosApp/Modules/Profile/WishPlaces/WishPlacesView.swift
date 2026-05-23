@@ -26,9 +26,9 @@ struct WishPlacesView: View {
             HStack {
                 Text(mode == .readOnly ? "Wish Places" : "My Wish Places")
                     .font(DesignTheme.Typography.heading)
-
+                
                 Spacer()
-
+                
                 if mode == .editable {
                     Button(action: { reducer.showCreateSheet = true }) {
                         Image(systemName: "plus.circle.fill")
@@ -37,24 +37,18 @@ struct WishPlacesView: View {
                     }
                 }
             }
-
+            
             if reducer.isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity, alignment: .center)
             } else if let errorMessage = reducer.errorMessage {
                 VStack(spacing: DesignTheme.Spacing.md) {
-                    Text(errorMessage)
-                        .font(DesignTheme.Typography.caption)
-                        .foregroundColor(DesignTheme.error)
+                    ErrorBanner(message: errorMessage)
+                    
                     Button(action: { reducer.retry() }) {
                         Text("Retry")
-                            .font(DesignTheme.Typography.button)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 44)
-                            .background(DesignTheme.accentColor)
-                            .foregroundColor(.white)
-                            .cornerRadius(DesignTheme.CornerRadius.capsule)
                     }
+                    .primaryButton(isLoading: false, isEnabled: true)
                 }
             } else if reducer.places.isEmpty {
                 Text("No wish places yet")
@@ -75,10 +69,12 @@ struct WishPlacesView: View {
                         .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets(top: DesignTheme.Spacing.sm, leading: 0, bottom: DesignTheme.Spacing.sm, trailing: 0))
                     }
-                    .onDelete { indexSet in
-                        for index in indexSet {
-                            withAnimation {
-                                reducer.deletePlace(id: reducer.places[index].id)
+                    .if(mode == .editable) { view in
+                        view.onDelete { indexSet in
+                            for index in indexSet {
+                                withAnimation {
+                                    reducer.deletePlace(id: reducer.places[index].id)
+                                }
                             }
                         }
                     }
@@ -87,7 +83,7 @@ struct WishPlacesView: View {
                 .scrollDisabled(true)
                 .frame(height: CGFloat(reducer.places.count) * 120)
             }
-
+            
             if reducer.isActionPending {
                 HStack(spacing: DesignTheme.Spacing.sm) {
                     ProgressView()
@@ -97,7 +93,7 @@ struct WishPlacesView: View {
                         .foregroundColor(.gray)
                 }
             }
-
+            
             Spacer()
         }
         .padding(DesignTheme.Spacing.lg)

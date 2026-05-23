@@ -9,7 +9,6 @@ import SwiftUI
 import Shared
 
 struct FriendProfileView: View {
-    
     @State private var reducer: FriendProfileReducer
     
     init(reducer: FriendProfileReducer) {
@@ -17,34 +16,49 @@ struct FriendProfileView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: .zero) {
             if let user = reducer.user {
                 ScrollView {
-                    VStack(spacing: 24) {
-                        UserView(user: user, dimension: .vertical)
-                            .frame(maxWidth: .infinity)
-
+                    VStack(spacing: DesignTheme.Spacing.xxxl) {
+                        profileHeader(user: user)
+                        
                         if let actionError = reducer.actionError {
                             ErrorBanner(message: actionError)
                         }
-
-                        actionButtons(reducer: reducer)
-
-                        Divider()
-                            .padding(.vertical, 16)
-
-                        WishPlacesView(userId: user.id, mode: .readOnly)
-
+                        
+                        actionButtons()
+                        
+                        if reducer.status == .friends {
+                            WishPlacesView(userId: user.id, mode: .readOnly)
+                        }
+                        
                         Spacer()
                     }
-                    .padding()
+                    .padding(.horizontal, DesignTheme.Spacing.xl)
+                    .padding(.vertical, DesignTheme.Spacing.xl)
                 }
-                .opacity(reducer.isActionPending ? 0.6 : 1)
                 .disabled(reducer.isActionPending)
+                .opacity(reducer.isActionPending ? 0.6 : 1.0)
             } else if reducer.isLoading {
-                LoadingView()
+                VStack(spacing: DesignTheme.Spacing.lg) {
+                    ProgressView()
+                        .scaleEffect(1.5)
+                    Text("Loading profile...")
+                        .font(DesignTheme.Typography.body)
+                        .foregroundColor(.gray)
+                }
             } else {
-                ErrorBanner(message: "Failed to load profile")
+                VStack(spacing: DesignTheme.Spacing.lg) {
+                    Image(systemName: "exclamationmark.circle.fill")
+                        .font(.system(size: 48))
+                        .foregroundColor(DesignTheme.error)
+                    Text("Failed to load profile")
+                        .font(DesignTheme.Typography.captionSemibold)
+                        .foregroundColor(.black)
+                    Text("Please try again")
+                        .font(DesignTheme.Typography.bodySmall)
+                        .foregroundColor(.gray)
+                }
             }
         }
         .navigationTitle("Profile")
@@ -52,47 +66,129 @@ struct FriendProfileView: View {
     }
     
     @ViewBuilder
-    private func actionButtons(reducer: FriendProfileReducer) -> some View {
+    private func profileHeader(user: Shared.User) -> some View {
+        VStack(spacing: DesignTheme.Spacing.lg) {
+            if let avatarUrl = user.avatarUrl, !avatarUrl.isEmpty {
+                AsyncImage(url: URL(string: avatarUrl)) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } placeholder: {
+                    Circle()
+                        .fill(Color(UIColor.systemGray6))
+                        .overlay(
+                            Image(systemName: "person.fill")
+                                .foregroundColor(.gray)
+                        )
+                }
+                .frame(width: 100, height: 100)
+                .clipShape(Circle())
+            } else {
+                Circle()
+                    .fill(Color(UIColor.systemGray6))
+                    .frame(width: 100, height: 100)
+                    .overlay(
+                        Image(systemName: "person.fill")
+                            .font(.system(size: 40))
+                            .foregroundColor(.gray)
+                    )
+            }
+            
+            VStack(spacing: DesignTheme.Spacing.xs) {
+                Text(user.username)
+                    .font(DesignTheme.Typography.heading)
+                    .foregroundColor(.black)
+                
+                if let bio = user.bio, !bio.isEmpty {
+                    Text(bio)
+                        .font(DesignTheme.Typography.bodySmall)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, DesignTheme.Spacing.sm)
+    }
+    
+    @ViewBuilder
+    private func actionButtons() -> some View {
         let isLoading = reducer.isActionPending
         
         switch reducer.status {
         case .none:
             Button(action: { reducer.sendFriendRequest() }) {
-                Text("Add Friend")
-                    .frame(maxWidth: .infinity)
+                HStack(spacing: DesignTheme.Spacing.sm) {
+                    if isLoading {
+                        ProgressView()
+                            .tint(.white)
+                    }
+                    Text(isLoading ? "Sending..." : "Add Friend")
+                        .font(DesignTheme.Typography.button)
+                }
             }
-            .tint(.blue)
-            .disabled(isLoading)
+            .primaryButton(isLoading: isLoading, isEnabled: !isLoading)
+            
         case .requesting:
             Button(action: {}) {
-                Text("Request Sent")
-                    .frame(maxWidth: .infinity)
-            }
-            .tint(.gray)
-            .disabled(true)
-        case .incoming:
-            HStack(spacing: 12) {
-                Button(action: { reducer.acceptRequest() }) {
-                    Text("Accept")
-                        .frame(maxWidth: .infinity)
+                HStack(spacing: DesignTheme.Spacing.sm) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 16))
+                    Text("Request Sent")
+                        .font(DesignTheme.Typography.button)
                 }
-                .tint(.green)
-                .disabled(isLoading)
+                .frame(maxWidth: .infinity)
+                .frame(height: 54)
+                .foregroundColor(.white)
+                .background(Color.gray.opacity(0.6))
+                .cornerRadius(DesignTheme.CornerRadius.capsule)
+            }
+            .disabled(true)
+            
+        case .incoming:
+            VStack(spacing: DesignTheme.Spacing.md) {
+                Button(action: { reducer.acceptRequest() }) {
+                    HStack(spacing: DesignTheme.Spacing.sm) {
+                        if isLoading {
+                            ProgressView()
+                                .tint(.white)
+                        }
+                        Text(isLoading ? "Accepting..." : "Accept")
+                            .font(DesignTheme.Typography.button)
+                    }
+                }
+                .primaryButton(isLoading: isLoading, isEnabled: !isLoading)
                 
                 Button(action: { reducer.rejectRequest() }) {
                     Text("Decline")
-                        .frame(maxWidth: .infinity)
+                        .font(DesignTheme.Typography.button)
                 }
-                .tint(.red)
+                .frame(maxWidth: .infinity)
+                .frame(height: 54)
+                .foregroundColor(DesignTheme.error)
+                .background(DesignTheme.errorLight)
+                .cornerRadius(DesignTheme.CornerRadius.capsule)
                 .disabled(isLoading)
             }
+            
         case .friends:
             Button(action: { reducer.removeFriend() }) {
-                Text("Remove Friend")
-                    .frame(maxWidth: .infinity)
+                HStack(spacing: DesignTheme.Spacing.sm) {
+                    if isLoading {
+                        ProgressView()
+                            .tint(.white)
+                    }
+                    Text(isLoading ? "Removing..." : "Remove Friend")
+                        .font(DesignTheme.Typography.button)
+                }
             }
-            .tint(.red)
+            .frame(maxWidth: .infinity)
+            .frame(height: 54)
+            .foregroundColor(.white)
+            .background(DesignTheme.error)
+            .cornerRadius(DesignTheme.CornerRadius.capsule)
             .disabled(isLoading)
+            
         default:
             EmptyView()
         }

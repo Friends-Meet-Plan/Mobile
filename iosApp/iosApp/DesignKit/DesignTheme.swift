@@ -92,4 +92,13 @@ extension View {
     func primaryButton(isLoading: Bool = false, isEnabled: Bool = true) -> some View {
         modifier(PrimaryButton(isLoading: isLoading, isEnabled: isEnabled))
     }
+
+    @ViewBuilder
+    func `if`<Content: View>(_ condition: Bool, @ViewBuilder content: (Self) -> Content) -> some View {
+        if condition {
+            content(self)
+        } else {
+            self
+        }
+    }
 }
