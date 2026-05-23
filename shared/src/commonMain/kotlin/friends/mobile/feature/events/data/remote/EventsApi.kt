@@ -43,6 +43,9 @@ internal class EventsApi(
     suspend fun getActiveEvents(): List<EventResponseDto> =
         client.get("/events/active").body()
 
+    suspend fun getWaitingEvents(): List<EventResponseDto> =
+        client.get("/events/waiting").body()
+
     suspend fun getPendingEvents(): List<EventResponseDto> =
         client.get("/events/pending").body()
 

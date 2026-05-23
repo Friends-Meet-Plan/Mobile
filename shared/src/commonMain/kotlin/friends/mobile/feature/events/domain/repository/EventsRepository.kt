@@ -17,7 +17,7 @@ interface EventsRepository {
         invitedFriendIds: List<String>,
     ): ResultWrapper<String>
 
-    suspend fun getPendingEvents(): ResultWrapper<List<Event>>
+    suspend fun getWaitingEvents(): ResultWrapper<List<Event>>
 
     suspend fun getEventDetail(eventId: String): ResultWrapper<EventDetail>
 
