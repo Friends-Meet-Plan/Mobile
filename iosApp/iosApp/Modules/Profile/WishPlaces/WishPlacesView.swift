@@ -115,6 +115,7 @@ struct WishPlacesView: View {
                     )
                 }
             )
+            .presentationDetents([.medium, .large])
         }
         .sheet(item: $reducer.selectedPlace) { place in
             WishPlaceDetailSheet(place: place)
