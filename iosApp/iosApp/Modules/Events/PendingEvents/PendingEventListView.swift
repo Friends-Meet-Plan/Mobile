@@ -14,55 +14,49 @@ struct PendingEventListView: View {
     @Environment(Router.self) private var router
     
     var body: some View {
-        VStack {
+        VStack(spacing: .zero) {
             if reducer.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let errorMessage = reducer.errorMessage {
-                VStack {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .multilineTextAlignment(.center)
-                        .padding()
+                VStack(spacing: DesignTheme.Spacing.lg) {
+                    ProgressView()
+                        .scaleEffect(1.5)
+                    Text("Loading invitations...")
+                        .font(DesignTheme.Typography.body)
+                        .foregroundColor(.gray)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.systemBackground))
+            } else if let errorMessage = reducer.errorMessage {
+                VStack(spacing: DesignTheme.Spacing.lg) {
+                    ErrorBanner(message: errorMessage)
+                    
+                    Button(action: { reducer.refresh() }) {
+                        Text("Retry")
+                    }
+                    .primaryButton(isLoading: false, isEnabled: true)
+                }
+                .padding(DesignTheme.Spacing.xl)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .background(Color(.systemBackground))
+            } else if reducer.pendingEvents.isEmpty {
+                emptyStateView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color(.systemBackground))
             } else {
                 List(reducer.pendingEvents, id: \.id) { event in
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(event.title)
-                            .font(.headline)
-                        
-                        HStack(spacing: 12) {
-                            Image(systemName: "calendar")
-                                .foregroundColor(.gray)
-                            Text(event.date)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
+                    eventListItem(event: event)
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(
+                            top: DesignTheme.Spacing.sm,
+                            leading: DesignTheme.Spacing.lg,
+                            bottom: DesignTheme.Spacing.sm,
+                            trailing: DesignTheme.Spacing.lg
+                        ))
+                        .onTapGesture {
+                            reducer.fetchEventDetail(eventId: event.id)
                         }
-                        
-                        if let time = event.time {
-                            HStack(spacing: 12) {
-                                Image(systemName: "clock")
-                                    .foregroundColor(.gray)
-                                Text(time)
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                            }
-                        }
-                        
-                        HStack(spacing: 12) {
-                            Image(systemName: "person.2")
-                                .foregroundColor(.gray)
-                            Text("\(event.participants.count) participants")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
-                    }
-                    .padding(.vertical, 4)
-                    .onTapGesture {
-                        reducer.fetchEventDetail(eventId: event.id)
-                    }
                 }
+                .listStyle(.plain)
                 .refreshable {
                     reducer.refresh()
                 }
@@ -75,11 +69,14 @@ struct PendingEventListView: View {
                     router.pop()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .padding()
+                        .foregroundColor(DesignTheme.accentColor)
+                        .font(.system(size: 16, weight: .semibold))
                 }
+                .padding(DesignTheme.Spacing.md)
             }
         }
         .navigationTitle("Pending Invitations")
+        .navigationBarTitleDisplayMode(.inline)
         .sheet(item: Binding(
             get: { reducer.selectedEventDetail },
             set: { _ in reducer.closeEventDetail() }
@@ -94,5 +91,88 @@ struct PendingEventListView: View {
             )
         }
         .toast(isPresented: $reducer.showToast, message: reducer.toastMessage ?? "")
+    }
+    
+    @ViewBuilder
+    private func eventListItem(event: Shared.Event) -> some View {
+        VStack(alignment: .leading, spacing: DesignTheme.Spacing.md) {
+            HStack(spacing: DesignTheme.Spacing.md) {
+                VStack(alignment: .leading, spacing: DesignTheme.Spacing.xs) {
+                    Text(event.title)
+                        .font(DesignTheme.Typography.captionSemibold)
+                        .foregroundColor(.black)
+                        .lineLimit(1)
+                    
+                    Text(event.date)
+                        .font(DesignTheme.Typography.bodySmallest)
+                        .foregroundColor(.gray)
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .trailing, spacing: DesignTheme.Spacing.xs) {
+                    HStack(spacing: DesignTheme.Spacing.xs) {
+                        Image(systemName: "person.2.fill")
+                            .font(.system(size: 12))
+                            .foregroundColor(DesignTheme.accentColor)
+                        
+                        Text("\(event.participants.count)")
+                            .font(DesignTheme.Typography.bodySmallest)
+                            .foregroundColor(.gray)
+                    }
+                    
+                    if let time = event.time {
+                        Text(time)
+                            .font(DesignTheme.Typography.bodySmallest)
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
+            
+            Divider()
+                .padding(.vertical, DesignTheme.Spacing.xs)
+            
+            HStack(spacing: DesignTheme.Spacing.sm) {
+                Image(systemName: "bell.fill")
+                    .font(.system(size: 12))
+                    .foregroundColor(DesignTheme.secondaryAccent)
+                
+                Text("Awaiting your response")
+                    .font(DesignTheme.Typography.bodySmallest)
+                    .foregroundColor(DesignTheme.secondaryAccent)
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.gray)
+            }
+        }
+        .padding(DesignTheme.Spacing.lg)
+        .background(Color(.systemGray6))
+        .cornerRadius(DesignTheme.CornerRadius.medium)
+    }
+    
+    @ViewBuilder
+    private func emptyStateView() -> some View {
+        VStack(spacing: DesignTheme.Spacing.lg) {
+            Image(systemName: "envelope.open.fill")
+                .font(.system(size: 48))
+                .foregroundColor(DesignTheme.accentColor.opacity(0.5))
+            
+            VStack(spacing: DesignTheme.Spacing.xs) {
+                Text("No Pending Invitations")
+                    .font(DesignTheme.Typography.captionSemibold)
+                    .foregroundColor(.black)
+                
+                Text("You're all caught up!")
+                    .font(DesignTheme.Typography.bodySmall)
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+            }
+            
+            Spacer()
+        }
+        .padding(DesignTheme.Spacing.xl)
     }
 }

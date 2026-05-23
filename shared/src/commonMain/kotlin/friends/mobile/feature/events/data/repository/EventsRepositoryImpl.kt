@@ -45,8 +45,8 @@ internal class EventsRepositoryImpl(
         response.id
     }
 
-    override suspend fun getPendingEvents(): ResultWrapper<List<Event>> = safeApiCall {
-        val response = api.getPendingEvents()
+    override suspend fun getWaitingEvents(): ResultWrapper<List<Event>> = safeApiCall {
+        val response = api.getWaitingEvents()
         response.map { dto ->
             Event(
                 id = dto.id,

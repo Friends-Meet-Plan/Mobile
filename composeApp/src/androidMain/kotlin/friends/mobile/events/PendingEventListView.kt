@@ -9,15 +9,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -33,10 +33,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import friends.mobile.designkit.DesignTheme
+import friends.mobile.designkit.FormErrorMessage
+import friends.mobile.designkit.PrimaryButton
 import friends.mobile.feature.events.domain.model.Event
 import friends.mobile.feature.events.presentation.pendingevents.PendingAction
 import friends.mobile.feature.events.presentation.pendingevents.PendingEvent
@@ -98,7 +102,12 @@ fun PendingEventListView(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Pending Invitations") },
+                title = {
+                    Text(
+                        "Pending Invitations",
+                        style = DesignTheme.Typography.heading
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -130,25 +139,20 @@ fun PendingEventListView(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
-                        .padding(16.dp),
+                        .padding(DesignTheme.Spacing.lg),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    Text(
-                        text = errorMessage,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    Button(
+                    FormErrorMessage(message = errorMessage)
+                    PrimaryButton(
+                        text = "Retry",
                         onClick = {
                             viewModel.obtainEvent(
                                 friends.mobile.feature.events.presentation.pendingevents.PendingEvent.OnRefresh
                             )
                         },
-                        modifier = Modifier.padding(top = 16.dp),
-                    ) {
-                        Text("Retry")
-                    }
+                        modifier = Modifier.padding(top = DesignTheme.Spacing.xl)
+                    )
                 }
             }
 
@@ -162,12 +166,13 @@ fun PendingEventListView(
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(16.dp),
+                                .padding(DesignTheme.Spacing.lg),
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
                                 text = "No pending invitations",
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = DesignTheme.Typography.body,
+                                color = Color.Gray
                             )
                         }
                     } else {
@@ -175,8 +180,8 @@ fun PendingEventListView(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f),
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(DesignTheme.Spacing.lg),
+                            verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
                         ) {
                             items(
                                 pendingEvents,
@@ -198,10 +203,12 @@ fun PendingEventListView(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
+                                .padding(DesignTheme.Spacing.lg),
                             contentAlignment = Alignment.Center,
                         ) {
-                            CircularProgressIndicator()
+                            CircularProgressIndicator(
+                                color = DesignTheme.Colors.primary
+                            )
                         }
                     }
                 }
@@ -232,7 +239,7 @@ fun PendingEventListView(
                         PendingEvent.OnDeclineEvent(eventId)
                     )
                 },
-                modifier = Modifier.padding(bottom = 24.dp)
+                modifier = Modifier.padding(bottom = DesignTheme.Spacing.xxl)
             )
         }
     }
@@ -244,48 +251,67 @@ private fun PendingEventCard(
     onClick: () -> Unit = {}
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
+        modifier = Modifier.fillMaxWidth(),
         onClick = onClick,
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        shape = RoundedCornerShape(DesignTheme.CornerRadius.medium),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(DesignTheme.Spacing.lg)
                 .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm),
         ) {
             Text(
                 text = event.title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
+                style = DesignTheme.Typography.captionSemibold,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Black
             )
-            Text(
-                text = "Date: ${event.date}",
-                style = MaterialTheme.typography.bodySmall,
-            )
-            if (!event.time.isNullOrEmpty()) {
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs)
+            ) {
                 Text(
-                    text = "Time: ${event.time}",
-                    style = MaterialTheme.typography.bodySmall,
+                    text = "Date: ${event.date}",
+                    style = DesignTheme.Typography.bodySmallest,
+                    color = Color.Gray
+                )
+
+                if (!event.time.isNullOrEmpty()) {
+                    Text(
+                        text = "Time: ${event.time}",
+                        style = DesignTheme.Typography.bodySmallest,
+                        color = Color.Gray
+                    )
+                }
+
+                if (!event.location.isNullOrEmpty()) {
+                    Text(
+                        text = "Location: ${event.location}",
+                        style = DesignTheme.Typography.bodySmallest,
+                        color = Color.Gray
+                    )
+                }
+
+                if (!event.description.isNullOrEmpty()) {
+                    Text(
+                        text = "Description: ${event.description}",
+                        style = DesignTheme.Typography.bodySmallest,
+                        color = Color.Gray
+                    )
+                }
+
+                Text(
+                    text = "Participants: ${event.participants.size}",
+                    style = DesignTheme.Typography.bodySmallest,
+                    color = Color.Gray
                 )
             }
-            if (!event.location.isNullOrEmpty()) {
-                Text(
-                    text = "Location: ${event.location}",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-            if (!event.description.isNullOrEmpty()) {
-                Text(
-                    text = "Description: ${event.description}",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-            Text(
-                text = "Participants: ${event.participants.size}",
-                style = MaterialTheme.typography.bodySmall,
-            )
         }
     }
 }
