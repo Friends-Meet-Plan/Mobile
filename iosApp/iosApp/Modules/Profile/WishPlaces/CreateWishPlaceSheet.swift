@@ -8,43 +8,51 @@
 import SwiftUI
 
 struct CreateWishPlaceSheet: View {
-
+    
     @State private var title = ""
     @State private var description = ""
     @State private var location = ""
     @State private var link = ""
-
+    
     let onDismiss: () -> Void
     let onCreate: (String, String?, String?, String?) -> Void
-
+    
     var isCreateButtonEnabled: Bool {
         !title.trimmingCharacters(in: .whitespaces).isEmpty
     }
-
+    
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: DesignTheme.Spacing.lg) {
                     TextField("Title *", text: $title)
-                        .textFieldStyle(.roundedBorder)
-                        .padding(.horizontal)
-
+                        .placeholder(when: title.isEmpty) {
+                            Text("Title *").foregroundColor(.gray)
+                        }
+                        .formTextField()
+                    
                     TextField("Location", text: $location)
-                        .textFieldStyle(.roundedBorder)
-                        .padding(.horizontal)
-
+                        .placeholder(when: location.isEmpty) {
+                            Text("Location").foregroundColor(.gray)
+                        }
+                        .formTextField()
+                    
                     TextField("Description", text: $description, axis: .vertical)
-                        .textFieldStyle(.roundedBorder)
+                        .placeholder(when: description.isEmpty) {
+                            Text("Description").foregroundColor(.gray)
+                        }
+                        .formTextField()
                         .frame(minHeight: 80, maxHeight: 120)
-                        .padding(.horizontal)
-
+                    
                     TextField("Link", text: $link)
-                        .textFieldStyle(.roundedBorder)
-                        .padding(.horizontal)
-
+                        .placeholder(when: link.isEmpty) {
+                            Text("Link").foregroundColor(.gray)
+                        }
+                        .formTextField()
+                    
                     Spacer()
-                        .frame(height: 16)
-
+                        .frame(height: DesignTheme.Spacing.md)
+                    
                     Button(action: {
                         onCreate(
                             title,
@@ -54,20 +62,18 @@ struct CreateWishPlaceSheet: View {
                         )
                     }) {
                         Text("Create")
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(isCreateButtonEnabled ? Color.blue : Color.gray)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
+                            .font(DesignTheme.Typography.button)
                     }
-                    .disabled(!isCreateButtonEnabled)
-                    .padding(.horizontal)
-
+                    .primaryButton(isEnabled: isCreateButtonEnabled)
+                    .padding(.horizontal, DesignTheme.Spacing.lg)
+                    
                     Spacer()
-                        .frame(height: 32)
+                        .frame(height: DesignTheme.Spacing.xxxl)
                 }
-                .padding(.vertical, 16)
+                .padding(.vertical, DesignTheme.Spacing.lg)
+                .padding(.horizontal, DesignTheme.Spacing.lg)
             }
+            .background(Color(UIColor.systemBackground))
             .navigationTitle("Add Wish Place")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -75,15 +81,18 @@ struct CreateWishPlaceSheet: View {
                     Button("Cancel") {
                         onDismiss()
                     }
+                    .foregroundColor(DesignTheme.accentColor)
                 }
             }
         }
     }
 }
 
-#Preview {
-    CreateWishPlaceSheet(
-        onDismiss: {},
-        onCreate: { _, _, _, _ in }
-    )
+extension View {
+    func placeholder<Content: View>(when shouldShow: Bool, alignment: Alignment = .leading, @ViewBuilder placeholder: () -> Content) -> some View {
+        ZStack(alignment: alignment) {
+            placeholder().opacity(shouldShow ? 1 : 0)
+            self
+        }
+    }
 }
