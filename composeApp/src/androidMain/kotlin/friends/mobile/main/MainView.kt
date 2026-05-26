@@ -364,12 +364,12 @@ fun MainView(
                                         showBusyAlert = true
                                     }
                                     is AvailabilityResult.Available -> {
-                                        onCreateEventClick(dateTimeString)
+                                        onCreateEventClick(dateString)
                                         showTimePickerDialog = false
                                     }
                                     null -> {
                                         // Network error or other issue - proceed with creation anyway
-                                        onCreateEventClick(dateTimeString)
+                                        onCreateEventClick(dateString)
                                         showTimePickerDialog = false
                                     }
                                 }
