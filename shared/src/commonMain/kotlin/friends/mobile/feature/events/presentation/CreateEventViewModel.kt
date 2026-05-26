@@ -6,6 +6,7 @@ import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.auth.domain.usecase.GetStoredSessionUseCase
 import friends.mobile.feature.events.domain.usecase.CheckFriendsAvailabilityUseCase
+import friends.mobile.feature.events.domain.usecase.CheckUserAvailabilityUseCase
 import friends.mobile.feature.events.domain.usecase.CreateEventUseCase
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -19,6 +20,7 @@ class CreateEventViewModel(
     KoinComponent {
 
     private val checkFriendsAvailabilityUseCase: CheckFriendsAvailabilityUseCase by inject()
+    private val checkUserAvailabilityUseCase: CheckUserAvailabilityUseCase by inject()
     private val createEventUseCase: CreateEventUseCase by inject()
     private val getStoredSessionUseCase: GetStoredSessionUseCase by inject()
 
@@ -41,27 +43,27 @@ class CreateEventViewModel(
 
     private fun loadAvailableFriends() {
         viewModelScope.launch {
-            when (val result = checkFriendsAvailabilityUseCase(selectedDate)) {
+            when (val friendsResult = checkFriendsAvailabilityUseCase(selectedDate)) {
                 is ResultWrapper.Success -> {
-                    // Check if the owner (current user) is available on this date
-                    val currentSession = getStoredSessionUseCase()
-                    val ownerId = currentSession?.user?.id
-
-                    // The API returns only available friends, so owner is available if:
-                    // 1. Owner ID exists in the available friends list, OR
-                    // 2. If owner is not in the list, it means they're busy
-                    val availableFriendsIds = result.data.map { it.id }.toSet()
-                    val isOwnerAvailable = ownerId != null && availableFriendsIds.contains(ownerId)
-
-                    viewState = CreateEventViewState.Content(
-                        selectedDate = selectedDate,
-                        availableFriends = result.data,
-                        isLoadingFriends = false,
-                        isOwnerAvailable = isOwnerAvailable,
-                    )
+                    when (val userAvailabilityResult = checkUserAvailabilityUseCase(selectedDate)) {
+                        is ResultWrapper.Success -> {
+                            viewState = CreateEventViewState.Content(
+                                selectedDate = selectedDate,
+                                availableFriends = friendsResult.data,
+                                isLoadingFriends = false,
+                                isOwnerAvailable = userAvailabilityResult.data,
+                            )
+                        }
+                        is ResultWrapper.Error -> {
+                            val userError = mapApiErrorToUserFriendly(userAvailabilityResult.error)
+                            viewState = CreateEventViewState.Error(
+                                message = getErrorMessage(userError),
+                            )
+                        }
+                    }
                 }
                 is ResultWrapper.Error -> {
-                    val userError = mapApiErrorToUserFriendly(result.error)
+                    val userError = mapApiErrorToUserFriendly(friendsResult.error)
                     viewState = CreateEventViewState.Error(
                         message = getErrorMessage(userError),
                     )

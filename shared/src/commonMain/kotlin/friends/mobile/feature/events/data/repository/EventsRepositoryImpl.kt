@@ -25,6 +25,12 @@ internal class EventsRepositoryImpl(
             userDtoMapper.toDomain(response.availableFriends)
         }
 
+    override suspend fun checkUserAvailability(date: String): ResultWrapper<Boolean> =
+        safeApiCall {
+            val response = api.checkUserAvailability(date)
+            response.isAvailable
+        }
+
     override suspend fun createEvent(
         title: String,
         description: String?,

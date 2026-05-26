@@ -8,6 +8,8 @@ import friends.mobile.feature.friends.domain.model.User
 interface EventsRepository {
     suspend fun checkFriendsAvailability(date: String): ResultWrapper<List<User>>
 
+    suspend fun checkUserAvailability(date: String): ResultWrapper<Boolean>
+
     suspend fun createEvent(
         title: String,
         description: String?,
