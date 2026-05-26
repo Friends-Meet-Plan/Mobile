@@ -10,7 +10,7 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 
-class WishPlacesApi(private val client: HttpClient) {
+internal class WishPlacesApi(private val client: HttpClient) {
 
     suspend fun getWishPlaces(userId: String): List<WishPlaceDto> {
         return client.get("/wish-places") {

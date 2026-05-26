@@ -21,12 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import friends.mobile.feature.eventdetail.domain.model.EventDetail
-import friends.mobile.feature.eventdetail.domain.model.EventParticipant
+import friends.mobile.feature.events.domain.model.Event
+import friends.mobile.feature.events.domain.model.EventParticipant
+import friends.mobile.feature.events.domain.model.ParticipationStatus
 
 @Composable
 fun PendingEventDetailContent(
-    eventDetail: EventDetail,
+    event: Event,
     isLoading: Boolean = false,
     errorMessage: String? = null,
     onAccept: (String) -> Unit = {},
@@ -70,7 +71,7 @@ fun PendingEventDetailContent(
             ) {
                 item {
                     Text(
-                        text = eventDetail.title,
+                        text = event.title,
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                     )
@@ -89,7 +90,7 @@ fun PendingEventDetailContent(
                                 .padding(12.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            eventDetail.description?.let { desc ->
+                            event.description?.let { desc ->
                                 if (desc.isNotEmpty()) {
                                     Text(
                                         text = desc,
@@ -120,10 +121,10 @@ fun PendingEventDetailContent(
                                 fontWeight = FontWeight.SemiBold,
                             )
                             Text(
-                                text = "Date: ${eventDetail.date}",
+                                text = "Date: ${event.date}",
                                 style = MaterialTheme.typography.bodySmall,
                             )
-                            eventDetail.time?.let { time ->
+                            event.time?.let { time ->
                                 if (time.isNotEmpty()) {
                                     Text(
                                         text = "Time: $time",
@@ -135,7 +136,7 @@ fun PendingEventDetailContent(
                     }
                 }
 
-                eventDetail.location?.let { location ->
+                event.location?.let { location ->
                     if (location.isNotEmpty()) {
                         item {
                             Card(
@@ -184,9 +185,9 @@ fun PendingEventDetailContent(
                                 fontWeight = FontWeight.SemiBold,
                             )
                             Text(
-                                text = eventDetail.status,
+                                text = event.status,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = getStatusColor(eventDetail.status),
+                                color = getStatusColor(event.status),
                             )
                         }
                     }
@@ -194,7 +195,7 @@ fun PendingEventDetailContent(
 
                 item {
                     Text(
-                        text = "Participants (${eventDetail.participants.size})",
+                        text = "Participants (${event.participants.size})",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(top = 8.dp),
@@ -202,7 +203,7 @@ fun PendingEventDetailContent(
                 }
 
                 items(
-                    eventDetail.participants,
+                    event.participants,
                     key = { it.userId }
                 ) { participant ->
                     ParticipantCard(participant = participant)
@@ -216,7 +217,7 @@ fun PendingEventDetailContent(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Button(
-                    onClick = { onDecline(eventDetail.id) },
+                    onClick = { onDecline(event.id) },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -227,7 +228,7 @@ fun PendingEventDetailContent(
                 }
 
                 Button(
-                    onClick = { onAccept(eventDetail.id) },
+                    onClick = { onAccept(event.id) },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
@@ -274,9 +275,9 @@ private fun ParticipantCard(participant: EventParticipant) {
             }
 
             Text(
-                text = participant.responseStatus,
+                text = participant.status.name,
                 style = MaterialTheme.typography.labelMedium,
-                color = getResponseStatusColor(participant.responseStatus),
+                color = getParticipationStatusColor(participant.status),
                 fontWeight = FontWeight.SemiBold,
             )
         }
@@ -295,11 +296,10 @@ private fun getStatusColor(status: String): Color {
 }
 
 @Composable
-private fun getResponseStatusColor(status: String): Color {
-    return when (status.lowercase()) {
-        "accepted" -> Color(0xFF4CAF50)  // Green
-        "declined" -> Color(0xFFF44336)  // Red
-        "pending", "invited" -> Color(0xFFFF9800)   // Orange
-        else -> Color.Gray
+private fun getParticipationStatusColor(status: ParticipationStatus): Color {
+    return when (status) {
+        ParticipationStatus.ACCEPTED -> Color(0xFF4CAF50)  // Green
+        ParticipationStatus.DECLINED -> Color(0xFFF44336)  // Red
+        ParticipationStatus.INVITED -> Color(0xFFFF9800)   // Orange
     }
 }

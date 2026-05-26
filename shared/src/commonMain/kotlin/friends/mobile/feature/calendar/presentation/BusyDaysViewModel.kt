@@ -24,9 +24,9 @@ class BusyDaysViewModel(
 
     override fun obtainEvent(event: BusyDaysEvent) {
         when (event) {
-            is BusyDaysEvent.OnLoadBusyDays -> loadBusyDays(showLoading = true)
-            is BusyDaysEvent.OnRefresh -> loadBusyDays(showLoading = false)
-            is BusyDaysEvent.OnRetry -> onRetry()
+            BusyDaysEvent.OnLoadBusyDays -> loadBusyDays(showLoading = true)
+            BusyDaysEvent.OnRefresh -> loadBusyDays(showLoading = false)
+            BusyDaysEvent.OnRetry -> loadBusyDays(showLoading = true)
         }
     }
 
@@ -36,37 +36,19 @@ class BusyDaysViewModel(
                 viewState = BusyDaysViewState.Loading
             }
 
-            when (val result = getBusyDaysUseCase(userId)) {
+            viewState = when (val result = getBusyDaysUseCase(userId)) {
                 is ResultWrapper.Success -> {
-                    viewState = BusyDaysViewState.Content(
+                    BusyDaysViewState.Content(
                         calendarResponse = result.data,
                         isRefreshing = false,
                     )
                 }
-                is ResultWrapper.Error -> {
-                    val userError = mapApiErrorToUserFriendly(result.error)
-                    val errorMessage = getErrorMessage(userError)
-                    viewState = BusyDaysViewState.Error(
-                        message = errorMessage,
-                    )
-                }
-            }
-        }
-    }
 
-    private fun onRetry() {
-        viewState = BusyDaysViewState.Loading
-        viewModelScope.launch {
-            when (val result = getBusyDaysUseCase(userId)) {
-                is ResultWrapper.Success -> {
-                    viewState = BusyDaysViewState.Content(
-                        calendarResponse = result.data,
-                    )
-                }
                 is ResultWrapper.Error -> {
-                    val userError = mapApiErrorToUserFriendly(result.error)
-                    viewState = BusyDaysViewState.Error(
-                        message = getErrorMessage(userError),
+                    BusyDaysViewState.Error(
+                        message = getErrorMessage(
+                            mapApiErrorToUserFriendly(result.error),
+                        ),
                     )
                 }
             }

@@ -1,5 +1,6 @@
 package friends.mobile.feature.events.di
 
+import friends.mobile.feature.events.data.mapper.EventMapper
 import friends.mobile.feature.events.data.remote.EventsApi
 import friends.mobile.feature.events.data.repository.EventsRepositoryImpl
 import friends.mobile.feature.events.data.usecase.AcceptEventUseCaseImpl
@@ -16,6 +17,7 @@ import friends.mobile.feature.events.domain.usecase.DeclineEventUseCase
 import friends.mobile.feature.events.domain.usecase.GetEventDetailUseCase
 import friends.mobile.feature.events.domain.usecase.GetPendingEventsUseCase
 import friends.mobile.feature.events.presentation.CreateEventViewModel
+import friends.mobile.feature.events.presentation.eventdetail.EventDetailViewModel
 import friends.mobile.feature.events.presentation.pendingevents.PendingEventViewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -25,11 +27,13 @@ val eventsModule = module {
         EventsApi(client = get(named("auth")))
     }
 
+    single { EventMapper() }
+
     single<EventsRepository> {
         EventsRepositoryImpl(
             api = get(),
             userDtoMapper = get(),
-            eventDetailMapper = get(),
+            eventMapper = get(),
         )
     }
 
@@ -63,5 +67,9 @@ val eventsModule = module {
 
     factory {
         PendingEventViewModel()
+    }
+
+    factory { (eventId: String) ->
+        EventDetailViewModel(eventId = eventId)
     }
 }

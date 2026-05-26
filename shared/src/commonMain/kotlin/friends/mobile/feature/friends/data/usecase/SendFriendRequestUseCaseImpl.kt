@@ -4,11 +4,6 @@ import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.feature.friends.domain.repository.FriendsRepository
 import friends.mobile.feature.friends.domain.usecase.SendFriendRequestUseCase
 
-/**
- * Implementation of SendFriendRequestUseCase.
- *
- * Delegates to the repository.
- */
 internal class SendFriendRequestUseCaseImpl(
     private val repository: FriendsRepository
 ) : SendFriendRequestUseCase {

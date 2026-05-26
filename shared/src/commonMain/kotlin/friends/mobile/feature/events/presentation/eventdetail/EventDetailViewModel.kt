@@ -1,10 +1,10 @@
-package friends.mobile.feature.eventdetail.presentation
+package friends.mobile.feature.events.presentation.eventdetail
 
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
 import friends.mobile.core.viewmodel.BaseViewModel
-import friends.mobile.feature.eventdetail.domain.repository.EventDetailRepository
+import friends.mobile.feature.events.domain.usecase.GetEventDetailUseCase
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -16,24 +16,25 @@ class EventDetailViewModel(
 ),
     KoinComponent {
 
-    private val eventDetailRepository: EventDetailRepository by inject()
+    private val getEventDetailUseCase: GetEventDetailUseCase by inject()
 
     init {
-        viewModelScope.launch {
-            loadEventDetail()
-        }
+        loadEventDetail()
     }
 
     override fun obtainEvent(event: EventDetailEvent) {
-        // Event handling removed - navigation handled natively on iOS/Android
+        when (event) {
+            is EventDetailEvent.OnRefresh -> loadEventDetail()
+        }
     }
 
     private fun loadEventDetail() {
         viewModelScope.launch {
-            when (val result = eventDetailRepository.getEventDetail(eventId)) {
+            viewState = EventDetailViewState.Loading
+            when (val result = getEventDetailUseCase(eventId)) {
                 is ResultWrapper.Success -> {
                     viewState = EventDetailViewState.Content(
-                        eventDetail = result.data,
+                        event = result.data,
                     )
                 }
                 is ResultWrapper.Error -> {
@@ -45,5 +46,4 @@ class EventDetailViewModel(
             }
         }
     }
-
 }

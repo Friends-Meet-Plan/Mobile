@@ -2,7 +2,7 @@ package friends.mobile.events
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import friends.mobile.feature.eventdetail.presentation.EventDetailViewModel
+import friends.mobile.feature.events.presentation.eventdetail.EventDetailViewModel
 
 class EventDetailViewModelFactory(
     private val eventId: String,

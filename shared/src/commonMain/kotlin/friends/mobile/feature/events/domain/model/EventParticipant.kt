@@ -4,5 +4,7 @@ data class EventParticipant(
     val userId: String,
     val username: String,
     val avatarUrl: String?,
-    val status: ParticipationStatus,
+    val bio: String? = null,
+    val role: String,
+    val status: ParticipationStatus
 )

@@ -226,7 +226,7 @@ fun PendingEventListView(
             ),
         ) {
             PendingEventDetailContent(
-                eventDetail = selectedEventDetail,
+                event = selectedEventDetail,
                 isLoading = isLoadingDetail,
                 errorMessage = detailError,
                 onAccept = { eventId ->
