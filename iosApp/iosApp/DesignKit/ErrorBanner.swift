@@ -9,19 +9,22 @@ import SwiftUI
 
 struct ErrorBanner: View {
     let message: String
-    
+
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: DesignTheme.Spacing.sm) {
             Image(systemName: "exclamationmark.circle.fill")
-                .foregroundColor(.white)
-            
+                .foregroundColor(DesignTheme.error)
+                .font(.system(size: 16))
+
             Text(message)
-                .font(.subheadline)
-                .foregroundColor(.white)
-            
+                .font(DesignTheme.Typography.bodySmall)
+                .foregroundColor(DesignTheme.error)
+
             Spacer()
         }
-        .padding(12)
-        .background(Color.red.opacity(0.8))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(DesignTheme.Spacing.md)
+        .background(DesignTheme.errorLight)
+        .cornerRadius(DesignTheme.CornerRadius.small)
     }
 }
