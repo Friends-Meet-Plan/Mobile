@@ -1,5 +1,6 @@
 package friends.mobile.feature.calendar.di
 
+import friends.mobile.core.di.QualifierAuthClient
 import friends.mobile.feature.calendar.data.mapper.CalendarDtoMapper
 import friends.mobile.feature.calendar.data.remote.CalendarApi
 import friends.mobile.feature.calendar.data.repository.CalendarRepositoryImpl
@@ -12,11 +13,11 @@ import org.koin.dsl.module
 
 val calendarModule = module {
     single<CalendarApi> {
-        CalendarApi(client = get(named("auth")))
+        CalendarApi(client = get(named<QualifierAuthClient>()))
     }
 
     single<CalendarDtoMapper> {
-        CalendarDtoMapper
+        CalendarDtoMapper()
     }
 
     single<CalendarRepository> {

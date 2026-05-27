@@ -19,9 +19,6 @@ sealed class ResultWrapper<out T> {
         }
     }
 
-    /**
-     * Returns data or throws domain-specific exception.
-     */
     fun getOrThrow(): T {
         return when (this) {
             is Success -> data

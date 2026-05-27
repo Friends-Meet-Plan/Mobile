@@ -1,5 +1,6 @@
 package friends.mobile.feature.wishplaces.di
 
+import friends.mobile.core.di.QualifierAuthClient
 import friends.mobile.feature.wishplaces.data.mapper.WishPlaceMapper
 import friends.mobile.feature.wishplaces.data.remote.WishPlacesApi
 import friends.mobile.feature.wishplaces.data.repository.WishPlacesRepositoryImpl
@@ -15,7 +16,7 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val wishPlacesModule = module {
-    single { WishPlacesApi(get(named("auth"))) }
+    single { WishPlacesApi(get(named<QualifierAuthClient>())) }
     single { WishPlaceMapper() }
     single<WishPlacesRepository> {
         WishPlacesRepositoryImpl(

@@ -7,14 +7,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Badge
@@ -25,6 +28,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -54,8 +58,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import friends.mobile.feature.main.domain.model.AvailabilityResult
-import friends.mobile.feature.main.domain.model.MainEvent
+import friends.mobile.feature.events.domain.model.Event
 import friends.mobile.feature.main.presentation.MainViewAction as MainEventAction
 import friends.mobile.feature.main.presentation.MainViewModel
 import friends.mobile.feature.main.presentation.MainViewState
@@ -148,6 +151,20 @@ fun MainView(
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    showDatePickerDialog = true
+                },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Create Event"
+                )
+            }
         }
     ) { innerPadding ->
         Column(
@@ -203,6 +220,10 @@ fun MainView(
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Gray,
                         )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = { showDatePickerDialog = true }) {
+                            Text("Create first event")
+                        }
                     }
                 }
 
@@ -289,18 +310,6 @@ fun MainView(
                                 }
                             }
                         }
-
-                        // Create Event Button
-                        Button(
-                            onClick = {
-                                showDatePickerDialog = true
-                            },
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(16.dp),
-                        ) {
-                            Text("Create event")
-                        }
                     }
                 }
             }
@@ -360,15 +369,17 @@ fun MainView(
                                 isCheckingAvailability = false
 
                                 when (availabilityResult) {
-                                    is AvailabilityResult.Busy -> {
-                                        showBusyAlert = true
-                                    }
-                                    is AvailabilityResult.Available -> {
+
+                                    true -> {
                                         onCreateEventClick(dateString)
                                         showTimePickerDialog = false
                                     }
+
+                                    false -> {
+                                        showBusyAlert = true
+                                    }
+
                                     null -> {
-                                        // Network error or other issue - proceed with creation anyway
                                         onCreateEventClick(dateString)
                                         showTimePickerDialog = false
                                     }
@@ -425,7 +436,7 @@ fun MainView(
 
 @Composable
 private fun EventCard(
-    event: MainEvent,
+    event: Event,
     onClick: () -> Unit,
     isPending: Boolean = false,
 ) {
@@ -509,7 +520,7 @@ private fun EventCard(
                     tint = Color.Gray,
                 )
                 Text(
-                    text = "${event.participantCount} participants",
+                    text = "${event.participants.size} participants",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray,
                     modifier = Modifier.padding(start = 4.dp),

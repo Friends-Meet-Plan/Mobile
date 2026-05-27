@@ -1,10 +1,5 @@
 package friends.mobile.feature.wishplaces.presentation
 
-//sealed class WishPlacesEvent {
-//    data class LoadPlaces(val userId: String) : WishPlacesEvent()
-//    data class CreatePlace(val title: String, val description: String?, val location: String?, val link: String?) : WishPlacesEvent()
-//    data class ArchivePlace(val id: String) : WishPlacesEvent()
-//}
 sealed class WishPlacesEvent {
     data class LoadPlaces(
         val userId: String

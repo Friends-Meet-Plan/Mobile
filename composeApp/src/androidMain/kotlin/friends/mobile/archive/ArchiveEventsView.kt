@@ -40,7 +40,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import friends.mobile.feature.archive.presentation.ArchiveEventsViewModel
 import friends.mobile.feature.archive.presentation.ArchiveViewAction
 import friends.mobile.feature.archive.presentation.ArchiveViewState
-import friends.mobile.feature.main.domain.model.MainEvent
+import friends.mobile.feature.events.domain.model.Event
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -156,7 +156,7 @@ fun ArchiveEventsView(
 
 @Composable
 private fun EventCard(
-    event: MainEvent,
+    event: Event,
     onClick: () -> Unit,
     isPending: Boolean = false,
 ) {
@@ -238,7 +238,7 @@ private fun EventCard(
                     tint = Color.Gray,
                 )
                 Text(
-                    text = "${event.participantCount} participants",
+                    text = "${event.participants.size} participants",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray,
                     modifier = Modifier.padding(start = 4.dp),

@@ -49,10 +49,7 @@ class LoginViewModel : BaseViewModel<LoginViewState, LoginAction, LoginEvent>(
                 is ResultWrapper.Error -> {
                     val userError = mapApiErrorToUserFriendly(result.error)
                     val message = getErrorMessage(userError)
-                    
-                    // Stay in Content state so the form remains visible
                     viewState = currentState.copy(isLoggingIn = false)
-                    // Send error as a side effect (Action) for the Alert/Snackbar
                     viewAction = LoginAction.ShowMessage(message)
                 }
             }

@@ -5,7 +5,6 @@ import friends.mobile.feature.events.data.remote.dto.CreateEventRequestDto
 import friends.mobile.feature.events.data.remote.dto.CreateEventResponseDto
 import friends.mobile.feature.events.data.remote.dto.EventResponseDto
 import friends.mobile.feature.events.data.remote.dto.UserAvailabilityResponseDto
-import friends.mobile.feature.main.data.remote.dto.EventListItemDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -32,7 +31,7 @@ internal class EventsApi(
             parameter("date", date)
         }.body()
 
-    suspend fun getEvents(scope: String = "upcoming"): List<EventListItemDto> =
+    suspend fun getEvents(scope: String = "upcoming"): List<EventResponseDto> =
         client.get("/events") {
             parameter("scope", scope)
         }.body()

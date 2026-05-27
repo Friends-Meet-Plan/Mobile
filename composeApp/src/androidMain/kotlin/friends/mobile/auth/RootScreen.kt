@@ -27,7 +27,6 @@ fun RootScreen(
             }
         }
         is RootViewState.Error -> {
-            // Здесь можно добавить экран глобальной ошибки
         }
         is RootViewState.Content -> {
             val session = currentState.session

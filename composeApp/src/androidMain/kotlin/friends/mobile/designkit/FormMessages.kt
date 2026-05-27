@@ -45,34 +45,3 @@ fun FormErrorMessage(
         }
     }
 }
-
-@Composable
-fun FormInfoMessage(
-    message: String,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(DesignTheme.Colors.infoLight, RoundedCornerShape(DesignTheme.CornerRadius.small))
-            .padding(DesignTheme.Spacing.md)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(DesignTheme.Spacing.sm)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Info,
-                contentDescription = null,
-                tint = DesignTheme.Colors.primaryHex,
-                modifier = Modifier
-            )
-            Text(
-                message,
-                style = DesignTheme.Typography.bodySmallest,
-                color = DesignTheme.Colors.primaryHex.copy(alpha = 0.8f)
-            )
-        }
-    }
-}
