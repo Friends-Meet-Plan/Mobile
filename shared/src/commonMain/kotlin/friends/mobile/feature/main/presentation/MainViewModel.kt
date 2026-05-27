@@ -69,33 +69,11 @@ class MainViewModel : BaseViewModel<
                                 )
                             }
 
-                            is ResultWrapper.Error -> {
-                                val currentState = viewState
-                                val userError = mapApiErrorToUserFriendly(pendingResult.error)
-
-                                if (currentState is MainViewState.Content) {
-                                    viewState = currentState.copy(isRefreshing = false)
-                                } else {
-                                    viewState = MainViewState.Error(
-                                        message = getErrorMessage(userError),
-                                    )
-                                }
-                            }
+                            is ResultWrapper.Error -> handleError(pendingResult.error)
                         }
                     }
 
-                    is ResultWrapper.Error -> {
-                        val currentState = viewState
-                        val userError = mapApiErrorToUserFriendly(activeResult.error)
-
-                        if (currentState is MainViewState.Content) {
-                            viewState = currentState.copy(isRefreshing = false)
-                        } else {
-                            viewState = MainViewState.Error(
-                                message = getErrorMessage(userError),
-                            )
-                        }
-                    }
+                    is ResultWrapper.Error -> handleError(activeResult.error)
                 }
             } finally {
                 isLoadingInProgress = false
@@ -134,16 +112,17 @@ class MainViewModel : BaseViewModel<
         }
     }
 
-    private fun handleError(
-        error: ApiError,
-    ) {
+    private fun handleError(error: ApiError) {
         logError(RuntimeException("MainViewModel: $error"))
 
         val userError = mapApiErrorToUserFriendly(error)
+        val currentState = viewState
 
-        viewState = MainViewState.Error(
-            message = getErrorMessage(userError),
-        )
+        if (currentState is MainViewState.Content) {
+            viewState = currentState.copy(isRefreshing = false)
+        } else {
+            viewState = MainViewState.Error(message = getErrorMessage(userError))
+        }
     }
 
     private inline fun updateContent(
