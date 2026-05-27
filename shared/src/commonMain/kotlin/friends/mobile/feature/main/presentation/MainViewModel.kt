@@ -96,6 +96,8 @@ class MainViewModel : BaseViewModel<
     private fun handleError(
         error: ApiError,
     ) {
+        logError(RuntimeException("MainViewModel: $error"))
+
         val userError = mapApiErrorToUserFriendly(error)
 
         viewState = MainViewState.Error(

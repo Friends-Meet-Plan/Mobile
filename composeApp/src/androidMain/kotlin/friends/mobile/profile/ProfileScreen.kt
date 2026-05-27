@@ -32,8 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import friends.mobile.calendar.BusyDaysView
 import friends.mobile.designkit.DesignTheme
 import friends.mobile.designkit.PrimaryButton
@@ -148,8 +146,6 @@ fun ProfileScreen(
                         },
 
                         onTestCrash = {
-                            Firebase.crashlytics.setCustomKey("jj", "jj")
-                            Firebase.crashlytics.recordException(Exception("jj"))
                             throw IllegalArgumentException("jj")
                         }
                     )

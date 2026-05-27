@@ -20,4 +20,8 @@ final class FirebaseAnalyticsServiceImpl: AnalyticsService {
         let converted = params as [String: Any]
         Analytics.logEvent(name, parameters: converted.isEmpty ? nil : converted)
     }
+
+    func logError(throwable: KotlinThrowable) {
+        // iOS Crashlytics подключим отдельно
+    }
 }

@@ -1,10 +1,10 @@
-package friends.mobile.analytics
+package friends.mobile.core.analytics
 
 import android.os.Bundle
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
-import friends.mobile.core.analytics.AnalyticsService
 
 class FirebaseAnalyticsServiceImpl : AnalyticsService {
 
@@ -24,5 +24,9 @@ class FirebaseAnalyticsServiceImpl : AnalyticsService {
         val bundle = Bundle()
         params.forEach { (key, value) -> bundle.putString(key, value) }
         analytics.logEvent(name, bundle)
+    }
+
+    override fun logError(throwable: Throwable) {
+        Firebase.crashlytics.recordException(throwable)
     }
 }

@@ -27,6 +27,10 @@ abstract class BaseViewModel<State : Any, Action, Event>(
         screenName?.let { analyticsService.logScreenView(it) }
     }
 
+    protected fun logError(throwable: Throwable) {
+        analyticsService.logError(throwable)
+    }
+
     protected var viewState: State
         get() = mutableState.value
         set(value) {

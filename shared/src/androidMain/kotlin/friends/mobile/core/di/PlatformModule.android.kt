@@ -3,6 +3,8 @@ package friends.mobile.core.di
 import android.content.Context
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.SharedPreferencesSettings
+import friends.mobile.core.analytics.AnalyticsService
+import friends.mobile.core.analytics.FirebaseAnalyticsServiceImpl
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.core.qualifier.named
@@ -18,4 +20,5 @@ actual val platformModule: Module = module {
                 )
         )
     }
+    single<AnalyticsService> { FirebaseAnalyticsServiceImpl() }
 }
