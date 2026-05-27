@@ -13,6 +13,7 @@ final class Router {
     
     var path = NavigationPath()
     var session: AuthSession?
+    var onCreatedEventPushBack: (() -> Void)?
     
     func push(screen: AppRouter) {
         path.append(screen)

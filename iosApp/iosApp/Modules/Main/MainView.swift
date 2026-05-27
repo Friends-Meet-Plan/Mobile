@@ -25,27 +25,13 @@ struct MainView: View {
 
     var body: some View {
         VStack {
-            // Header with Bell Button and Badge
             HStack {
                 Spacer()
                 Button {
                     router.push(screen: .pendingEvents)
                 } label: {
-                    ZStack(alignment: .topTrailing) {
-                        Image(systemName: "bell.fill")
-                            .font(.title2)
-
-                        if reducer.pendingCount > 0 {
-                            Text("\(reducer.pendingCount)")
-                                .font(.caption2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                                .frame(width: 20, height: 20)
-                                .background(Color.red)
-                                .clipShape(Circle())
-                                .offset(x: 8, y: -8)
-                        }
-                    }
+                    Image(systemName: "bell.fill")
+                        .font(.title2)
                 }
                 .padding()
             }
@@ -127,6 +113,22 @@ struct MainView: View {
                     }
                     .padding(.vertical)
                 }
+                .task {
+                    router.onCreatedEventPushBack = {
+                        reducer.refresh()
+                    }
+                }
+                .refreshable {
+                    await withCheckedContinuation { continuation in
+                        let cancellable = Task {
+                            while reducer.isRefreshing {
+                                try? await Task.sleep(nanoseconds: 100_000_000)
+                            }
+                            continuation.resume()
+                        }
+                        reducer.refresh()
+                    }
+                }
             }
 
             Button(action: {
@@ -140,9 +142,6 @@ struct MainView: View {
                     .cornerRadius(8)
             }
             .padding()
-            .refreshable {
-                reducer.refresh()
-            }
         }
         .navigationTitle("Home")
         .sheet(isPresented: $isCreatingEventInProgress) {

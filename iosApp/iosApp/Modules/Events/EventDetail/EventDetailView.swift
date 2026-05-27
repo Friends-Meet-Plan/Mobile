@@ -104,7 +104,6 @@ struct EventDetailView: View {
                         .cornerRadius(DesignTheme.CornerRadius.medium)
                     }
                     
-                    // Participants Section with Avatars
                     VStack(alignment: .leading, spacing: DesignTheme.Spacing.md) {
                         Text("Participants")
                             .font(DesignTheme.Typography.button)
@@ -134,6 +133,7 @@ struct EventDetailView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
+                        router.onCreatedEventPushBack?()
                         router.root()
                     } label: {
                         Image(systemName: "chevron.left")
