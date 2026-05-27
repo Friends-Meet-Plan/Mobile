@@ -28,11 +28,11 @@ struct PendingEventListView: View {
             } else if let errorMessage = reducer.errorMessage {
                 VStack(spacing: DesignTheme.Spacing.lg) {
                     ErrorBanner(message: errorMessage)
-                    
-                    Button(action: { reducer.refresh() }) {
-                        Text("Retry")
-                    }
-                    .primaryButton(isLoading: false, isEnabled: true)
+
+                    ButtonFactory.primary(
+                        action: { reducer.refresh() },
+                        label: "Retry"
+                    )
                 }
                 .padding(DesignTheme.Spacing.xl)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -90,11 +90,10 @@ struct PendingEventListView: View {
                 onDismiss: { reducer.closeEventDetail() }
             )
         }
-        .toast(isPresented: $reducer.showToast, message: reducer.toastMessage ?? "")
     }
     
     @ViewBuilder
-    private func eventListItem(event: Shared.Event) -> some View {
+    private func eventListItem(event: Event) -> some View {
         VStack(alignment: .leading, spacing: DesignTheme.Spacing.md) {
             HStack(spacing: DesignTheme.Spacing.md) {
                 VStack(alignment: .leading, spacing: DesignTheme.Spacing.xs) {

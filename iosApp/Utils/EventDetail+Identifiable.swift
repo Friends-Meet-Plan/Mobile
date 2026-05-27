@@ -7,4 +7,4 @@
 
 import Shared
 
-extension EventDetail: @retroactive Identifiable {}
+extension Event: @retroactive Identifiable {}

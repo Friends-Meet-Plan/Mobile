@@ -53,23 +53,12 @@ struct RegisterView: View {
                 }
                 .padding(.horizontal, DesignTheme.Spacing.xl)
                 
-                Button(action: {
-                    reducer.register()
-                }) {
-                    if reducer.isLoading {
-                        HStack(spacing: DesignTheme.Spacing.sm) {
-                            ProgressView()
-                                .scaleEffect(0.9)
-                                .tint(.white)
-                            Text("Creating account...")
-                                .font(DesignTheme.Typography.button)
-                        }
-                    } else {
-                        Text("Create Account")
-                            .font(DesignTheme.Typography.button)
-                    }
-                }
-                .primaryButton(isLoading: reducer.isLoading, isEnabled: !(reducer.isLoading || reducer.username.isEmpty || reducer.password.isEmpty))
+                ButtonFactory.primaryLoading(
+                    action: { reducer.register() },
+                    label: "Create Account",
+                    isLoading: reducer.isLoading,
+                    isEnabled: !(reducer.isLoading || reducer.username.isEmpty || reducer.password.isEmpty)
+                )
                 .padding(.horizontal, DesignTheme.Spacing.xl)
                 
                 HStack(spacing: DesignTheme.Spacing.xs) {

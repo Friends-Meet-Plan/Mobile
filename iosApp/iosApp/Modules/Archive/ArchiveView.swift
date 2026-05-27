@@ -19,22 +19,19 @@ struct ArchiveView: View {
                 ProgressView()
                     .frame(maxHeight: .infinity, alignment: .center)
             } else if let errorMessage = reducer.errorMessage {
-                VStack(spacing: 12) {
+                VStack(spacing: DesignTheme.Spacing.md) {
                     Image(systemName: "exclamationmark.circle.fill")
                         .font(.largeTitle)
-                        .foregroundColor(.red)
+                        .foregroundColor(DesignTheme.error)
                     Text(errorMessage)
-                        .foregroundColor(.red)
+                        .foregroundColor(DesignTheme.error)
                         .multilineTextAlignment(.center)
-                    Button(action: {
-                        reducer.refresh()
-                    }) {
-                        Text("Retry")
-                            .font(.headline)
-                    }
-                    .buttonStyle(.bordered)
+                    ButtonFactory.primary(
+                        action: { reducer.refresh() },
+                        label: "Retry"
+                    )
                 }
-                .padding()
+                .padding(DesignTheme.Spacing.lg)
                 .frame(maxHeight: .infinity, alignment: .center)
             } else if reducer.archivedEvents.isEmpty {
                 VStack(spacing: 12) {

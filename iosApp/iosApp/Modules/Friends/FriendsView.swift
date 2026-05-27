@@ -9,13 +9,14 @@ import Shared
 import SwiftUI
 
 struct FriendsView: View {
-    
+
     @State private var reducer = FriendsReducer()
     @State private var selectedSegment: Segment = .friends
     @State private var friendToPresent: Shared.User?
-    
+
     var body: some View {
         VStack(spacing: 0) {
+            // Search Bar
             SearchBar(
                 text: $reducer.searchText,
                 onSearch: { query in
@@ -24,13 +25,17 @@ struct FriendsView: View {
                     reducer.clearSearch()
                 }
             )
-            .padding()
+            .padding(DesignTheme.Spacing.lg)
             .background(Color(.systemBackground))
-            
+
+            // Error Banner
             if let errorMessage = reducer.errorMessage {
                 ErrorBanner(message: errorMessage)
+                    .padding(.horizontal, DesignTheme.Spacing.lg)
+                    .padding(.vertical, DesignTheme.Spacing.md)
             }
-            
+
+            // Content
             contentListView()
                 .overlay {
                     if reducer.isLoading {
@@ -39,23 +44,21 @@ struct FriendsView: View {
                 }
                 .opacity(reducer.isLoading ? 0 : 1)
                 .safeAreaInset(edge: .bottom) {
-                    VStack(spacing: 0) {
-                        
-                        Picker("", selection: $selectedSegment) {
-                            ForEach(Segment.allCases, id: \.self) { segment in
-                                Text(segment.rawValue)
-                                    .tag(segment)
-                            }
+                    // Tab Picker at Bottom
+                    Picker("", selection: $selectedSegment) {
+                        ForEach(Segment.allCases, id: \.self) { segment in
+                            Text(segment.rawValue)
+                                .tag(segment)
                         }
-                        .pickerStyle(.segmented)
-                        .padding()
-                        .background(Color(.systemBackground))
-                        .onChange(of: selectedSegment) { oldValue, newValue in
-                            if reducer.searchResults != nil {
-                                reducer.clearSearch()
-                            }
-                            reducer.onTabSelected(newValue.requestTab)
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(DesignTheme.Spacing.lg)
+                    .background(Color(.systemBackground))
+                    .onChange(of: selectedSegment) { oldValue, newValue in
+                        if reducer.searchResults != nil {
+                            reducer.clearSearch()
                         }
+                        reducer.onTabSelected(newValue.requestTab)
                     }
                 }
         }
@@ -69,18 +72,19 @@ struct FriendsView: View {
                 }
         }
     }
-    
+
     @ViewBuilder
     private func contentListView() -> some View {
         let listToDisplay = displayedList()
         let isEmpty = listToDisplay.isEmpty
         let isSearching = reducer.isSearching
-        
+
         if isSearching {
-            VStack(spacing: 12) {
+            VStack(spacing: DesignTheme.Spacing.lg) {
                 ProgressView()
+                    .scaleEffect(1.2)
                 Text("Searching...")
-                    .font(.subheadline)
+                    .font(DesignTheme.Typography.body)
                     .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -89,21 +93,27 @@ struct FriendsView: View {
             emptyStateView()
         } else {
             List(listToDisplay, id: \.id) { user in
-                UserRowView(user: user)
-                    .listRowSeparator(.hidden)
-                    .onTapGesture {
-                        friendToPresent = user
-                    }
+                UserRowView(
+                    user: user,
+                    currentTab: reducer.currentTab,
+                    searchText: reducer.searchText
+                )
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: DesignTheme.Spacing.xs, leading: DesignTheme.Spacing.lg, bottom: DesignTheme.Spacing.xs, trailing: DesignTheme.Spacing.lg))
+                .onTapGesture {
+                    friendToPresent = user
+                }
             }
             .listStyle(.plain)
+            .background(Color(.systemBackground))
         }
     }
-    
+
     private func displayedList() -> [Shared.User] {
         if let searchResults = reducer.searchResults {
             return searchResults
         }
-        
+
         switch reducer.currentTab {
         case .friends:
             return reducer.friendsList
@@ -115,36 +125,40 @@ struct FriendsView: View {
             fatalError("not implemeted")
         }
     }
-    
+
     @ViewBuilder
     private func emptyStateView() -> some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignTheme.Spacing.lg) {
             Image(systemName: "person.2")
-                .font(.system(size: 48))
-                .foregroundColor(.secondary)
-            
+                .font(.system(size: 56))
+                .foregroundColor(DesignTheme.accentColor.opacity(0.3))
+
             if let searchResults = reducer.searchResults, searchResults.isEmpty {
-                VStack(spacing: 8) {
+                VStack(spacing: DesignTheme.Spacing.sm) {
                     Text("No users found")
-                        .font(.headline)
+                        .font(DesignTheme.Typography.captionSemibold)
+                        .foregroundColor(.black)
                     Text("Try searching with a different name")
-                        .font(.subheadline)
+                        .font(DesignTheme.Typography.bodySmall)
                         .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
                 }
             } else {
-                VStack(spacing: 8) {
+                VStack(spacing: DesignTheme.Spacing.sm) {
                     Text(emptyStateTitle())
-                        .font(.headline)
+                        .font(DesignTheme.Typography.captionSemibold)
+                        .foregroundColor(.black)
                     Text(emptyStateSubtitle())
-                        .font(.subheadline)
+                        .font(DesignTheme.Typography.bodySmall)
                         .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.systemBackground))
     }
-    
+
     private func emptyStateTitle() -> String {
         switch reducer.currentTab {
         case .friends:
@@ -157,7 +171,7 @@ struct FriendsView: View {
             fatalError("not implemeted")
         }
     }
-    
+
     private func emptyStateSubtitle() -> String {
         switch reducer.currentTab {
         case .friends:
@@ -174,36 +188,79 @@ struct FriendsView: View {
 
 private struct UserRowView: View {
     let user: Shared.User
-    
+    let currentTab: RequestTab
+    let searchText: String
+
     var body: some View {
-        HStack(spacing: 14) {
-            
-            Circle()
-                .fill(.gray.opacity(0.15))
-                .frame(width: 42, height: 42)
-                .overlay {
-                    Text(user.username.prefix(1).uppercased())
-                        .font(.subheadline.weight(.semibold))
+        HStack(spacing: DesignTheme.Spacing.md) {
+            // Avatar with Initial Badge
+            ZStack(alignment: .bottomTrailing) {
+                Circle()
+                    .fill(DesignTheme.accentColor)
+                    .frame(width: 52, height: 52)
+                    .overlay {
+                        Text(user.username.prefix(1).uppercased())
+                            .font(DesignTheme.Typography.captionSemibold)
+                            .foregroundColor(.white)
+                    }
+
+                // Status Badge
+                if let avatarUrl = user.avatarUrl, !avatarUrl.isEmpty {
+                    AsyncImage(url: URL(string: avatarUrl)) { image in
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    } placeholder: {
+                        Circle()
+                            .fill(DesignTheme.accentColor)
+                    }
+                    .frame(width: 52, height: 52)
+                    .clipShape(Circle())
                 }
-            
-            VStack(alignment: .leading, spacing: 4) {
+            }
+
+            // User Info
+            VStack(alignment: .leading, spacing: DesignTheme.Spacing.xs) {
                 Text(user.username)
-                    .font(.subheadline.weight(.medium))
-                
+                    .font(DesignTheme.Typography.captionSemibold)
+                    .foregroundColor(.black)
+
                 if let bio = user.bio, !bio.isEmpty {
                     Text(bio)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(DesignTheme.Typography.bodySmallest)
+                        .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
             }
-            
+
             Spacer()
+
+            // Status Badge
+            if searchText.isEmpty {
+                statusBadge()
+            }
         }
-        .padding(14)
-        .background {
-            RoundedRectangle(cornerRadius: 16)
-                .fill(.gray.opacity(0.06))
+        .padding(DesignTheme.Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: DesignTheme.CornerRadius.medium)
+                .fill(Color(.systemGray6).opacity(0.5))
+        )
+    }
+
+    @ViewBuilder
+    private func statusBadge() -> some View {
+        switch currentTab {
+        case .friends:
+            IndicatorFactory.active()
+
+        case .incoming:
+            IndicatorFactory.pending()
+
+        case .outgoing:
+            IndicatorFactory.sent()
+
+        default:
+            EmptyView()
         }
     }
 }

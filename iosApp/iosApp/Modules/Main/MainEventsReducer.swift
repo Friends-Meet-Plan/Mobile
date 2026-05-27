@@ -1,5 +1,5 @@
 //
-//  MainEventsReducer.swift
+//  EventsReducer.swift
 //  iosApp
 //
 //  Created by Данил Забинский on 14.05.2026.
@@ -23,10 +23,10 @@ enum EventFilter: Int, CaseIterable {
 }
 
 @Observable
-final class MainEventsReducer {
+final class EventsReducer {
 
-    var activeEvents: [MainEvent] = []
-    var pendingEvents: [MainEvent] = []
+    var activeEvents: [Event] = []
+    var pendingEvents: [Event] = []
     var isRefreshing: Bool = false
 
     var isLoading: Bool = false
@@ -83,12 +83,10 @@ final class MainEventsReducer {
             guard let availability = result else { return true }
             
             switch availability {
-            case is AvailabilityResult.Busy:
-                return false
-            case is AvailabilityResult.Available:
-                return true
+            case let isAvailable as Bool:
+                return isAvailable
             default:
-                return true
+                return false
             }
         } catch {
             self.errorMessage = error.localizedDescription
@@ -96,7 +94,7 @@ final class MainEventsReducer {
         }
     }
 
-    var filteredEvents: [MainEvent] {
+    var filteredEvents: [Event] {
         switch selectedFilter {
         case .active:
             return activeEvents
