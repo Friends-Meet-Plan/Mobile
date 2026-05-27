@@ -3,15 +3,16 @@ package friends.mobile.feature.profile.presentation.edit
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
+import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.profile.domain.usecase.UpdateProfileUseCase
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class EditProfileViewModel : BaseViewModel<EditProfileViewState, EditProfileAction, EditProfileEvent>(
     initState = EditProfileViewState.Loading,
-), KoinComponent {
+    screenName = AnalyticsEvent.LAUNCH_EDIT_PROFILE,
+) {
 
     private val updateProfileUseCase: UpdateProfileUseCase by inject()
 

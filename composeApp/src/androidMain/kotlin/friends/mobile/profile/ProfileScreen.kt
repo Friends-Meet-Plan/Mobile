@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -31,6 +32,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import friends.mobile.calendar.BusyDaysView
 import friends.mobile.designkit.DesignTheme
 import friends.mobile.designkit.PrimaryButton
@@ -137,15 +140,17 @@ fun ProfileScreen(
                         isLoggingOut = current.isLoggingOut,
 
                         onEditClick = {
-                            viewModel.obtainEvent(
-                                ProfileEvent.OnEditClick
-                            )
+                            viewModel.obtainEvent(ProfileEvent.OnEditClick)
                         },
 
                         onLogoutClick = {
-                            viewModel.obtainEvent(
-                                ProfileEvent.OnLogoutClick
-                            )
+                            viewModel.obtainEvent(ProfileEvent.OnLogoutClick)
+                        },
+
+                        onTestCrash = {
+                            Firebase.crashlytics.setCustomKey("jj", "jj")
+                            Firebase.crashlytics.recordException(Exception("jj"))
+                            throw IllegalArgumentException("jj")
                         }
                     )
                 }
@@ -160,6 +165,7 @@ private fun ProfileContent(
     isLoggingOut: Boolean,
     onEditClick: () -> Unit,
     onLogoutClick: () -> Unit,
+    onTestCrash: () -> Unit,
 ) {
 
     LazyColumn(
@@ -174,7 +180,8 @@ private fun ProfileContent(
                 profile = profile,
                 isLoggingOut = isLoggingOut,
                 onEditClick = onEditClick,
-                onLogoutClick = onLogoutClick
+                onLogoutClick = onLogoutClick,
+                onTestCrash = onTestCrash
             )
         }
 
@@ -232,6 +239,7 @@ private fun ProfileHeader(
     isLoggingOut: Boolean,
     onEditClick: () -> Unit,
     onLogoutClick: () -> Unit,
+    onTestCrash: () -> Unit,
 ) {
 
     Column(
@@ -271,6 +279,19 @@ private fun ProfileHeader(
                 modifier = Modifier.fillMaxWidth(),
                 isLoading = isLoggingOut,
                 isEnabled = !isLoggingOut
+            )
+
+            PrimaryButton(
+                onClick = onTestCrash,
+                text = "Test Crash",
+                modifier = Modifier.fillMaxWidth(),
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.BugReport,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             )
         }
     }

@@ -4,12 +4,12 @@ import friends.mobile.core.domain.model.ApiError
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
+import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.events.domain.usecase.CheckUserAvailabilityUseCase
 import friends.mobile.feature.events.domain.usecase.GetAcceptedEventsUseCase
 import friends.mobile.feature.events.domain.usecase.GetPendingEventsUseCase
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class MainViewModel : BaseViewModel<
@@ -18,7 +18,8 @@ class MainViewModel : BaseViewModel<
         MainViewAction,
         >(
     initState = MainViewState.Loading,
-), KoinComponent {
+    screenName = AnalyticsEvent.LAUNCH_HOME,
+) {
 
     private val getAcceptedEventsUseCase: GetAcceptedEventsUseCase by inject()
 

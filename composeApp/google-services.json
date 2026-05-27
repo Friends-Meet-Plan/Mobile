@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "220601164196",
+    "project_id": "friends-meet-plan",
+    "storage_bucket": "friends-meet-plan.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:220601164196:android:c3cbfdaa1f763ecf946131",
+        "android_client_info": {
+          "package_name": "friends.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCoJc66r9bptA8cze2U07ZsxVbaqt6FOsY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
