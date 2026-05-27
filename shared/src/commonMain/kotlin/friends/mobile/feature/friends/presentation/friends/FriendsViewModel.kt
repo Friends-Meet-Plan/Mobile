@@ -3,19 +3,20 @@ package friends.mobile.feature.friends.presentation.friends
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
+import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.friends.domain.usecase.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class FriendsViewModel : BaseViewModel<FriendsViewState, FriendsAction, FriendsEvent>(
     initState = FriendsViewState.Loading,
-), KoinComponent {
+    screenName = AnalyticsEvent.LAUNCH_FRIENDS,
+) {
 
     private val getFriendsUseCase: GetFriendsUseCase by inject()
     private val getIncomingFriendRequestsUseCase: GetIncomingFriendRequestsUseCase by inject()

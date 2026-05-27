@@ -3,6 +3,7 @@ package friends.mobile.feature.friends.presentation.friendsProfile
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
+import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.friends.domain.usecase.AcceptFriendRequestUseCase
 import friends.mobile.feature.friends.domain.usecase.GetFriendStatusUseCase
@@ -10,12 +11,12 @@ import friends.mobile.feature.friends.domain.usecase.RejectFriendRequestUseCase
 import friends.mobile.feature.friends.domain.usecase.RemoveFriendUseCase
 import friends.mobile.feature.friends.domain.usecase.SendFriendRequestUseCase
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class FriendProfileViewModel : BaseViewModel<FriendProfileViewState, FriendProfileAction, FriendProfileEvent>(
     initState = FriendProfileViewState.Loading,
-), KoinComponent {
+    screenName = AnalyticsEvent.LAUNCH_FRIEND_PROFILE,
+) {
 
     private val getFriendStatusUseCase: GetFriendStatusUseCase by inject()
     private val sendFriendRequestUseCase: SendFriendRequestUseCase by inject()

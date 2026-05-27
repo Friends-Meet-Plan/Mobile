@@ -4,12 +4,12 @@ import friends.mobile.core.domain.model.ApiError
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
+import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.events.domain.usecase.CheckUserAvailabilityUseCase
 import friends.mobile.feature.events.domain.usecase.GetAcceptedEventsUseCase
 import friends.mobile.feature.events.domain.usecase.GetPendingEventsUseCase
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class MainViewModel : BaseViewModel<
@@ -18,7 +18,8 @@ class MainViewModel : BaseViewModel<
         MainViewAction,
         >(
     initState = MainViewState.Loading,
-), KoinComponent {
+    screenName = AnalyticsEvent.LAUNCH_HOME,
+) {
 
     private val getAcceptedEventsUseCase: GetAcceptedEventsUseCase by inject()
 
@@ -68,33 +69,11 @@ class MainViewModel : BaseViewModel<
                                 )
                             }
 
-                            is ResultWrapper.Error -> {
-                                val currentState = viewState
-                                val userError = mapApiErrorToUserFriendly(pendingResult.error)
-
-                                if (currentState is MainViewState.Content) {
-                                    viewState = currentState.copy(isRefreshing = false)
-                                } else {
-                                    viewState = MainViewState.Error(
-                                        message = getErrorMessage(userError),
-                                    )
-                                }
-                            }
+                            is ResultWrapper.Error -> handleError(pendingResult.error)
                         }
                     }
 
-                    is ResultWrapper.Error -> {
-                        val currentState = viewState
-                        val userError = mapApiErrorToUserFriendly(activeResult.error)
-
-                        if (currentState is MainViewState.Content) {
-                            viewState = currentState.copy(isRefreshing = false)
-                        } else {
-                            viewState = MainViewState.Error(
-                                message = getErrorMessage(userError),
-                            )
-                        }
-                    }
+                    is ResultWrapper.Error -> handleError(activeResult.error)
                 }
             } finally {
                 isLoadingInProgress = false
@@ -130,6 +109,19 @@ class MainViewModel : BaseViewModel<
             is ResultWrapper.Error -> {
                 null
             }
+        }
+    }
+
+    private fun handleError(error: ApiError) {
+        logError(RuntimeException("MainViewModel: $error"))
+
+        val userError = mapApiErrorToUserFriendly(error)
+        val currentState = viewState
+
+        if (currentState is MainViewState.Content) {
+            viewState = currentState.copy(isRefreshing = false)
+        } else {
+            viewState = MainViewState.Error(message = getErrorMessage(userError))
         }
     }
 

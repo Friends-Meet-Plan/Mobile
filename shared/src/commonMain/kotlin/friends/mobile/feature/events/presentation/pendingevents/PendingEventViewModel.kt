@@ -3,18 +3,19 @@ package friends.mobile.feature.events.presentation.pendingevents
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
+import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.events.domain.usecase.AcceptEventUseCase
 import friends.mobile.feature.events.domain.usecase.DeclineEventUseCase
 import friends.mobile.feature.events.domain.usecase.GetEventDetailUseCase
 import friends.mobile.feature.events.domain.usecase.GetWaitingEventsUseCase
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class PendingEventViewModel : BaseViewModel<PendingViewState, PendingAction, PendingEvent, >(
+class PendingEventViewModel : BaseViewModel<PendingViewState, PendingAction, PendingEvent>(
     initState = PendingViewState.Loading,
-), KoinComponent {
+    screenName = AnalyticsEvent.LAUNCH_PENDING_EVENTS,
+) {
 
     private val getWaitingEventsUseCase: GetWaitingEventsUseCase by inject()
     private val getEventDetailUseCase: GetEventDetailUseCase by inject()

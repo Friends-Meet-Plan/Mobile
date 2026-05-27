@@ -3,18 +3,18 @@ package friends.mobile.feature.events.presentation.eventdetail
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
+import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.events.domain.usecase.GetEventDetailUseCase
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class EventDetailViewModel(
     private val eventId: String,
 ) : BaseViewModel<EventDetailViewState, EventDetailAction, EventDetailEvent>(
     initState = EventDetailViewState.Loading,
-),
-    KoinComponent {
+    screenName = AnalyticsEvent.LAUNCH_EVENT_DETAIL,
+) {
 
     private val getEventDetailUseCase: GetEventDetailUseCase by inject()
 

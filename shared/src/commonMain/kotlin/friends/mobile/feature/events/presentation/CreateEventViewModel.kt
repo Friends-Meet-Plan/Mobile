@@ -4,12 +4,12 @@ import friends.mobile.core.domain.model.ApiError
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
+import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.events.domain.usecase.CheckFriendsAvailabilityUseCase
 import friends.mobile.feature.events.domain.usecase.CheckUserAvailabilityUseCase
 import friends.mobile.feature.events.domain.usecase.CreateEventUseCase
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class CreateEventViewModel(
@@ -20,7 +20,8 @@ class CreateEventViewModel(
         CreateEventEvent,
         >(
     initState = CreateEventViewState.Loading,
-), KoinComponent {
+    screenName = AnalyticsEvent.LAUNCH_CREATE_EVENT,
+) {
 
     private val checkFriendsAvailabilityUseCase: CheckFriendsAvailabilityUseCase by inject()
     private val checkUserAvailabilityUseCase: CheckUserAvailabilityUseCase by inject()

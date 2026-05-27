@@ -3,16 +3,16 @@ package friends.mobile.feature.archive.presentation
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
+import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.events.domain.usecase.GetArchivedEventsUseCase
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class ArchiveEventsViewModel : BaseViewModel<ArchiveViewState, Unit, ArchiveViewAction>(
     initState = ArchiveViewState.Loading,
-),
-    KoinComponent {
+    screenName = AnalyticsEvent.LAUNCH_ARCHIVE,
+) {
 
     private val getArchivedEventsUseCase: GetArchivedEventsUseCase by inject()
 

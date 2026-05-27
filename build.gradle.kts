@@ -10,6 +10,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.kotlinxSerialization) apply false
     alias(libs.plugins.detekt) apply false
+    alias(libs.plugins.google.services) apply false
+    alias(libs.plugins.firebase.crashlytics) apply false
 }
 
 val detektVersion: String? = libs.versions.detekt.get()

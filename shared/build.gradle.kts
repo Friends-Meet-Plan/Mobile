@@ -43,11 +43,17 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
+            implementation(libs.firebase.analytics)
+            implementation(libs.firebase.crashlytics)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
     }
+}
+
+dependencies {
+    "androidMainImplementation"(platform(libs.firebase.bom))
 }
 
 android {
