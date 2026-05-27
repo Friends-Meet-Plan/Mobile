@@ -271,8 +271,7 @@ private struct ParticipantAvatarRow: View {
                     .font(DesignTheme.Typography.button)
                     .foregroundColor(.white)
                 
-                // Status badge
-                statusBadgeIcon(participant.responseStatus)
+                statusBadgeIcon(participant.status.description())
                     .frame(width: 20, height: 20)
                     .background(Circle().fill(Color.white))
                     .offset(x: 2, y: 2)
@@ -290,12 +289,12 @@ private struct ParticipantAvatarRow: View {
                         .foregroundColor(.secondary)
                     
                     Circle()
-                        .fill(statusColor(participant.responseStatus))
+                        .fill(statusColor(participant.status.description()))
                         .frame(width: 6, height: 6)
                     
-                    Text(participant.responseStatus.capitalized)
+                    Text(participant.status.description().capitalized)
                         .font(DesignTheme.Typography.bodySmallest)
-                        .foregroundColor(statusColor(participant.responseStatus))
+                        .foregroundColor(statusColor(participant.status.description()))
                 }
             }
             

@@ -10,7 +10,7 @@ import Shared
 
 struct PendingEventDetailSheet: View {
 
-    let eventDetail: EventDetail
+    let eventDetail: Event
     let isLoading: Bool
     let error: String?
     let onAccept: () -> Void
@@ -87,7 +87,7 @@ struct PendingEventDetailSheet: View {
     }
 
     private struct ContentView: View {
-        let eventDetail: EventDetail
+        let eventDetail: Event
         let statusColor: (String) -> Color
         let onAccept: () -> Void
         let onDecline: () -> Void
@@ -288,17 +288,17 @@ struct PendingEventDetailSheet: View {
                     Spacer()
 
                     HStack(spacing: DesignTheme.Spacing.xs) {
-                        Image(systemName: statusIcon(participant.responseStatus))
+                        Image(systemName: statusIcon(participant.status.description()))
                             .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(statusColor(participant.responseStatus))
+                            .foregroundColor(statusColor(participant.status.description()))
 
-                        Text(participant.responseStatus.capitalized)
+                        Text(participant.status.description().capitalized)
                             .font(DesignTheme.Typography.bodySmallest)
-                            .foregroundColor(statusColor(participant.responseStatus))
+                            .foregroundColor(statusColor(participant.status.description()))
                     }
                     .padding(.vertical, DesignTheme.Spacing.xs)
                     .padding(.horizontal, DesignTheme.Spacing.sm)
-                    .background(statusColor(participant.responseStatus).opacity(0.08))
+                    .background(statusColor(participant.status.description()).opacity(0.08))
                     .cornerRadius(DesignTheme.CornerRadius.small)
                 }
             }

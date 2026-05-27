@@ -26,6 +26,8 @@ class MainViewModel : BaseViewModel<
 
     private val checkUserAvailabilityUseCase: CheckUserAvailabilityUseCase by inject()
 
+    private var isLoadingInProgress = false
+
     init {
         loadEvents()
     }
@@ -36,31 +38,63 @@ class MainViewModel : BaseViewModel<
         }
     }
 
-    private fun loadEvents() {
+    private fun loadEvents(showLoading: Boolean = true) {
         viewModelScope.launch {
+            if (isLoadingInProgress) return@launch
 
-            when (val activeResult = getAcceptedEventsUseCase()) {
+            isLoadingInProgress = true
 
-                is ResultWrapper.Success -> {
-
-                    when (val pendingResult = getPendingEventsUseCase()) {
-
-                        is ResultWrapper.Success -> {
-                            viewState = MainViewState.Content(
-                                activeEvents = activeResult.data,
-                                pendingEvents = pendingResult.data,
-                                isRefreshing = false,
-                            )
-                        }
-
-                        is ResultWrapper.Error -> {
-                            handleError(pendingResult.error)
-                        }
+            try {
+                if (showLoading) {
+                    viewState = MainViewState.Loading
+                } else {
+                    val currentState = viewState
+                    if (currentState is MainViewState.Content) {
+                        viewState = currentState.copy(isRefreshing = true)
                     }
                 }
 
-                is ResultWrapper.Error -> {
-                    handleError(activeResult.error)
+                when (val activeResult = getAcceptedEventsUseCase()) {
+
+                    is ResultWrapper.Success -> {
+
+                        when (val pendingResult = getPendingEventsUseCase()) {
+
+                            is ResultWrapper.Success -> {
+                                viewState = MainViewState.Content(
+                                    activeEvents = activeResult.data,
+                                    pendingEvents = pendingResult.data,
+                                    isRefreshing = false,
+                                )
+                            }
+
+                            is ResultWrapper.Error -> {
+                                val currentState = viewState
+                                val userError = mapApiErrorToUserFriendly(pendingResult.error)
+
+                                if (currentState is MainViewState.Content) {
+                                    viewState = currentState.copy(isRefreshing = false)
+                                } else {
+                                    viewState = MainViewState.Error(
+                                        message = getErrorMessage(userError),
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    is ResultWrapper.Error -> {
+                        val currentState = viewState
+                        val userError = mapApiErrorToUserFriendly(activeResult.error)
+
+                        if (currentState is MainViewState.Content) {
+                            viewState = currentState.copy(isRefreshing = false)
+                        } else {
+                            viewState = MainViewState.Error(
+                                message = getErrorMessage(userError),
+                            )
+                        }
+                    }
                 }
             } finally {
                 isLoadingInProgress = false
@@ -69,11 +103,16 @@ class MainViewModel : BaseViewModel<
     }
 
     private fun onRefresh() {
-        updateContent {
-            copy(isRefreshing = true)
+        if (isLoadingInProgress) return
+
+        val currentState = viewState
+        if (currentState is MainViewState.Content) {
+            viewState = currentState.copy(isRefreshing = true)
+        } else if (currentState is MainViewState.Error) {
+            viewState = MainViewState.Content(isRefreshing = true)
         }
 
-        loadEvents()
+        loadEvents(showLoading = false)
     }
 
     suspend fun checkAvailability(
@@ -92,16 +131,6 @@ class MainViewModel : BaseViewModel<
                 null
             }
         }
-    }
-
-    private fun handleError(
-        error: ApiError,
-    ) {
-        val userError = mapApiErrorToUserFriendly(error)
-
-        viewState = MainViewState.Error(
-            message = getErrorMessage(userError),
-        )
     }
 
     private inline fun updateContent(

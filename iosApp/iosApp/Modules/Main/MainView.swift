@@ -10,7 +10,7 @@ import Shared
 
 struct MainView: View {
     
-    @State private var reducer = MainEventsReducer()
+    @State private var reducer = EventsReducer()
     @State private var isCreatingEventInProgress = false
     @State private var selectedDate = Date()
     @State private var showBusyAlert = false
@@ -332,7 +332,7 @@ private extension MainView {
 
 struct EventRowView: View {
     
-    let event: MainEvent
+    let event: Event
     let isPending: Bool
     
     private var tint: Color {
@@ -385,7 +385,7 @@ struct EventRowView: View {
                 
                 infoChip(
                     icon: "person.2",
-                    text: "\(event.participantCount)"
+                    text: "\(event.participants.count)"
                 )
                 
                 Spacer()

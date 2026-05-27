@@ -90,11 +90,10 @@ struct PendingEventListView: View {
                 onDismiss: { reducer.closeEventDetail() }
             )
         }
-        .toast(isPresented: $reducer.showToast, message: reducer.toastMessage ?? "")
     }
     
     @ViewBuilder
-    private func eventListItem(event: Shared.Event) -> some View {
+    private func eventListItem(event: Event) -> some View {
         VStack(alignment: .leading, spacing: DesignTheme.Spacing.md) {
             HStack(spacing: DesignTheme.Spacing.md) {
                 VStack(alignment: .leading, spacing: DesignTheme.Spacing.xs) {
