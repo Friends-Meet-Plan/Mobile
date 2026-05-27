@@ -12,7 +12,7 @@ import Shared
 final class PendingEventReducer {
     
     var pendingEvents: [Event] = []
-    var selectedEventDetail: EventDetail?
+    var selectedEventDetail: Event?
     var isLoading: Bool = false
     var isRefreshing: Bool = false
     var detailError: String?
@@ -94,6 +94,6 @@ final class PendingEventReducer {
     }
     
     func closeEventDetail() {
-        sharedVM.closeEventDetail()
+        selectedEventDetail = nil
     }
 }

@@ -7,6 +7,7 @@ sealed class ProfileViewState {
     data class Error(val message: String) : ProfileViewState()
     data class Content(
         val profile: Profile,
-        val isLoggingOut: Boolean = false
+        val isLoggingOut: Boolean = false,
+        val isRefreshing: Boolean = false
     ) : ProfileViewState()
 }

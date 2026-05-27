@@ -21,50 +21,39 @@ struct ProfileView: View {
                     UserView(user: profile, dimension: .vertical)
                         .frame(maxWidth: .infinity)
 
-                    VStack(spacing: DesignTheme.Spacing.md) {
-                        Button(action: { profileReducer.loadProfile() }) {
-                            HStack(spacing: DesignTheme.Spacing.sm) {
-                                Image(systemName: "arrow.clockwise")
-                                Text("Refresh Activity")
-                            }
-                            .font(DesignTheme.Typography.button)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 44)
-                            .background(DesignTheme.accentColor)
-                            .foregroundColor(.white)
-                            .cornerRadius(DesignTheme.CornerRadius.capsule)
-                        }
-
-                        BusyDayView(userId: profile.id)
-                            .frame(maxWidth: .infinity, alignment: .topLeading)
-                    }
+                    BusyDayView(userId: profile.id)
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
 
                     WishPlacesView(userId: profile.id, mode: .editable)
                         .frame(maxWidth: .infinity, alignment: .topLeading)
 
                     VStack(spacing: DesignTheme.Spacing.md) {
-                        Button(action: { profileReducer.navigateToEdit() }) {
-                            Text("Edit Profile")
-                                .font(DesignTheme.Typography.button)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 44)
-                                .background(DesignTheme.accentColor)
-                                .foregroundColor(.white)
-                                .cornerRadius(DesignTheme.CornerRadius.capsule)
-                        }
+                        ButtonFactory.primary(
+                            action: { profileReducer.navigateToEdit() },
+                            label: "Edit Profile"
+                        )
 
-                        Button(action: { profileReducer.logout() }) {
-                            Text("Log Out")
-                                .font(DesignTheme.Typography.button)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 44)
-                                .background(DesignTheme.error)
-                                .foregroundColor(.white)
-                                .cornerRadius(DesignTheme.CornerRadius.capsule)
-                        }
+                        ButtonFactory.destructive(
+                            action: { profileReducer.logout() },
+                            label: "Log Out"
+                        )
                     }
                 }
                 .padding(DesignTheme.Spacing.lg)
+            }
+            .refreshable {
+                await withCheckedContinuation { continuation in
+                    let _ = Task {
+                        while profileReducer.isRefreshing {
+                            try? await Task.sleep(
+                                nanoseconds: 100_000_000
+                            )
+                        }
+                        continuation.resume()
+                    }
+
+                    profileReducer.onRefreshProfile()
+                }
             }
             .navigationTitle("Profile")
             .onAppear {

@@ -43,23 +43,12 @@ struct LoginView: View {
                 }
                 .padding(.horizontal, DesignTheme.Spacing.xl)
                 
-                Button(action: {
-                    reducer.login()
-                }) {
-                    if reducer.isLoading {
-                        HStack(spacing: DesignTheme.Spacing.sm) {
-                            ProgressView()
-                                .scaleEffect(0.9)
-                                .tint(.white)
-                            Text("Logging in...")
-                                .font(DesignTheme.Typography.button)
-                        }
-                    } else {
-                        Text("Login")
-                            .font(DesignTheme.Typography.button)
-                    }
-                }
-                .primaryButton(isLoading: reducer.isLoading, isEnabled: !(reducer.isLoading || reducer.username.isEmpty || reducer.password.isEmpty))
+                ButtonFactory.primaryLoading(
+                    action: { reducer.login() },
+                    label: "Login",
+                    isLoading: reducer.isLoading,
+                    isEnabled: !(reducer.isLoading || reducer.username.isEmpty || reducer.password.isEmpty)
+                )
                 .padding(.horizontal, DesignTheme.Spacing.xl)
                 
                 HStack(spacing: DesignTheme.Spacing.xs) {

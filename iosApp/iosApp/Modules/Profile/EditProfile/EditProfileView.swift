@@ -45,22 +45,12 @@ struct EditProfileView: View {
 
             Spacer()
 
-            Button(action: { reducer.save() }) {
-                if reducer.isSaving {
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                        .tint(.white)
-                } else {
-                    Text("Save")
-                        .font(DesignTheme.Typography.button)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 54)
-            .foregroundColor(.white)
-            .background(DesignTheme.accentColor)
-            .cornerRadius(DesignTheme.CornerRadius.capsule)
-            .disabled(reducer.isSaving)
+            ButtonFactory.primaryLoading(
+                action: { reducer.save() },
+                label: "Save",
+                isLoading: reducer.isSaving,
+                isEnabled: !reducer.isSaving
+            )
         }
         .padding(DesignTheme.Spacing.lg)
         .navigationTitle("Edit Profile")

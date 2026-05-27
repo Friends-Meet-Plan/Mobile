@@ -52,19 +52,19 @@ struct CreateWishPlaceSheet: View {
                     
                     Spacer()
                         .frame(height: DesignTheme.Spacing.md)
-                    
-                    Button(action: {
-                        onCreate(
-                            title,
-                            description.isEmpty ? nil : description,
-                            location.isEmpty ? nil : location,
-                            link.isEmpty ? nil : link
-                        )
-                    }) {
-                        Text("Create")
-                            .font(DesignTheme.Typography.button)
-                    }
-                    .primaryButton(isEnabled: isCreateButtonEnabled)
+
+                    ButtonFactory.primary(
+                        action: {
+                            onCreate(
+                                title,
+                                description.isEmpty ? nil : description,
+                                location.isEmpty ? nil : location,
+                                link.isEmpty ? nil : link
+                            )
+                        },
+                        label: "Create",
+                        isEnabled: isCreateButtonEnabled
+                    )
                     .padding(.horizontal, DesignTheme.Spacing.lg)
                     
                     Spacer()

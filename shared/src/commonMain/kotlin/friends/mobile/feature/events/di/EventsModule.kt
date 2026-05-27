@@ -13,6 +13,7 @@ import friends.mobile.feature.events.data.usecase.GetAcceptedEventsUseCaseImpl
 import friends.mobile.feature.events.data.usecase.GetArchivedEventsUseCaseImpl
 import friends.mobile.feature.events.data.usecase.GetEventDetailUseCaseImpl
 import friends.mobile.feature.events.data.usecase.GetPendingEventsUseCaseImpl
+import friends.mobile.feature.events.data.usecase.GetWaitingEventsUseCaseImpl
 import friends.mobile.feature.events.domain.repository.EventsRepository
 import friends.mobile.feature.events.domain.usecase.AcceptEventUseCase
 import friends.mobile.feature.events.domain.usecase.CheckFriendsAvailabilityUseCase
@@ -23,6 +24,7 @@ import friends.mobile.feature.events.domain.usecase.GetAcceptedEventsUseCase
 import friends.mobile.feature.events.domain.usecase.GetArchivedEventsUseCase
 import friends.mobile.feature.events.domain.usecase.GetEventDetailUseCase
 import friends.mobile.feature.events.domain.usecase.GetPendingEventsUseCase
+import friends.mobile.feature.events.domain.usecase.GetWaitingEventsUseCase
 import friends.mobile.feature.events.presentation.CreateEventViewModel
 import friends.mobile.feature.events.presentation.eventdetail.EventDetailViewModel
 import friends.mobile.feature.events.presentation.pendingevents.PendingEventViewModel
@@ -58,6 +60,10 @@ val eventsModule = module {
 
     factory<GetPendingEventsUseCase> {
         GetPendingEventsUseCaseImpl(repository = get())
+    }
+
+    factory<GetWaitingEventsUseCase> {
+        GetWaitingEventsUseCaseImpl(repository = get())
     }
 
     factory<GetEventDetailUseCase> {

@@ -11,7 +11,7 @@ import Shared
 @Observable
 final class ArchiveEventsReducer {
     
-    var archivedEvents: [MainEvent] = []
+    var archivedEvents: [Event] = []
     var isRefreshing: Bool = false
     var isLoading: Bool = false
     var errorMessage: String?

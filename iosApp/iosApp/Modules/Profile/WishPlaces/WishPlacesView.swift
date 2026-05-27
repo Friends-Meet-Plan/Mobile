@@ -44,11 +44,11 @@ struct WishPlacesView: View {
             } else if let errorMessage = reducer.errorMessage {
                 VStack(spacing: DesignTheme.Spacing.md) {
                     ErrorBanner(message: errorMessage)
-                    
-                    Button(action: { reducer.retry() }) {
-                        Text("Retry")
-                    }
-                    .primaryButton(isLoading: false, isEnabled: true)
+
+                    ButtonFactory.primary(
+                        action: { reducer.retry() },
+                        label: "Retry"
+                    )
                 }
             } else if reducer.places.isEmpty {
                 Text("No wish places yet")

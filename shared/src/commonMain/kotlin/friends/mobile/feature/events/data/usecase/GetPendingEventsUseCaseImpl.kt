@@ -11,7 +11,7 @@ internal class GetPendingEventsUseCaseImpl(
 ) : GetPendingEventsUseCase {
 
     override suspend fun invoke(): ResultWrapper<List<Event>> {
-        val result = repository.getWaitingEvents()
+        val result = repository.getPendingEvents()
         if (result is ResultWrapper.Error) return result
 
         val events = (result as ResultWrapper.Success).data

@@ -7,7 +7,7 @@ import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.events.domain.usecase.AcceptEventUseCase
 import friends.mobile.feature.events.domain.usecase.DeclineEventUseCase
 import friends.mobile.feature.events.domain.usecase.GetEventDetailUseCase
-import friends.mobile.feature.events.domain.usecase.GetPendingEventsUseCase
+import friends.mobile.feature.events.domain.usecase.GetWaitingEventsUseCase
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -16,7 +16,7 @@ class PendingEventViewModel : BaseViewModel<PendingViewState, PendingAction, Pen
     initState = PendingViewState.Loading,
 ), KoinComponent {
 
-    private val getPendingEventsUseCase: GetPendingEventsUseCase by inject()
+    private val getWaitingEventsUseCase: GetWaitingEventsUseCase by inject()
     private val getEventDetailUseCase: GetEventDetailUseCase by inject()
     private val acceptEventUseCase: AcceptEventUseCase by inject()
     private val declineEventUseCase: DeclineEventUseCase by inject()
@@ -72,7 +72,7 @@ class PendingEventViewModel : BaseViewModel<PendingViewState, PendingAction, Pen
             }
         }
 
-        when (val result = getPendingEventsUseCase()) {
+        when (val result = getWaitingEventsUseCase()) {
 
             is ResultWrapper.Success -> {
                 viewState = PendingViewState.Content(
