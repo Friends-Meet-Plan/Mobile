@@ -1,19 +1,20 @@
 package friends.mobile.feature.friends.di
 
+import friends.mobile.core.di.QualifierAuthClient
 import friends.mobile.feature.friends.data.mapper.UserDtoMapper
 import friends.mobile.feature.friends.data.remote.FriendsApi
 import friends.mobile.feature.friends.data.repository.FriendsRepositoryImpl
 import friends.mobile.feature.friends.data.usecase.*
 import friends.mobile.feature.friends.domain.repository.FriendsRepository
 import friends.mobile.feature.friends.domain.usecase.*
-import friends.mobile.feature.friends.presentation.friendsProfile.FriendProfileViewModel
 import friends.mobile.feature.friends.presentation.friends.FriendsViewModel
+import friends.mobile.feature.friends.presentation.friendsProfile.FriendProfileViewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val friendsModule = module {
     single<FriendsApi> {
-        FriendsApi(client = get(named("auth")))
+        FriendsApi(client = get(named<QualifierAuthClient>()))
     }
 
     single<UserDtoMapper> {

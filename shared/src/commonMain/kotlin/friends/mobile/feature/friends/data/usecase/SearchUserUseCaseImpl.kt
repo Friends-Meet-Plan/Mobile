@@ -6,12 +6,6 @@ import friends.mobile.feature.friends.domain.model.User
 import friends.mobile.feature.friends.domain.repository.FriendsRepository
 import friends.mobile.feature.friends.domain.usecase.SearchUserUseCase
 
-/**
- * Implementation of SearchUserUseCase.
- *
- * Delegates to the repository and filters out the currently logged-in user
- * from the search results to prevent users from seeing themselves.
- */
 internal class SearchUserUseCaseImpl(
     private val repository: FriendsRepository,
     private val getStoredSessionUseCase: GetStoredSessionUseCase,

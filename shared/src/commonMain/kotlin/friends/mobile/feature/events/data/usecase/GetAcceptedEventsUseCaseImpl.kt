@@ -3,12 +3,13 @@ package friends.mobile.feature.events.data.usecase
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.feature.events.domain.model.Event
 import friends.mobile.feature.events.domain.repository.EventsRepository
-import friends.mobile.feature.events.domain.usecase.GetEventDetailUseCase
+import friends.mobile.feature.events.domain.usecase.GetAcceptedEventsUseCase
 
-internal class GetEventDetailUseCaseImpl(
+internal class GetAcceptedEventsUseCaseImpl(
     private val repository: EventsRepository,
-) : GetEventDetailUseCase {
+) : GetAcceptedEventsUseCase {
 
-    override suspend fun invoke(eventId: String): ResultWrapper<Event> =
-        repository.getEventDetail(eventId)
+    override suspend fun invoke(): ResultWrapper<List<Event>> {
+        return repository.getAcceptedEvents()
+    }
 }

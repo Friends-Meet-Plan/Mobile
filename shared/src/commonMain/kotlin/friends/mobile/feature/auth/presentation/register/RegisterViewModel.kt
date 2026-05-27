@@ -20,6 +20,7 @@ class RegisterViewModel : BaseViewModel<RegisterViewState, RegisterAction, Regis
             is RegisterEvent.OnUsernameChanged -> updateContent { it.copy(username = event.value) }
             is RegisterEvent.OnPasswordChanged -> updateContent { it.copy(password = event.value) }
             is RegisterEvent.OnRegisterClick -> onRegisterClick()
+            is RegisterEvent.OnRetryClick -> onRetryClick()
         }
     }
 
@@ -36,9 +37,12 @@ class RegisterViewModel : BaseViewModel<RegisterViewState, RegisterAction, Regis
         }
 
         viewModelScope.launch {
+            val username = currentState.username
+            val password = currentState.password
+            
             viewState = RegisterViewState.Loading
 
-            when (val result = registerUseCase(currentState.username, currentState.password)) {
+            when (val result = registerUseCase(username, password)) {
                 is ResultWrapper.Success -> {
                     viewState = RegisterViewState.Content()
                     viewAction = RegisterAction.RegisterSucceeded
@@ -51,9 +55,12 @@ class RegisterViewModel : BaseViewModel<RegisterViewState, RegisterAction, Regis
         }
     }
 
+    private fun onRetryClick() {
+        viewState = RegisterViewState.Content()
+    }
+
     private fun updateContent(transform: (RegisterViewState.Content) -> RegisterViewState.Content) {
-        (viewState as? RegisterViewState.Content)?.let {
-            viewState = transform(it)
-        }
+        val current = (viewState as? RegisterViewState.Content) ?: RegisterViewState.Content()
+        viewState = transform(current)
     }
 }

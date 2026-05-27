@@ -7,6 +7,8 @@ import org.koin.dsl.module
 internal object QualifierDBName
 internal object QualifierSettingName
 
+internal object QualifierAuthClient
+
 internal val qualifierModule = module {
     factory<String>(named<QualifierDBName>()) {
         get<Configuration>().databaseName

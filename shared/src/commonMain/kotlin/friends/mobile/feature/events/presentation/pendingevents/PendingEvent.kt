@@ -6,4 +6,6 @@ sealed class PendingEvent {
     data class OnEventClick(val eventId: String) : PendingEvent()
     data class OnAcceptEvent(val eventId: String) : PendingEvent()
     data class OnDeclineEvent(val eventId: String) : PendingEvent()
+    data object OnDismissDetail : PendingEvent()
+    data object OnBackClick : PendingEvent()
 }

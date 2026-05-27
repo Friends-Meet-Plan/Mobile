@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import friends.mobile.designkit.DesignTheme
 import friends.mobile.designkit.FormErrorMessage
-import friends.mobile.designkit.FormInfoMessage
 import friends.mobile.designkit.FormSecureField
 import friends.mobile.designkit.FormTextField
 import friends.mobile.designkit.PrimaryButton
@@ -89,7 +88,7 @@ fun RegisterBottomSheet(
                     Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
                     PrimaryButton(
                         text = "Try Again",
-                        onClick = { viewModel.obtainEvent(RegisterEvent.OnUsernameChanged("")) },
+                        onClick = { viewModel.obtainEvent(RegisterEvent.OnRetryClick) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -170,8 +169,6 @@ private fun RegisterForm(
                         .height(54.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                 )
-
-                FormInfoMessage(message = "At least 8 characters")
             }
         }
 

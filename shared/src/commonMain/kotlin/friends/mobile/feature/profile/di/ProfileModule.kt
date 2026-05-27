@@ -1,5 +1,6 @@
 package friends.mobile.feature.profile.di
 
+import friends.mobile.core.di.QualifierAuthClient
 import friends.mobile.feature.profile.data.mapper.ProfileMapper
 import friends.mobile.feature.profile.data.remote.ProfileApi
 import friends.mobile.feature.profile.data.repository.ProfileRepositoryImpl
@@ -15,7 +16,7 @@ import org.koin.dsl.module
 
 val profileModule = module {
     single<ProfileApi> {
-        ProfileApi(get(named("auth")))
+        ProfileApi(get(named<QualifierAuthClient>()))
     }
     single { ProfileMapper() }
     single<ProfileRepository> {

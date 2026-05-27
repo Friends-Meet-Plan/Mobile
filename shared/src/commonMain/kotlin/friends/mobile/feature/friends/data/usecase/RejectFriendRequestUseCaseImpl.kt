@@ -4,11 +4,6 @@ import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.feature.friends.domain.repository.FriendsRepository
 import friends.mobile.feature.friends.domain.usecase.RejectFriendRequestUseCase
 
-/**
- * Implementation of RejectFriendRequestUseCase.
- *
- * Delegates to the repository.
- */
 internal class RejectFriendRequestUseCaseImpl(
     private val repository: FriendsRepository
 ) : RejectFriendRequestUseCase {
