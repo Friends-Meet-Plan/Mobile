@@ -1,5 +1,6 @@
 package friends.mobile.feature.events.di
 
+import friends.mobile.core.di.QualifierAuthClient
 import friends.mobile.feature.events.data.mapper.EventMapper
 import friends.mobile.feature.events.data.remote.EventsApi
 import friends.mobile.feature.events.data.repository.EventsRepositoryImpl
@@ -8,6 +9,8 @@ import friends.mobile.feature.events.data.usecase.CheckFriendsAvailabilityUseCas
 import friends.mobile.feature.events.data.usecase.CheckUserAvailabilityUseCaseImpl
 import friends.mobile.feature.events.data.usecase.CreateEventUseCaseImpl
 import friends.mobile.feature.events.data.usecase.DeclineEventUseCaseImpl
+import friends.mobile.feature.events.data.usecase.GetAcceptedEventsUseCaseImpl
+import friends.mobile.feature.events.data.usecase.GetArchivedEventsUseCaseImpl
 import friends.mobile.feature.events.data.usecase.GetEventDetailUseCaseImpl
 import friends.mobile.feature.events.data.usecase.GetPendingEventsUseCaseImpl
 import friends.mobile.feature.events.domain.repository.EventsRepository
@@ -16,6 +19,8 @@ import friends.mobile.feature.events.domain.usecase.CheckFriendsAvailabilityUseC
 import friends.mobile.feature.events.domain.usecase.CheckUserAvailabilityUseCase
 import friends.mobile.feature.events.domain.usecase.CreateEventUseCase
 import friends.mobile.feature.events.domain.usecase.DeclineEventUseCase
+import friends.mobile.feature.events.domain.usecase.GetAcceptedEventsUseCase
+import friends.mobile.feature.events.domain.usecase.GetArchivedEventsUseCase
 import friends.mobile.feature.events.domain.usecase.GetEventDetailUseCase
 import friends.mobile.feature.events.domain.usecase.GetPendingEventsUseCase
 import friends.mobile.feature.events.presentation.CreateEventViewModel
@@ -26,7 +31,7 @@ import org.koin.dsl.module
 
 val eventsModule = module {
     single<EventsApi> {
-        EventsApi(client = get(named("auth")))
+        EventsApi(client = get(named<QualifierAuthClient>()))
     }
 
     single { EventMapper() }
@@ -65,6 +70,14 @@ val eventsModule = module {
 
     factory<DeclineEventUseCase> {
         DeclineEventUseCaseImpl(repository = get())
+    }
+
+    factory<GetArchivedEventsUseCase> {
+        GetArchivedEventsUseCaseImpl(repository = get())
+    }
+
+    factory< GetAcceptedEventsUseCase> {
+        GetAcceptedEventsUseCaseImpl(repository = get())
     }
 
     factory { (dateString: String) ->

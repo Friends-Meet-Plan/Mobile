@@ -58,8 +58,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import friends.mobile.feature.main.domain.model.AvailabilityResult
-import friends.mobile.feature.main.domain.model.MainEvent
+import friends.mobile.feature.events.domain.model.Event
 import friends.mobile.feature.main.presentation.MainViewAction as MainEventAction
 import friends.mobile.feature.main.presentation.MainViewModel
 import friends.mobile.feature.main.presentation.MainViewState
@@ -370,15 +369,17 @@ fun MainView(
                                 isCheckingAvailability = false
 
                                 when (availabilityResult) {
-                                    is AvailabilityResult.Busy -> {
-                                        showBusyAlert = true
-                                    }
-                                    is AvailabilityResult.Available -> {
+
+                                    true -> {
                                         onCreateEventClick(dateString)
                                         showTimePickerDialog = false
                                     }
+
+                                    false -> {
+                                        showBusyAlert = true
+                                    }
+
                                     null -> {
-                                        // Network error or other issue - proceed with creation anyway
                                         onCreateEventClick(dateString)
                                         showTimePickerDialog = false
                                     }
@@ -435,7 +436,7 @@ fun MainView(
 
 @Composable
 private fun EventCard(
-    event: MainEvent,
+    event: Event,
     onClick: () -> Unit,
     isPending: Boolean = false,
 ) {
@@ -519,7 +520,7 @@ private fun EventCard(
                     tint = Color.Gray,
                 )
                 Text(
-                    text = "${event.participantCount} participants",
+                    text = "${event.participants.size} participants",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray,
                     modifier = Modifier.padding(start = 4.dp),

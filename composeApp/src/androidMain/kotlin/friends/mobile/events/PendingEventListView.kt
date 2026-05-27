@@ -46,6 +46,7 @@ import friends.mobile.feature.events.presentation.pendingevents.PendingAction
 import friends.mobile.feature.events.presentation.pendingevents.PendingEvent
 import friends.mobile.feature.events.presentation.pendingevents.PendingEventViewModel
 import friends.mobile.feature.events.presentation.pendingevents.PendingViewState
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -55,49 +56,34 @@ fun PendingEventListView(
     onBackClick: () -> Unit,
 ) {
     val viewModel: PendingEventViewModel = koinViewModel()
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val state by viewModel.viewStates.collectAsStateWithLifecycle(
-        initialValue = PendingViewState.Loading,
-        lifecycle = lifecycle
-    )
-    val actions by viewModel.viewActions.collectAsStateWithLifecycle(
-        initialValue = PendingAction.ShowMessage(""),
-        lifecycle = lifecycle
+        initialValue = PendingViewState.Loading
     )
     val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        logScreenOpen("launch_pending_events")
-    }
-
-    LaunchedEffect(actions) {
-        when (actions) {
-            is PendingAction.ShowMessage -> {
-                val message = (actions as PendingAction.ShowMessage).message
-                coroutineScope.launch {
+    LaunchedEffect(viewModel) {
+        viewModel.viewActions.collectLatest { action ->
+            when (action) {
+                is PendingAction.ShowMessage -> {
                     snackbarHostState.showSnackbar(
-                        message = message,
+                        message = action.message,
                         duration = SnackbarDuration.Short
                     )
                 }
+                is PendingAction.NavigateBack -> {
+                    onBackClick()
+                }
             }
-            else -> {}
         }
     }
 
     val isLoading = state is PendingViewState.Loading
     val errorMessage = (state as? PendingViewState.Error)?.message
-    val isRefreshing =
-        (state as? PendingViewState.Content)?.isRefreshing ?: false
-    val pendingEvents =
-        (state as? PendingViewState.Content)?.events ?: emptyList()
-    val selectedEventDetail =
-        (state as? PendingViewState.Content)?.selectedEventDetail
-    val isLoadingDetail =
-        (state as? PendingViewState.Content)?.isLoadingDetail ?: false
-    val detailError =
-        (state as? PendingViewState.Content)?.detailError
+    val isRefreshing = (state as? PendingViewState.Content)?.isRefreshing ?: false
+    val pendingEvents = (state as? PendingViewState.Content)?.events ?: emptyList()
+    val selectedEventDetail = (state as? PendingViewState.Content)?.selectedEventDetail
+    val isLoadingDetail = (state as? PendingViewState.Content)?.isLoadingDetail ?: false
+    val detailError = (state as? PendingViewState.Content)?.detailError
 
     Scaffold(
         topBar = {
@@ -109,7 +95,11 @@ fun PendingEventListView(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
+                    IconButton(
+                        onClick = {
+                            viewModel.obtainEvent(PendingEvent.OnBackClick)
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
@@ -147,9 +137,7 @@ fun PendingEventListView(
                     PrimaryButton(
                         text = "Retry",
                         onClick = {
-                            viewModel.obtainEvent(
-                                friends.mobile.feature.events.presentation.pendingevents.PendingEvent.OnRefresh
-                            )
+                            viewModel.obtainEvent(PendingEvent.OnRefresh)
                         },
                         modifier = Modifier.padding(top = DesignTheme.Spacing.xl)
                     )
@@ -190,9 +178,7 @@ fun PendingEventListView(
                                 PendingEventCard(
                                     event = event,
                                     onClick = {
-                                        viewModel.obtainEvent(
-                                            PendingEvent.OnEventClick(event.id)
-                                        )
+                                        viewModel.obtainEvent(PendingEvent.OnEventClick(event.id))
                                     }
                                 )
                             }
@@ -219,7 +205,7 @@ fun PendingEventListView(
     if (selectedEventDetail != null) {
         ModalBottomSheet(
             onDismissRequest = {
-                viewModel.closeEventDetail()
+                viewModel.obtainEvent(PendingEvent.OnDismissDetail)
             },
             sheetState = rememberModalBottomSheetState(
                 skipPartiallyExpanded = false
@@ -230,14 +216,10 @@ fun PendingEventListView(
                 isLoading = isLoadingDetail,
                 errorMessage = detailError,
                 onAccept = { eventId ->
-                    viewModel.obtainEvent(
-                        PendingEvent.OnAcceptEvent(eventId)
-                    )
+                    viewModel.obtainEvent(PendingEvent.OnAcceptEvent(eventId))
                 },
                 onDecline = { eventId ->
-                    viewModel.obtainEvent(
-                        PendingEvent.OnDeclineEvent(eventId)
-                    )
+                    viewModel.obtainEvent(PendingEvent.OnDeclineEvent(eventId))
                 },
                 modifier = Modifier.padding(bottom = DesignTheme.Spacing.xxl)
             )
@@ -314,14 +296,4 @@ private fun PendingEventCard(
             }
         }
     }
-}
-
-private fun logScreenOpen(screenName: String) {
-    // TODO: Wire Firebase Analytics here
-    // FirebaseAnalytics.getInstance().logEvent(
-    //     "screen_view",
-    //     Bundle().apply {
-    //         putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName)
-    //     }
-    // )
 }

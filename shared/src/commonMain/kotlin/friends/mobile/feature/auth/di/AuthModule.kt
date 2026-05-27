@@ -1,5 +1,6 @@
 package friends.mobile.feature.auth.di
 
+import friends.mobile.core.di.QualifierAuthClient
 import friends.mobile.feature.auth.data.mapper.AuthSessionMapper
 import friends.mobile.feature.auth.data.mapper.StoredSessionMapper
 import friends.mobile.feature.auth.data.remote.AuthApi
@@ -24,7 +25,7 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val authModule = module {
-    single<HttpClient>(named("auth")) {
+    single<HttpClient>(named<QualifierAuthClient>()) {
         val authClient = get<HttpClient>().config { }
         AuthenticatedClient(
             client = authClient,

@@ -8,7 +8,8 @@ import friends.mobile.feature.events.domain.model.ParticipationStatus
 
 internal class EventMapper {
 
-    fun mapEvents(dtos: List<EventResponseDto>): List<Event> = dtos.map { mapEvent(it) }
+    fun mapEventResponseToEvents(dtos: List<EventResponseDto>): List<Event> =
+        dtos.map(::mapEvent)
 
     fun mapEvent(dto: EventResponseDto): Event {
         return Event(
@@ -20,7 +21,7 @@ internal class EventMapper {
             location = dto.location,
             creatorId = dto.creatorId,
             status = dto.status,
-            participants = dto.participants.map { mapParticipant(it) }
+            participants = dto.participants.map(::mapParticipant),
         )
     }
 
@@ -31,7 +32,7 @@ internal class EventMapper {
             avatarUrl = dto.avatarUrl,
             bio = dto.bio,
             role = dto.role,
-            status = parseParticipationStatus(dto.status)
+            status = parseParticipationStatus(dto.status),
         )
     }
 

@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class PendingEventViewModel : BaseViewModel<PendingViewState, PendingAction, PendingEvent>(
+class PendingEventViewModel : BaseViewModel<PendingViewState, PendingAction, PendingEvent, >(
     initState = PendingViewState.Loading,
 ), KoinComponent {
 
@@ -27,60 +27,97 @@ class PendingEventViewModel : BaseViewModel<PendingViewState, PendingAction, Pen
 
     override fun obtainEvent(event: PendingEvent) {
         when (event) {
-            is PendingEvent.OnLoad -> loadPendingEvents(showLoading = true)
-            is PendingEvent.OnRefresh -> loadPendingEvents(showLoading = false)
-            is PendingEvent.OnEventClick -> fetchEventDetail(event.eventId)
-            is PendingEvent.OnAcceptEvent -> acceptEvent(event.eventId)
-            is PendingEvent.OnDeclineEvent -> declineEvent(event.eventId)
-        }
-    }
 
-    private fun loadPendingEvents(showLoading: Boolean) {
-        viewModelScope.launch {
-            if (showLoading) {
-                viewState = PendingViewState.Loading
-            } else {
-                (viewState as? PendingViewState.Content)?.let { content ->
-                    viewState = content.copy(isRefreshing = true)
-                } ?: run {
-                    viewState = PendingViewState.Loading
+            PendingEvent.OnLoad -> {
+                viewModelScope.launch {
+                    loadPendingEvents(showLoading = true)
                 }
             }
 
-            when (val result = getPendingEventsUseCase()) {
-                is ResultWrapper.Success -> {
-                    viewState = PendingViewState.Content(events = result.data)
+            PendingEvent.OnRefresh -> {
+                viewModelScope.launch {
+                    loadPendingEvents(showLoading = false)
                 }
-                is ResultWrapper.Error -> {
-                    val userError = mapApiErrorToUserFriendly(result.error)
-                    viewState = PendingViewState.Error(message = getErrorMessage(userError))
-                }
+            }
+
+            is PendingEvent.OnEventClick -> {
+                fetchEventDetail(event.eventId)
+            }
+
+            is PendingEvent.OnAcceptEvent -> {
+                acceptEvent(event.eventId)
+            }
+
+            is PendingEvent.OnDeclineEvent -> {
+                declineEvent(event.eventId)
+            }
+
+            PendingEvent.OnDismissDetail -> {
+                dismissDetail()
+            }
+
+            PendingEvent.OnBackClick -> {
+                viewAction = PendingAction.NavigateBack
+            }
+        }
+    }
+
+    private suspend fun loadPendingEvents(showLoading: Boolean) {
+
+        if (showLoading) {
+            viewState = PendingViewState.Loading
+        } else {
+            updateContent {
+                it.copy(isRefreshing = true)
+            }
+        }
+
+        when (val result = getPendingEventsUseCase()) {
+
+            is ResultWrapper.Success -> {
+                viewState = PendingViewState.Content(
+                    events = result.data,
+                )
+            }
+
+            is ResultWrapper.Error -> {
+                val userError = mapApiErrorToUserFriendly(result.error)
+
+                viewState = PendingViewState.Error(
+                    message = getErrorMessage(userError),
+                )
             }
         }
     }
 
     private fun fetchEventDetail(eventId: String) {
         viewModelScope.launch {
-            (viewState as? PendingViewState.Content)?.let { content ->
-                viewState = content.copy(isLoadingDetail = true, detailError = null)
+
+            updateContent {
+                it.copy(
+                    isLoadingDetail = true,
+                    detailError = null,
+                )
             }
 
             when (val result = getEventDetailUseCase(eventId)) {
+
                 is ResultWrapper.Success -> {
-                    (viewState as? PendingViewState.Content)?.let { content ->
-                        viewState = content.copy(
+                    updateContent {
+                        it.copy(
                             selectedEventDetail = result.data,
-                            isLoadingDetail = false
+                            isLoadingDetail = false,
                         )
                     }
                 }
+
                 is ResultWrapper.Error -> {
                     val userError = mapApiErrorToUserFriendly(result.error)
-                    val errorMessage = getErrorMessage(userError)
-                    (viewState as? PendingViewState.Content)?.let { content ->
-                        viewState = content.copy(
-                            detailError = errorMessage,
-                            isLoadingDetail = false
+
+                    updateContent {
+                        it.copy(
+                            detailError = getErrorMessage(userError),
+                            isLoadingDetail = false,
                         )
                     }
                 }
@@ -88,27 +125,37 @@ class PendingEventViewModel : BaseViewModel<PendingViewState, PendingAction, Pen
         }
     }
 
-    fun closeEventDetail() {
-        (viewState as? PendingViewState.Content)?.let { content ->
-            viewState = content.copy(
+    private fun dismissDetail() {
+        updateContent {
+            it.copy(
                 selectedEventDetail = null,
-                detailError = null
+                detailError = null,
             )
         }
     }
 
     private fun acceptEvent(eventId: String) {
         viewModelScope.launch {
+
             when (val result = acceptEventUseCase(eventId)) {
+
                 is ResultWrapper.Success -> {
-                    closeEventDetail()
+
+                    dismissDetail()
+
                     loadPendingEvents(showLoading = false)
-                    viewAction = PendingAction.ShowMessage("Приглашение принято")
+
+                    viewAction = PendingAction.ShowMessage(
+                        "Приглашение принято",
+                    )
                 }
+
                 is ResultWrapper.Error -> {
                     val userError = mapApiErrorToUserFriendly(result.error)
-                    val errorMessage = getErrorMessage(userError)
-                    viewAction = PendingAction.ShowMessage(errorMessage)
+
+                    viewAction = PendingAction.ShowMessage(
+                        getErrorMessage(userError),
+                    )
                 }
             }
         }
@@ -116,18 +163,35 @@ class PendingEventViewModel : BaseViewModel<PendingViewState, PendingAction, Pen
 
     private fun declineEvent(eventId: String) {
         viewModelScope.launch {
+
             when (val result = declineEventUseCase(eventId)) {
+
                 is ResultWrapper.Success -> {
-                    closeEventDetail()
+
+                    dismissDetail()
+
                     loadPendingEvents(showLoading = false)
-                    viewAction = PendingAction.ShowMessage("Приглашение отклонено")
+
+                    viewAction = PendingAction.ShowMessage(
+                        "Приглашение отклонено",
+                    )
                 }
+
                 is ResultWrapper.Error -> {
                     val userError = mapApiErrorToUserFriendly(result.error)
-                    val errorMessage = getErrorMessage(userError)
-                    viewAction = PendingAction.ShowMessage(errorMessage)
+
+                    viewAction = PendingAction.ShowMessage(
+                        getErrorMessage(userError),
+                    )
                 }
             }
         }
+    }
+
+    private inline fun updateContent(
+        transform: (PendingViewState.Content) -> PendingViewState.Content,
+    ) {
+        val currentState = viewState as? PendingViewState.Content ?: return
+        viewState = transform(currentState)
     }
 }
