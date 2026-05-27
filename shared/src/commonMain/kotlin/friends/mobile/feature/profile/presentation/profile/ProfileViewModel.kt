@@ -14,6 +14,7 @@ class ProfileViewModel : BaseViewModel<ProfileViewState, ProfileAction, ProfileE
 ), KoinComponent {
 
     private val getMeUseCase: GetMeUseCase by inject()
+    private var isLoadingInProgress = false
 
     init {
         obtainEvent(ProfileEvent.OnLoadProfile)
@@ -22,7 +23,7 @@ class ProfileViewModel : BaseViewModel<ProfileViewState, ProfileAction, ProfileE
     override fun obtainEvent(event: ProfileEvent) {
         when (event) {
             is ProfileEvent.OnLoadProfile -> loadProfile(showLoading = true)
-            is ProfileEvent.OnRefreshProfile -> loadProfile(showLoading = false)
+            is ProfileEvent.OnRefreshProfile -> onRefresh()
             is ProfileEvent.OnLogoutClick -> onLogoutClick()
             is ProfileEvent.OnEditClick -> onEditClick()
         }
@@ -30,20 +31,55 @@ class ProfileViewModel : BaseViewModel<ProfileViewState, ProfileAction, ProfileE
 
     private fun loadProfile(showLoading: Boolean) {
         viewModelScope.launch {
-            if (showLoading) {
-                viewState = ProfileViewState.Loading
-            }
-            
-            when (val result = getMeUseCase()) {
-                is ResultWrapper.Success -> {
-                    viewState = ProfileViewState.Content(profile = result.data)
+            if (isLoadingInProgress) return@launch
+
+            isLoadingInProgress = true
+
+            try {
+                if (showLoading) {
+                    viewState = ProfileViewState.Loading
+                } else {
+                    val currentState = viewState
+                    if (currentState is ProfileViewState.Content) {
+                        viewState = currentState.copy(isRefreshing = true)
+                    }
                 }
-                is ResultWrapper.Error -> {
-                    val userError = mapApiErrorToUserFriendly(result.error)
-                    viewState = ProfileViewState.Error(message = getErrorMessage(userError))
+
+                when (val result = getMeUseCase()) {
+                    is ResultWrapper.Success -> {
+                        viewState = ProfileViewState.Content(
+                            profile = result.data,
+                            isRefreshing = false
+                        )
+                    }
+                    is ResultWrapper.Error -> {
+                        val currentState = viewState
+                        val userError = mapApiErrorToUserFriendly(result.error)
+
+                        if (currentState is ProfileViewState.Content) {
+                            viewState = currentState.copy(isRefreshing = false)
+                        } else {
+                            viewState = ProfileViewState.Error(
+                                message = getErrorMessage(userError)
+                            )
+                        }
+                    }
                 }
+            } finally {
+                isLoadingInProgress = false
             }
         }
+    }
+
+    private fun onRefresh() {
+        if (isLoadingInProgress) return
+
+        val currentState = viewState
+        if (currentState is ProfileViewState.Content) {
+            viewState = currentState.copy(isRefreshing = true)
+        }
+
+        loadProfile(showLoading = false)
     }
 
     private fun onEditClick() {
