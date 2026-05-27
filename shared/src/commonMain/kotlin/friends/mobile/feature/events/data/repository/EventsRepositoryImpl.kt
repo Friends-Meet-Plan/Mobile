@@ -53,6 +53,11 @@ internal class EventsRepositoryImpl(
         eventMapper.mapEventResponseToEvents(response)
     }
 
+    override suspend fun getWaitingEvents(): ResultWrapper<List<Event>> = safeApiCall {
+        val response = api.getWaitingEvents()
+        eventMapper.mapEventResponseToEvents(response)
+    }
+
     override suspend fun getAcceptedEvents(): ResultWrapper<List<Event>> =
         safeApiCall {
             val response = api.getActiveEvents()

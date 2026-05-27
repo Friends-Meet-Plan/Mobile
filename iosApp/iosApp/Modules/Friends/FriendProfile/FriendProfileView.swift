@@ -114,81 +114,45 @@ struct FriendProfileView: View {
     @ViewBuilder
     private func actionButtons() -> some View {
         let isLoading = reducer.isActionPending
-        
+
         switch reducer.status {
         case .none:
-            Button(action: { reducer.sendFriendRequest() }) {
-                HStack(spacing: DesignTheme.Spacing.sm) {
-                    if isLoading {
-                        ProgressView()
-                            .tint(.white)
-                    }
-                    Text(isLoading ? "Sending..." : "Add Friend")
-                        .font(DesignTheme.Typography.button)
-                }
-            }
-            .primaryButton(isLoading: isLoading, isEnabled: !isLoading)
-            
+            ButtonFactory.primaryLoading(
+                action: { reducer.sendFriendRequest() },
+                label: "Add Friend",
+                isLoading: isLoading,
+                isEnabled: !isLoading
+            )
+
         case .requesting:
-            Button(action: {}) {
-                HStack(spacing: DesignTheme.Spacing.sm) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 16))
-                    Text("Request Sent")
-                        .font(DesignTheme.Typography.button)
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 54)
-                .foregroundColor(.white)
-                .background(Color.gray.opacity(0.6))
-                .cornerRadius(DesignTheme.CornerRadius.capsule)
-            }
-            .disabled(true)
-            
+            ButtonFactory.disabled(
+                label: "Request Sent",
+                icon: "checkmark.circle.fill"
+            )
+
         case .incoming:
             VStack(spacing: DesignTheme.Spacing.md) {
-                Button(action: { reducer.acceptRequest() }) {
-                    HStack(spacing: DesignTheme.Spacing.sm) {
-                        if isLoading {
-                            ProgressView()
-                                .tint(.white)
-                        }
-                        Text(isLoading ? "Accepting..." : "Accept")
-                            .font(DesignTheme.Typography.button)
-                    }
-                }
-                .primaryButton(isLoading: isLoading, isEnabled: !isLoading)
-                
-                Button(action: { reducer.rejectRequest() }) {
-                    Text("Decline")
-                        .font(DesignTheme.Typography.button)
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 54)
-                .foregroundColor(DesignTheme.error)
-                .background(DesignTheme.errorLight)
-                .cornerRadius(DesignTheme.CornerRadius.capsule)
-                .disabled(isLoading)
+                ButtonFactory.primaryLoading(
+                    action: { reducer.acceptRequest() },
+                    label: "Accept",
+                    isLoading: isLoading,
+                    isEnabled: !isLoading
+                )
+
+                ButtonFactory.secondary(
+                    action: { reducer.rejectRequest() },
+                    label: "Decline",
+                    isEnabled: !isLoading
+                )
             }
-            
+
         case .friends:
-            Button(action: { reducer.removeFriend() }) {
-                HStack(spacing: DesignTheme.Spacing.sm) {
-                    if isLoading {
-                        ProgressView()
-                            .tint(.white)
-                    }
-                    Text(isLoading ? "Removing..." : "Remove Friend")
-                        .font(DesignTheme.Typography.button)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 54)
-            .foregroundColor(.white)
-            .background(DesignTheme.error)
-            .cornerRadius(DesignTheme.CornerRadius.capsule)
-            .disabled(isLoading)
-            
+            ButtonFactory.destructive(
+                action: { reducer.removeFriend() },
+                label: "Remove Friend",
+                isLoading: isLoading
+            )
+
         default:
             EmptyView()
         }

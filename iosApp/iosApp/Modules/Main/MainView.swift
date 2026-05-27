@@ -217,10 +217,10 @@ private extension MainView {
     
     var createEventSheet: some View {
         VStack(spacing: DesignTheme.Spacing.xs) {
-            
+
             Text("Create new event")
                 .font(.title2.weight(.bold))
-            
+
             DatePicker(
                 "Select event date",
                 selection: $selectedDate,
@@ -228,30 +228,25 @@ private extension MainView {
                 displayedComponents: [.date, .hourAndMinute]
             )
             .datePickerStyle(.graphical)
-            
-            Button("Create") {
-                let dateString =
-                dateFormatter.string(from: selectedDate)
-                
-                Task {
-                    let isAvailable =
-                    await reducer.checkAvailability(
-                        date: dateString
-                    )
-                    
-                    if isAvailable {
-                        router.push(
-                            screen: .createEvent(date: dateString)
-                        )
-                        isCreatingEventInProgress = false
-                    } else {
-                        selectedDateForEvent = dateString
-                        showBusyAlert = true
+
+            ButtonFactory.primaryLoading(
+                action: {
+                    let dateString = dateFormatter.string(from: selectedDate)
+
+                    Task {
+                        let isAvailable = await reducer.checkAvailability(date: dateString)
+
+                        if isAvailable {
+                            router.push(screen: .createEvent(date: dateString))
+                            isCreatingEventInProgress = false
+                        } else {
+                            selectedDateForEvent = dateString
+                            showBusyAlert = true
+                        }
                     }
-                }
-            }
-            .disabled(reducer.isCheckingAvailability)
-            .primaryButton(
+                },
+                label: "Create",
+                isLoading: reducer.isCheckingAvailability,
                 isEnabled: !reducer.isCheckingAvailability
             )
         }
@@ -262,19 +257,19 @@ private extension MainView {
     
     func errorState(message: String) -> some View {
         VStack(spacing: DesignTheme.Spacing.lg) {
-            
+
             Image(systemName: "exclamationmark.circle.fill")
                 .font(.system(size: 48))
                 .foregroundColor(DesignTheme.error)
-            
+
             Text(message)
                 .multilineTextAlignment(.center)
                 .foregroundColor(DesignTheme.error)
-            
-            Button("Retry") {
-                reducer.refresh()
-            }
-            .primaryButton(isEnabled: true)
+
+            ButtonFactory.primary(
+                action: { reducer.refresh() },
+                label: "Retry"
+            )
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()

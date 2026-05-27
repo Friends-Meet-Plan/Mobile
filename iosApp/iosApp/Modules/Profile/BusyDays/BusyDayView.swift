@@ -35,15 +35,10 @@ struct BusyDayView: View {
                             .font(DesignTheme.Typography.caption)
                             .foregroundColor(.secondary)
                     }
-                    Button(action: { reducer.retry() }) {
-                        Text("Retry")
-                            .font(DesignTheme.Typography.caption)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 36)
-                            .background(DesignTheme.accentColor)
-                            .foregroundColor(.white)
-                            .cornerRadius(DesignTheme.CornerRadius.medium)
-                    }
+                    ButtonFactory.compact(
+                        action: { reducer.retry() },
+                        label: "Retry"
+                    )
                 }
                 .padding(DesignTheme.Spacing.lg)
                 .frame(maxWidth: .infinity)

@@ -19,6 +19,7 @@ interface EventsRepository {
     ): ResultWrapper<String>
 
     suspend fun getPendingEvents(): ResultWrapper<List<Event>>
+    suspend fun getWaitingEvents(): ResultWrapper<List<Event>>
     suspend fun getAcceptedEvents(): ResultWrapper<List<Event>>
     suspend fun getArchivedEvents(): ResultWrapper<List<Event>>
 

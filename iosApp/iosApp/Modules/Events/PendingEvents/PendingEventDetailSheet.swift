@@ -327,21 +327,15 @@ struct PendingEventDetailSheet: View {
 
         var body: some View {
             VStack(spacing: DesignTheme.Spacing.md) {
-                Button(action: onAccept) {
-                    Text("Accept Invitation")
-                        .font(DesignTheme.Typography.button)
-                }
-                .primaryButton(isEnabled: true)
+                ButtonFactory.primary(
+                    action: onAccept,
+                    label: "Accept Invitation"
+                )
 
-                Button(action: onDecline) {
-                    Text("Decline Invitation")
-                        .font(DesignTheme.Typography.button)
-                        .foregroundColor(DesignTheme.error)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 54)
-                        .background(DesignTheme.error.opacity(0.1))
-                        .cornerRadius(DesignTheme.CornerRadius.capsule)
-                }
+                ButtonFactory.secondary(
+                    action: onDecline,
+                    label: "Decline Invitation"
+                )
             }
             .padding(.top, DesignTheme.Spacing.md)
         }

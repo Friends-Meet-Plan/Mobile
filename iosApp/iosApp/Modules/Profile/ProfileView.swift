@@ -28,25 +28,15 @@ struct ProfileView: View {
                         .frame(maxWidth: .infinity, alignment: .topLeading)
 
                     VStack(spacing: DesignTheme.Spacing.md) {
-                        Button(action: { profileReducer.navigateToEdit() }) {
-                            Text("Edit Profile")
-                                .font(DesignTheme.Typography.button)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 44)
-                                .background(DesignTheme.accentColor)
-                                .foregroundColor(.white)
-                                .cornerRadius(DesignTheme.CornerRadius.capsule)
-                        }
+                        ButtonFactory.primary(
+                            action: { profileReducer.navigateToEdit() },
+                            label: "Edit Profile"
+                        )
 
-                        Button(action: { profileReducer.logout() }) {
-                            Text("Log Out")
-                                .font(DesignTheme.Typography.button)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 44)
-                                .background(DesignTheme.error)
-                                .foregroundColor(.white)
-                                .cornerRadius(DesignTheme.CornerRadius.capsule)
-                        }
+                        ButtonFactory.destructive(
+                            action: { profileReducer.logout() },
+                            label: "Log Out"
+                        )
                     }
                 }
                 .padding(DesignTheme.Spacing.lg)

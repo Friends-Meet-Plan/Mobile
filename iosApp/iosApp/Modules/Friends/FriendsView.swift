@@ -251,31 +251,13 @@ private struct UserRowView: View {
     private func statusBadge() -> some View {
         switch currentTab {
         case .friends:
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 16))
-                .foregroundColor(DesignTheme.secondaryAccent)
+            IndicatorFactory.active()
 
         case .incoming:
-            VStack(spacing: DesignTheme.Spacing.xs) {
-                Text("Pending")
-                    .font(DesignTheme.Typography.bodySmallest)
-                    .foregroundColor(.white)
-            }
-            .padding(.horizontal, DesignTheme.Spacing.sm)
-            .padding(.vertical, DesignTheme.Spacing.xs)
-            .background(DesignTheme.accentColor)
-            .cornerRadius(DesignTheme.CornerRadius.small)
+            IndicatorFactory.pending()
 
         case .outgoing:
-            VStack(spacing: DesignTheme.Spacing.xs) {
-                Text("Sent")
-                    .font(DesignTheme.Typography.bodySmallest)
-                    .foregroundColor(.gray)
-            }
-            .padding(.horizontal, DesignTheme.Spacing.sm)
-            .padding(.vertical, DesignTheme.Spacing.xs)
-            .background(Color(.systemGray6))
-            .cornerRadius(DesignTheme.CornerRadius.small)
+            IndicatorFactory.sent()
 
         default:
             EmptyView()

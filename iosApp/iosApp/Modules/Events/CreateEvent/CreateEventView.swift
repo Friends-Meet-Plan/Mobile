@@ -223,11 +223,12 @@ struct CreateEventView: View {
     // MARK: - Create Button Section
 
     private var createButtonSection: some View {
-        Button(action: { reducer.submit() }) {
-            Text("Create Event")
-                .font(DesignTheme.Typography.button)
-        }
-        .primaryButton(isLoading: reducer.isCreatingEvent, isEnabled: reducer.isCreateButtonEnabled)
+        ButtonFactory.primaryLoading(
+            action: { reducer.submit() },
+            label: "Create Event",
+            isLoading: reducer.isCreatingEvent,
+            isEnabled: reducer.isCreateButtonEnabled
+        )
         .padding(.horizontal, DesignTheme.Spacing.lg)
     }
 

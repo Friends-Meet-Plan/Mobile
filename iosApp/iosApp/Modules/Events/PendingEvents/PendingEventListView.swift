@@ -28,11 +28,11 @@ struct PendingEventListView: View {
             } else if let errorMessage = reducer.errorMessage {
                 VStack(spacing: DesignTheme.Spacing.lg) {
                     ErrorBanner(message: errorMessage)
-                    
-                    Button(action: { reducer.refresh() }) {
-                        Text("Retry")
-                    }
-                    .primaryButton(isLoading: false, isEnabled: true)
+
+                    ButtonFactory.primary(
+                        action: { reducer.refresh() },
+                        label: "Retry"
+                    )
                 }
                 .padding(DesignTheme.Spacing.xl)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
