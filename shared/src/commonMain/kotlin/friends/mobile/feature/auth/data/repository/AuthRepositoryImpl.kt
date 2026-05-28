@@ -43,7 +43,7 @@ internal class AuthRepositoryImpl(
 
     override suspend fun refresh(): ResultWrapper<AuthToken> {
         val current = storage.getSession()
-            ?: return ResultWrapper.Error(ApiError(HTTP_UNAUTHORIZED, "No active session"))
+            ?: return ResultWrapper.Error(ApiError(HTTP_UNAUTHORIZED, "Your session has expired. Please log in again."))
 
         return safeApiCall {
             val response = api.refresh(RefreshRequestDto(current.token.refreshToken))

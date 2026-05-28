@@ -99,7 +99,7 @@ struct PendingEventListView: View {
                 VStack(alignment: .leading, spacing: DesignTheme.Spacing.xs) {
                     Text(event.title)
                         .font(DesignTheme.Typography.captionSemibold)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .lineLimit(1)
                     
                     Text(event.date)
@@ -162,7 +162,7 @@ struct PendingEventListView: View {
             VStack(spacing: DesignTheme.Spacing.xs) {
                 Text("No Pending Invitations")
                     .font(DesignTheme.Typography.captionSemibold)
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
                 
                 Text("You're all caught up!")
                     .font(DesignTheme.Typography.bodySmall)

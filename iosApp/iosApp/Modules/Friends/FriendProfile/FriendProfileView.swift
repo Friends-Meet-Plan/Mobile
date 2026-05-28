@@ -54,7 +54,7 @@ struct FriendProfileView: View {
                         .foregroundColor(DesignTheme.error)
                     Text("Failed to load profile")
                         .font(DesignTheme.Typography.captionSemibold)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                     Text("Please try again")
                         .font(DesignTheme.Typography.bodySmall)
                         .foregroundColor(.gray)
@@ -97,7 +97,7 @@ struct FriendProfileView: View {
             VStack(spacing: DesignTheme.Spacing.xs) {
                 Text(user.username)
                     .font(DesignTheme.Typography.heading)
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
                 
                 if let bio = user.bio, !bio.isEmpty {
                     Text(bio)

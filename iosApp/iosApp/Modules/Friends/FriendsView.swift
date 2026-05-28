@@ -137,7 +137,7 @@ struct FriendsView: View {
                 VStack(spacing: DesignTheme.Spacing.sm) {
                     Text("No users found")
                         .font(DesignTheme.Typography.captionSemibold)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                     Text("Try searching with a different name")
                         .font(DesignTheme.Typography.bodySmall)
                         .foregroundColor(.secondary)
@@ -147,7 +147,7 @@ struct FriendsView: View {
                 VStack(spacing: DesignTheme.Spacing.sm) {
                     Text(emptyStateTitle())
                         .font(DesignTheme.Typography.captionSemibold)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                     Text(emptyStateSubtitle())
                         .font(DesignTheme.Typography.bodySmall)
                         .foregroundColor(.secondary)
@@ -223,7 +223,7 @@ private struct UserRowView: View {
             VStack(alignment: .leading, spacing: DesignTheme.Spacing.xs) {
                 Text(user.username)
                     .font(DesignTheme.Typography.captionSemibold)
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
 
                 if let bio = user.bio, !bio.isEmpty {
                     Text(bio)

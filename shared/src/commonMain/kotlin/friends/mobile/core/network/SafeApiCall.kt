@@ -26,17 +26,14 @@ suspend fun <T> safeApiCall(apiCall: suspend () -> T): ResultWrapper<T> {
             e.response.body<String>()
         } catch (_: Exception) {
             when (code) {
-                in CLIENT_ERROR_RANGE -> {
-                    "Ошибка запроса"
-                }
-
-                in SERVER_ERROR_RANGE -> {
-                    "Ошибка сервера"
-                }
-
-                else -> {
-                    "HTTP error"
-                }
+                400 -> "Please check your input and try again."
+                401 -> "Your session has expired. Please log in again."
+                403 -> "You don't have permission to perform this action."
+                404 -> "The requested resource was not found."
+                409 -> "This action cannot be completed. Try again."
+                in CLIENT_ERROR_RANGE -> "Request error. Please try again."
+                in SERVER_ERROR_RANGE -> "Server error. Please try again later."
+                else -> "An error occurred. Please try again."
             }
         }
 
@@ -45,14 +42,14 @@ suspend fun <T> safeApiCall(apiCall: suspend () -> T): ResultWrapper<T> {
         ResultWrapper.Error(
             ApiError(
                 code = NO_CONNECTION_ERROR_CODE,
-                message = "Нет подключения к интернету: ${e.message}",
+                message = "No internet connection. Please check your connection.",
             ),
         )
     } catch (e: TimeoutCancellationException) {
         ResultWrapper.Error(
             ApiError(
                 code = UNKNOWN_ERROR_CODE,
-                message = e.message ?: "Превышено время ожидания",
+                message = "Request timed out. Please try again.",
             ),
         )
     }
