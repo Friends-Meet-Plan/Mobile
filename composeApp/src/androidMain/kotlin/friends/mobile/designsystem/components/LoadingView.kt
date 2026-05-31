@@ -1,4 +1,4 @@
-package friends.mobile.designkit.components
+package friends.mobile.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import friends.mobile.designkit.theme.DesignTypography
+import friends.mobile.designsystem.theme.DesignTheme
 
 /**
  * Full-screen loading view — centered spinner + "Loading friends..." text.
@@ -33,7 +33,7 @@ fun LoadingView(
         CircularProgressIndicator()
         Text(
             text = message,
-            style = DesignTypography.caption,
+            style = DesignTheme.Typography.caption,
             color = Color.Gray
         )
     }

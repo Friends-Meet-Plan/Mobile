@@ -18,10 +18,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -33,18 +36,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import androidx.compose.material3.MaterialTheme
-import friends.mobile.designkit.theme.DesignTheme
-import friends.mobile.designkit.components.ButtonFactory
-import friends.mobile.designkit.components.ErrorBanner
-import friends.mobile.designkit.components.LoadingView
+import friends.mobile.designsystem.theme.DesignTheme
+import friends.mobile.designsystem.components.ButtonFactory
 import friends.mobile.feature.archive.presentation.ArchiveEventsViewModel
 import friends.mobile.feature.archive.presentation.ArchiveViewAction
 import friends.mobile.feature.archive.presentation.ArchiveViewState
@@ -58,10 +61,6 @@ fun ArchiveEventsView(
     val viewModel: ArchiveEventsViewModel = viewModel()
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        logScreenOpen("launch_archive")
-    }
-
     val isLoading = state is ArchiveViewState.Loading
     val errorMessage = (state as? ArchiveViewState.Error)?.message
     val isRefreshing = (state as? ArchiveViewState.Content)?.isRefreshing ?: false
@@ -70,31 +69,45 @@ fun ArchiveEventsView(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Archived Events", style = DesignTheme.Typography.captionSemibold) },
+                title = { Text("Archive", style = DesignTheme.Typography.heading) }
             )
         }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier.fillMaxSize().padding(innerPadding),
-        ) {
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             when {
-                isLoading && archivedEvents.isEmpty() -> {
-                    LoadingView(message = "Loading events...")
+                isLoading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
 
-                errorMessage != null && archivedEvents.isEmpty() -> {
+                errorMessage != null -> {
                     Column(
-                        modifier = Modifier.fillMaxSize().padding(DesignTheme.Spacing.lg),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(DesignTheme.Spacing.lg),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
-                        ErrorBanner(message = errorMessage, modifier = Modifier.fillMaxWidth())
-                        ButtonFactory.primary(
+                        Icon(
+                            imageVector = Icons.Default.Error,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(modifier = Modifier.height(DesignTheme.Spacing.md))
+                        Text(
+                            text = errorMessage,
+                            style = DesignTheme.Typography.body,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(DesignTheme.Spacing.md))
+                        ButtonFactory.Primary(
                             text = "Retry",
                             onClick = { viewModel.obtainEvent(ArchiveViewAction.OnRefresh) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = DesignTheme.Spacing.lg)
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
@@ -106,35 +119,33 @@ fun ArchiveEventsView(
                         verticalArrangement = Arrangement.Center,
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Inbox,
+                            imageVector = Icons.Default.Archive,
                             contentDescription = null,
-                            modifier = Modifier.size(56.dp),
-                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
+                        Spacer(modifier = Modifier.height(DesignTheme.Spacing.sm))
                         Text(
                             text = "No archived events",
-                            style = DesignTheme.Typography.captionSemibold
-                        )
-                        Text(
-                            text = "Events you've attended will appear here",
-                            style = DesignTheme.Typography.bodySmall,
-                            color = Color.Gray
+                            style = DesignTheme.Typography.body,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
 
                 else -> {
-                    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
                     SwipeRefresh(
-                        state = swipeRefreshState,
+                        state = rememberSwipeRefreshState(isRefreshing),
                         onRefresh = { viewModel.obtainEvent(ArchiveViewAction.OnRefresh) },
                         modifier = Modifier.fillMaxSize(),
                     ) {
                         LazyColumn(
                             modifier = Modifier.fillMaxWidth(),
-                            contentPadding = PaddingValues(DesignTheme.Spacing.lg),
-                            verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
+                            contentPadding = PaddingValues(
+                                horizontal = DesignTheme.Spacing.lg,
+                                vertical = DesignTheme.Spacing.lg
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             items(archivedEvents, key = { it.id }) { event ->
                                 ArchivedEventCard(
@@ -155,50 +166,83 @@ private fun ArchivedEventCard(
     event: Event,
     onClick: () -> Unit,
 ) {
-    val cardBg = MaterialTheme.colorScheme.surface
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .shadow(elevation = 4.dp, shape = RoundedCornerShape(18.dp))
             .clip(RoundedCornerShape(18.dp))
-            .background(cardBg)
-            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.15f), RoundedCornerShape(18.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(18.dp))
             .clickable { onClick() }
             .padding(DesignTheme.Spacing.lg),
         verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)
     ) {
-        Text(
-            text = event.title,
-            style = DesignTheme.Typography.captionSemibold,
-            modifier = Modifier.fillMaxWidth(),
-        )
-
         Row(
-            horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            EventInfoChip(icon = Icons.Default.CalendarToday, text = event.date)
-            event.time?.let { EventInfoChip(icon = Icons.Default.Schedule, text = it) }
-            EventInfoChip(icon = Icons.Default.Group, text = "${event.participants.size}")
+            Text(
+                text = event.title,
+                style = DesignTheme.Typography.captionSemibold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f).padding(end = DesignTheme.Spacing.sm)
+            )
+            CompletedBadge()
+        }
+
+        Row(horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)) {
+            InfoChip(icon = Icons.Default.CalendarToday, text = event.date)
+            event.time?.let { InfoChip(icon = Icons.Default.Schedule, text = it) }
+            InfoChip(icon = Icons.Default.Group, text = "${event.participants.size}")
         }
     }
 }
 
 @Composable
-private fun EventInfoChip(icon: ImageVector, text: String) {
+private fun CompletedBadge() {
     Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(percent = 50))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(horizontal = 8.dp, vertical = 5.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs)
+    ) {
+        Icon(
+            imageVector = Icons.Default.CheckCircle,
+            contentDescription = null,
+            modifier = Modifier.size(12.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = "Completed",
+            style = DesignTheme.Typography.bodySmallest.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun InfoChip(icon: ImageVector, text: String) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(percent = 50))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(14.dp),
-            tint = Color.Gray
+            modifier = Modifier.size(12.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Text(text = text, style = DesignTheme.Typography.bodySmallest, color = Color.Gray)
+        Text(
+            text = text,
+            style = DesignTheme.Typography.bodySmallest,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
-}
-
-private fun logScreenOpen(screenName: String) {
-    // TODO: Wire Firebase Analytics here
 }

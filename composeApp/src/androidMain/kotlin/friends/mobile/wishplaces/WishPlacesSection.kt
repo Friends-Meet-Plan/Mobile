@@ -3,10 +3,17 @@ package friends.mobile.wishplaces
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -16,11 +23,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.material3.MaterialTheme
-import friends.mobile.designkit.theme.DesignTheme
-import friends.mobile.designkit.components.ButtonFactory
+import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.feature.wishplaces.domain.model.WishPlace
 import friends.mobile.feature.wishplaces.presentation.WishPlacesAction
 import friends.mobile.feature.wishplaces.presentation.WishPlacesEvent
@@ -56,17 +62,36 @@ fun WishPlacesSection(
 
     Column(modifier = modifier) {
         if (mode == WishPlacesMode.EDITABLE) {
-            ButtonFactory.compact(
-                text = "Add Wish Place",
-                onClick = { showCreateSheet = true }
-            )
-            Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = DesignTheme.Spacing.md),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "My Wish Places",
+                    style = DesignTheme.Typography.heading,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(
+                    onClick = { showCreateSheet = true },
+                    modifier = Modifier.size(44.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AddCircle,
+                        contentDescription = "Add Wish Place",
+                        modifier = Modifier.size(32.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
         }
 
         when (val current = state) {
             is WishPlacesViewState.Loading -> {
                 Box(
-                    modifier = Modifier.fillMaxWidth().height(DesignTheme.Spacing.xxxl),
+                    modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
@@ -85,8 +110,10 @@ fun WishPlacesSection(
                 if (current.places.isEmpty()) {
                     Text(
                         text = "No wish places yet",
-                        style = DesignTheme.Typography.bodySmall,
-                        color = Color.Gray
+                        style = DesignTheme.Typography.body,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
                     )
                 }
 

@@ -3,7 +3,6 @@ package friends.mobile.friends
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,12 +31,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import friends.mobile.designkit.theme.DesignTheme
-import friends.mobile.designkit.components.ButtonFactory
-import friends.mobile.designkit.components.Dimension
-import friends.mobile.designkit.components.ErrorBanner
-import friends.mobile.designkit.components.LoadingView
-import friends.mobile.designkit.components.UserView
+import friends.mobile.designsystem.theme.DesignTheme
+import friends.mobile.designsystem.components.ButtonFactory
+import friends.mobile.designsystem.components.Dimension
+import friends.mobile.designsystem.components.ErrorBanner
+import friends.mobile.designsystem.components.LoadingView
+import friends.mobile.designsystem.components.UserView
 import friends.mobile.feature.friends.domain.model.User
 import friends.mobile.feature.friends.presentation.friendsProfile.FriendProfileAction
 import friends.mobile.feature.friends.presentation.friendsProfile.FriendProfileEvent
@@ -190,11 +189,10 @@ private fun FriendProfileContent(
 
         if (content.status == FriendshipStatus.FRIENDS) {
             Text(
-                text = "${content.user.username}'s Wish Places",
+                text = "Wish Places",
                 style = DesignTheme.Typography.heading,
                 modifier = Modifier.align(Alignment.Start)
             )
-
             WishPlacesSection(
                 userId = content.user.id,
                 mode = WishPlacesMode.READ_ONLY,
@@ -214,7 +212,7 @@ private fun ActionButtons(
     callbacks: FriendActionCallbacks
 ) {
     when (status) {
-        FriendshipStatus.NONE -> ButtonFactory.primary(
+        FriendshipStatus.NONE -> ButtonFactory.Primary(
             text = "Add Friend",
             onClick = { callbacks.onSendRequest(user.id) },
             modifier = Modifier.fillMaxWidth(),
@@ -222,7 +220,7 @@ private fun ActionButtons(
             isEnabled = !isLoading
         )
 
-        FriendshipStatus.REQUESTING -> ButtonFactory.disabled(
+        FriendshipStatus.REQUESTING -> ButtonFactory.Disabled(
             text = "Request Sent",
             modifier = Modifier.fillMaxWidth(),
             icon = {
@@ -239,14 +237,14 @@ private fun ActionButtons(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
         ) {
-            ButtonFactory.primary(
+            ButtonFactory.Primary(
                 text = "Accept",
                 onClick = { callbacks.onAcceptRequest(user.id) },
                 modifier = Modifier.fillMaxWidth(),
                 isLoading = isLoading,
                 isEnabled = !isLoading
             )
-            ButtonFactory.secondary(
+            ButtonFactory.Secondary(
                 text = "Decline",
                 onClick = { callbacks.onRejectRequest(user.id) },
                 modifier = Modifier.fillMaxWidth(),
@@ -254,7 +252,7 @@ private fun ActionButtons(
             )
         }
 
-        FriendshipStatus.FRIENDS -> ButtonFactory.destructive(
+        FriendshipStatus.FRIENDS -> ButtonFactory.Destructive(
             text = "Remove Friend",
             onClick = { callbacks.onRemoveFriend(user.id) },
             modifier = Modifier.fillMaxWidth(),

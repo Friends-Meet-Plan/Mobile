@@ -1,10 +1,9 @@
-package friends.mobile.designkit.components
+package friends.mobile.designsystem.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -16,9 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
-import friends.mobile.designkit.theme.DesignTypography
+import friends.mobile.designsystem.theme.DesignTheme
 
 object ButtonFactory {
 
@@ -28,19 +28,20 @@ object ButtonFactory {
      * Disabled at 0.3 opacity when [isEnabled] is false.
      */
     @Composable
-    fun primary(
+    fun Primary(
         text: String,
         onClick: () -> Unit,
         modifier: Modifier = Modifier,
         isLoading: Boolean = false,
         isEnabled: Boolean = true,
-        icon: @Composable (() -> Unit)? = null
+        icon: @Composable (() -> Unit)? = null,
+        buttonHeight: Dp = 54.dp
     ) {
         Button(
             onClick = onClick,
             modifier = modifier
                 .fillMaxWidth()
-                .height(54.dp)
+                .height(buttonHeight)
                 .alpha(if (isEnabled) 1f else 0.3f),
             enabled = isEnabled && !isLoading,
             shape = RoundedCornerShape(27.dp),
@@ -61,7 +62,7 @@ object ButtonFactory {
                         color = Color.White,
                         strokeWidth = 2.dp
                     )
-                    Text("Loading...", style = DesignTypography.button)
+                    Text("Loading...", style = DesignTheme.Typography.button)
                 }
             } else {
                 Row(
@@ -69,7 +70,7 @@ object ButtonFactory {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     icon?.invoke()
-                    Text(text, style = DesignTypography.button)
+                    Text(text, style = DesignTheme.Typography.button)
                 }
             }
         }
@@ -79,7 +80,7 @@ object ButtonFactory {
      * Secondary destructive-light button — errorLight background, error-colored text, full width.
      */
     @Composable
-    fun secondary(
+    fun Secondary(
         text: String,
         onClick: () -> Unit,
         modifier: Modifier = Modifier,
@@ -100,7 +101,7 @@ object ButtonFactory {
                 disabledContentColor = MaterialTheme.colorScheme.error
             )
         ) {
-            Text(text, style = DesignTypography.button)
+            Text(text, style = DesignTheme.Typography.button)
         }
     }
 
@@ -109,7 +110,7 @@ object ButtonFactory {
      * horizontal padding 12dp. Used for inline/secondary actions.
      */
     @Composable
-    fun compact(
+    fun Compact(
         text: String,
         onClick: () -> Unit,
         modifier: Modifier = Modifier,
@@ -130,7 +131,7 @@ object ButtonFactory {
                 disabledContentColor = MaterialTheme.colorScheme.primary
             )
         ) {
-            Text(text, style = DesignTypography.button)
+            Text(text, style = DesignTheme.Typography.button)
         }
     }
 
@@ -139,7 +140,7 @@ object ButtonFactory {
      * Optionally shows an icon on the left.
      */
     @Composable
-    fun disabled(
+    fun Disabled(
         text: String,
         modifier: Modifier = Modifier,
         icon: @Composable (() -> Unit)? = null
@@ -161,7 +162,7 @@ object ButtonFactory {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 icon?.invoke()
-                Text(text, style = DesignTypography.button)
+                Text(text, style = DesignTheme.Typography.button)
             }
         }
     }
@@ -171,18 +172,19 @@ object ButtonFactory {
      * Shows spinner + "Removing..." when [isLoading] is true.
      */
     @Composable
-    fun destructive(
+    fun Destructive(
         text: String,
         onClick: () -> Unit,
         modifier: Modifier = Modifier,
         isLoading: Boolean = false,
-        isEnabled: Boolean = true
+        isEnabled: Boolean = true,
+        buttonHeight: Dp = 54.dp
     ) {
         Button(
             onClick = onClick,
             modifier = modifier
                 .fillMaxWidth()
-                .height(54.dp)
+                .height(buttonHeight)
                 .alpha(if (isEnabled) 1f else 0.3f),
             enabled = isEnabled && !isLoading,
             shape = RoundedCornerShape(27.dp),
@@ -203,10 +205,10 @@ object ButtonFactory {
                         color = Color.White,
                         strokeWidth = 2.dp
                     )
-                    Text("Removing...", style = DesignTypography.button)
+                    Text("Removing...", style = DesignTheme.Typography.button)
                 }
             } else {
-                Text(text, style = DesignTypography.button)
+                Text(text, style = DesignTheme.Typography.button)
             }
         }
     }

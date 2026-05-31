@@ -1,4 +1,4 @@
-package friends.mobile.designkit.components
+package friends.mobile.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,7 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import friends.mobile.designkit.theme.DesignTypography
+import friends.mobile.designsystem.theme.DesignTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,7 +30,7 @@ fun FormTextField(
     TextField(
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text(placeholder, style = DesignTypography.body) },
+        placeholder = { Text(placeholder, style = DesignTheme.Typography.body) },
         modifier = modifier
             .background(surfaceBg, RoundedCornerShape(12.dp))
             .border(0.dp, Color.Transparent),
@@ -38,12 +38,12 @@ fun FormTextField(
             unfocusedContainerColor = Color.Transparent,
             focusedContainerColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = primary.copy(alpha = 0.5f),
+            focusedIndicatorColor = Color.Transparent,
             focusedLabelColor = primary
         ),
         singleLine = true,
         keyboardOptions = keyboardOptions,
-        textStyle = DesignTypography.body
+        textStyle = DesignTheme.Typography.body
     )
 }
 
@@ -61,7 +61,7 @@ fun FormSecureField(
     TextField(
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text(placeholder, style = DesignTypography.body) },
+        placeholder = { Text(placeholder, style = DesignTheme.Typography.body) },
         modifier = modifier
             .background(surfaceBg, RoundedCornerShape(12.dp))
             .border(0.dp, Color.Transparent),
@@ -69,12 +69,12 @@ fun FormSecureField(
             unfocusedContainerColor = Color.Transparent,
             focusedContainerColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = primary.copy(alpha = 0.5f),
+            focusedIndicatorColor = Color.Transparent,
             focusedLabelColor = primary
         ),
         singleLine = true,
         visualTransformation = PasswordVisualTransformation(),
         keyboardOptions = keyboardOptions,
-        textStyle = DesignTypography.body
+        textStyle = DesignTheme.Typography.body
     )
 }

@@ -1,15 +1,18 @@
 package friends.mobile.friends
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -19,13 +22,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material3.MaterialTheme
-import friends.mobile.designkit.theme.DesignTheme
-import friends.mobile.designkit.components.ErrorBanner
-import friends.mobile.designkit.components.LoadingView
-import friends.mobile.designkit.components.SearchBar
+import friends.mobile.designsystem.theme.DesignTheme
+import friends.mobile.designsystem.components.ErrorBanner
+import friends.mobile.designsystem.components.LoadingView
+import friends.mobile.designsystem.components.SearchBar
 import friends.mobile.feature.friends.domain.model.User
 import friends.mobile.feature.friends.presentation.friends.FriendsAction
 import friends.mobile.feature.friends.presentation.friends.FriendsEvent
@@ -54,31 +56,27 @@ fun FriendsScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        bottomBar = {
-            val currentState = state
-            if (currentState is FriendsViewState.Content) {
-                TabSelector(
-                    selectedTab = currentState.currentTab,
-                    onTabSelected = { viewModel.obtainEvent(FriendsEvent.OnTabSelected(it)) },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-        }
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(top = padding.calculateTopPadding()),
         ) {
             when (val currentState = state) {
-                is FriendsViewState.Loading -> LoadingView()
+                is FriendsViewState.Loading -> LoadingView(modifier = Modifier.fillMaxSize())
                 is FriendsViewState.Error -> {
-                    ErrorBanner(
-                        message = currentState.message,
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(DesignTheme.Spacing.lg)
-                    )
+                            .fillMaxSize()
+                            .padding(DesignTheme.Spacing.lg),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        ErrorBanner(
+                            message = currentState.message,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
                 is FriendsViewState.Content -> {
                     FriendsContent(
@@ -110,7 +108,8 @@ private fun FriendsContent(
             onClear = { onEvent(FriendsEvent.OnSearchUsers("")) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(DesignTheme.Spacing.lg),
+                .padding(horizontal = DesignTheme.Spacing.lg)
+                .padding(top = DesignTheme.Spacing.lg, bottom = DesignTheme.Spacing.xs),
         )
 
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
@@ -120,30 +119,40 @@ private fun FriendsContent(
                 RequestTab.OUTGOING -> state.outgoingRequests
             }
 
-            if (listToDisplay.isNotEmpty()) {
+            if (state.isSearching) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
+                    Text(
+                        text = "Searching...",
+                        style = DesignTheme.Typography.body,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            } else if (listToDisplay.isNotEmpty()) {
                 UserListView(
                     users = listToDisplay,
                     currentTab = state.currentTab,
                     searchText = state.searchText,
                     onUserSelected = { user -> onEvent(FriendsEvent.OnUserClick(user.id)) }
                 )
-            } else if (!state.isSearching) {
+            } else {
                 EmptyStateView(
                     currentTab = state.currentTab,
                     isSearchEmpty = state.searchResults != null,
                     searchText = state.searchText
                 )
             }
-
-            if (state.isSearching) {
-                LinearProgressIndicator(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(2.dp)
-                        .align(Alignment.TopCenter),
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
         }
+
+        TabSelector(
+            selectedTab = state.currentTab,
+            onTabSelected = { onEvent(FriendsEvent.OnTabSelected(it)) },
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }

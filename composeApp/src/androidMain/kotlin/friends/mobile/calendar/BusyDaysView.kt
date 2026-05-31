@@ -12,7 +12,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,11 +26,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.material3.MaterialTheme
-import friends.mobile.designkit.theme.DesignTheme
-import friends.mobile.designkit.theme.DesignColors
-import friends.mobile.designkit.components.ButtonFactory
-import friends.mobile.designkit.components.ErrorBanner
+import friends.mobile.designsystem.components.ButtonFactory
+import friends.mobile.designsystem.components.ErrorBanner
+import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.feature.calendar.presentation.BusyDaysEvent
 import friends.mobile.feature.calendar.presentation.BusyDaysViewModel
 import friends.mobile.feature.calendar.presentation.BusyDaysViewState
@@ -48,10 +50,6 @@ fun BusyDaysView(
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
 
     Column(modifier = modifier.fillMaxWidth()) {
-        Text(text = "Activity", style = DesignTheme.Typography.heading)
-
-        Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
-
         when (val current = state) {
             is BusyDaysViewState.Loading -> {
                 Box(
@@ -80,10 +78,18 @@ fun BusyDaysView(
 
 @Composable
 private fun ActivityGridView(busyDays: List<String>) {
-    Column(verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(DesignTheme.CornerRadius.medium)
+            )
+            .padding(DesignTheme.Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
+    ) {
         WeekdayLabels()
         BusyDaysGrid(busyDays = busyDays)
-        Legend()
     }
 }
 
@@ -98,7 +104,7 @@ private fun WeekdayLabels() {
             Text(
                 text = day,
                 style = DesignTheme.Typography.bodySmallest,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center
             )
@@ -142,7 +148,7 @@ private fun DayCell(date: LocalDate, isBusy: Boolean) {
         modifier = Modifier
             .aspectRatio(1f)
             .background(
-                color = if (isBusy) DesignColors.secondaryAccent else MaterialTheme.colorScheme.surfaceVariant,
+                color = if (isBusy) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(4.dp)
             ),
         contentAlignment = Alignment.Center
@@ -150,51 +156,34 @@ private fun DayCell(date: LocalDate, isBusy: Boolean) {
         Text(
             text = date.dayOfMonth.toString(),
             style = DesignTheme.Typography.bodySmallest,
-            color = if (isBusy) Color.White else Color.Gray
-        )
-    }
-}
-
-@Composable
-private fun Legend() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.lg)
-    ) {
-        LegendItem(color = DesignColors.secondaryAccent, label = "Busy")
-        LegendItem(color = MaterialTheme.colorScheme.surfaceVariant, label = "Not busy")
-    }
-}
-
-@Composable
-private fun LegendItem(color: Color, label: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(12.dp)
-                .background(color = color, shape = RoundedCornerShape(2.dp))
-        )
-        Text(
-            text = label,
-            style = DesignTheme.Typography.bodySmallest,
-            color = Color.Gray
+            color = if (isBusy) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
 
 @Composable
 private fun EmptyContent() {
-    Box(
-        modifier = Modifier.fillMaxWidth().padding(vertical = DesignTheme.Spacing.xxl),
-        contentAlignment = Alignment.Center
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(DesignTheme.CornerRadius.medium)
+            )
+            .padding(DesignTheme.Spacing.lg),
+        horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm),
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        Icon(
+            imageVector = Icons.Default.CalendarToday,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         Text(
             text = "No busy days recorded",
             style = DesignTheme.Typography.body,
-            color = Color.Gray
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -207,6 +196,6 @@ private fun ErrorContent(message: String, onRetry: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
     ) {
         ErrorBanner(message = message, modifier = Modifier.fillMaxWidth())
-        ButtonFactory.primary(text = "Retry", onClick = onRetry, modifier = Modifier.fillMaxWidth())
+        ButtonFactory.Primary(text = "Retry", onClick = onRetry, modifier = Modifier.fillMaxWidth())
     }
 }

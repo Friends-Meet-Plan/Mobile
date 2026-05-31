@@ -1,41 +1,41 @@
 package friends.mobile.auth
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import friends.mobile.R
-import androidx.compose.material3.MaterialTheme
-import friends.mobile.designkit.theme.DesignTheme
-import friends.mobile.designkit.components.ButtonFactory
-import friends.mobile.designkit.components.FormErrorMessage
-import friends.mobile.designkit.components.FormSecureField
-import friends.mobile.designkit.components.FormTextField
-import friends.mobile.designkit.components.LoadingView
+import friends.mobile.designsystem.components.ButtonFactory
+import friends.mobile.designsystem.components.FormErrorMessage
+import friends.mobile.designsystem.components.FormSecureField
+import friends.mobile.designsystem.components.FormTextField
+import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.feature.auth.domain.model.AuthSession
 import friends.mobile.feature.auth.presentation.login.LoginAction
 import friends.mobile.feature.auth.presentation.login.LoginEvent
@@ -51,7 +51,14 @@ fun LoginScreen(
 ) {
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
     var showRegister by remember { mutableStateOf(false) }
+
+    var username by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
     var sideEffectError by remember { mutableStateOf<String?>(null) }
+
+    val isLoggingIn = state is LoginViewState.Loading ||
+            (state as? LoginViewState.Content)?.isLoggingIn == true
+    val errorMessage = (state as? LoginViewState.Error)?.message ?: sideEffectError
 
     LaunchedEffect(viewModel) {
         viewModel.viewActions.collectLatest { action ->
@@ -62,30 +69,24 @@ fun LoginScreen(
         }
     }
 
-    when (val currentState = state) {
-        is LoginViewState.Loading -> {
-            LoadingView(message = "Signing in...")
-        }
-        is LoginViewState.Error -> {
-            LoginForm(
-                state = LoginViewState.Content(),
-                errorMessage = currentState.message,
-                onEvent = viewModel::obtainEvent,
-                onRegisterClick = { showRegister = true }
-            )
-        }
-        is LoginViewState.Content -> {
-            LoginForm(
-                state = currentState,
-                errorMessage = sideEffectError,
-                onEvent = { event ->
-                    sideEffectError = null
-                    viewModel.obtainEvent(event)
-                },
-                onRegisterClick = { showRegister = true }
-            )
-        }
-    }
+    LoginForm(
+        username = username,
+        password = password,
+        errorMessage = errorMessage,
+        isLoggingIn = isLoggingIn,
+        onUsernameChanged = {
+            username = it
+            sideEffectError = null
+            viewModel.obtainEvent(LoginEvent.OnUsernameChanged(it))
+        },
+        onPasswordChanged = {
+            password = it
+            sideEffectError = null
+            viewModel.obtainEvent(LoginEvent.OnPasswordChanged(it))
+        },
+        onLoginClick = { viewModel.obtainEvent(LoginEvent.OnLoginClick) },
+        onRegisterClick = { showRegister = true }
+    )
 
     if (showRegister) {
         RegisterBottomSheet(
@@ -97,30 +98,33 @@ fun LoginScreen(
 
 @Composable
 private fun LoginForm(
-    state: LoginViewState.Content,
+    username: String,
+    password: String,
     errorMessage: String?,
-    onEvent: (LoginEvent) -> Unit,
-    onRegisterClick: () -> Unit
+    isLoggingIn: Boolean,
+    onUsernameChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    onLoginClick: () -> Unit,
+    onRegisterClick: () -> Unit,
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xxxl),
         horizontalAlignment = Alignment.CenterHorizontally,
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(
-            vertical = DesignTheme.Spacing.lg
+        contentPadding = PaddingValues(
+            top = DesignTheme.Spacing.xxxl,
+            bottom = DesignTheme.Spacing.xl
         )
     ) {
-        item {
-            Spacer(modifier = Modifier.height(DesignTheme.Spacing.sm))
-        }
-
         item {
             Image(
                 painter = painterResource(id = R.drawable.onboarding_image),
                 contentDescription = null,
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
                     .padding(top = DesignTheme.Spacing.sm, start = DesignTheme.Spacing.sm, end = DesignTheme.Spacing.sm)
             )
         }
@@ -131,15 +135,12 @@ private fun LoginForm(
                     .fillMaxWidth()
                     .padding(horizontal = DesignTheme.Spacing.xl),
                 verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.lg),
-                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 FormTextField(
-                    value = state.username,
-                    onValueChange = { onEvent(LoginEvent.OnUsernameChanged(it)) },
+                    value = username,
+                    onValueChange = onUsernameChanged,
                     placeholder = "Username",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(54.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.None,
                         autoCorrectEnabled = false
@@ -147,12 +148,10 @@ private fun LoginForm(
                 )
 
                 FormSecureField(
-                    value = state.password,
-                    onValueChange = { onEvent(LoginEvent.OnPasswordChanged(it)) },
+                    value = password,
+                    onValueChange = onPasswordChanged,
                     placeholder = "Password",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(54.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                 )
 
@@ -163,29 +162,28 @@ private fun LoginForm(
         }
 
         item {
-            ButtonFactory.primary(
+            ButtonFactory.Primary(
                 text = "Login",
-                onClick = { onEvent(LoginEvent.OnLoginClick) },
+                onClick = onLoginClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = DesignTheme.Spacing.xl),
-                isLoading = state.isLoggingIn,
-                isEnabled = state.username.isNotBlank() && state.password.isNotBlank() && !state.isLoggingIn
+                isLoading = isLoggingIn,
+                isEnabled = username.isNotBlank() && password.isNotBlank() && !isLoggingIn
             )
         }
 
         item {
             Row(
-                horizontalArrangement = Arrangement.Center,
+                horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = "Don't have an account?",
                     style = DesignTheme.Typography.caption,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.width(DesignTheme.Spacing.xs))
                 Text(
                     text = "Sign up",
                     modifier = Modifier.clickable { onRegisterClick() },

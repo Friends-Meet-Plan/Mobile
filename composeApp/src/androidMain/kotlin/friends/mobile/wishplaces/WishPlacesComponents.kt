@@ -47,9 +47,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
-import friends.mobile.designkit.theme.DesignTheme
-import friends.mobile.designkit.components.ButtonFactory
-import friends.mobile.designkit.components.FormTextField
+import friends.mobile.designsystem.theme.DesignTheme
+import friends.mobile.designsystem.components.ButtonFactory
+import friends.mobile.designsystem.components.FormTextField
 import friends.mobile.feature.wishplaces.domain.model.WishPlace
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -153,7 +153,7 @@ private fun WishPlaceCard(
                     Text(
                         text = it,
                         style = DesignTheme.Typography.bodySmall,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -229,7 +229,7 @@ fun CreateWishPlaceBottomSheet(
 
             Spacer(modifier = Modifier.height(DesignTheme.Spacing.md))
 
-            ButtonFactory.primary(
+            ButtonFactory.Primary(
                 text = "Create",
                 onClick = {
                     onCreate(
@@ -286,7 +286,7 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = Color.Gray,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -363,7 +363,7 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
             Text(
                 text = "Added ${place.createdAt.take(10)}",
                 style = DesignTheme.Typography.bodySmallest,
-                color = Color.Gray
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

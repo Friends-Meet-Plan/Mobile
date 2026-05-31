@@ -1,4 +1,4 @@
-package friends.mobile.designkit.components
+package friends.mobile.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,7 +26,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.unit.dp
-import friends.mobile.designkit.theme.DesignTypography
+import friends.mobile.designsystem.theme.DesignTheme
 
 /**
  * Search bar with a Search icon on the left, a text field in the center,
@@ -45,7 +45,7 @@ fun SearchBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHighest, RoundedCornerShape(12.dp))
             .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -64,12 +64,12 @@ fun SearchBar(
             placeholder = {
                 Text(
                     text = placeholder,
-                    style = DesignTypography.body,
+                    style = DesignTheme.Typography.body,
                     color = Color.Gray
                 )
             },
             singleLine = true,
-            textStyle = DesignTypography.body,
+            textStyle = DesignTheme.Typography.body,
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.None,
                 autoCorrectEnabled = false,

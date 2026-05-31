@@ -10,18 +10,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,10 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.MaterialTheme
-import friends.mobile.designkit.theme.DesignTheme
-import friends.mobile.designkit.components.ButtonFactory
-import friends.mobile.designkit.components.LoadingView
+import friends.mobile.designsystem.components.ButtonFactory
+import friends.mobile.designsystem.components.LoadingView
+import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.feature.events.domain.model.Event
 import friends.mobile.feature.events.domain.model.EventParticipant
 import friends.mobile.feature.events.domain.model.ParticipationStatus
@@ -90,7 +89,7 @@ private fun ErrorContent(message: String) {
         Text(
             text = message,
             style = DesignTheme.Typography.body,
-            color = Color.Gray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
@@ -121,6 +120,7 @@ private fun DetailContent(
 
 @Composable
 private fun HeaderSection(event: Event) {
+    val statusColor = statusColor(event.status)
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
@@ -134,12 +134,10 @@ private fun HeaderSection(event: Event) {
             Text(
                 text = event.description!!,
                 style = DesignTheme.Typography.body,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
 
-        // Status row
-        val statusColor = statusColor(event.status)
         Row(
             modifier = Modifier
                 .background(
@@ -178,10 +176,10 @@ private fun EventDetailsSection(event: Event) {
         Text(
             text = "EVENT DETAILS",
             style = DesignTheme.Typography.bodySmallest,
-            color = Color.Gray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
-        DetailRow(icon = Icons.Default.DateRange, label = "Date", value = event.date)
+        DetailRow(icon = Icons.Default.CalendarToday, label = "Date", value = event.date)
 
         if (!event.time.isNullOrEmpty()) {
             DetailRow(icon = Icons.Default.Schedule, label = "Time", value = event.time!!)
@@ -202,7 +200,7 @@ private fun DetailRow(
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Top,
     ) {
         Icon(
             imageVector = icon,
@@ -210,13 +208,11 @@ private fun DetailRow(
             modifier = Modifier.size(20.dp),
             tint = MaterialTheme.colorScheme.primary,
         )
-        Column(
-            verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs),
-        ) {
+        Column(verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs)) {
             Text(
                 text = label,
                 style = DesignTheme.Typography.bodySmallest,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
                 text = value,
@@ -235,7 +231,7 @@ private fun ParticipantsSection(participants: List<EventParticipant>) {
         Text(
             text = "PARTICIPANTS",
             style = DesignTheme.Typography.bodySmallest,
-            color = Color.Gray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
         participants.forEach { participant ->
@@ -247,7 +243,7 @@ private fun ParticipantsSection(participants: List<EventParticipant>) {
 @Composable
 private fun ParticipantCard(participant: EventParticipant) {
     val statusColor = participantStatusColor(participant.status)
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(
@@ -255,39 +251,46 @@ private fun ParticipantCard(participant: EventParticipant) {
                 shape = RoundedCornerShape(DesignTheme.CornerRadius.medium),
             )
             .padding(DesignTheme.Spacing.md),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = participant.username,
+                style = DesignTheme.Typography.body,
+            )
+            Text(
+                text = participant.role,
+                style = DesignTheme.Typography.bodySmallest,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .background(
+                    color = statusColor.copy(alpha = 0.08f),
+                    shape = RoundedCornerShape(DesignTheme.CornerRadius.small),
+                )
+                .padding(
+                    vertical = DesignTheme.Spacing.xs,
+                    horizontal = DesignTheme.Spacing.sm,
+                ),
+            horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = participant.username,
-                    style = DesignTheme.Typography.body,
-                )
-                Text(
-                    text = participant.role,
-                    style = DesignTheme.Typography.bodySmallest,
-                    color = Color.Gray,
-                )
-            }
-            Spacer(modifier = Modifier.weight(0.1f))
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = participantStatusIcon(participant.status),
-                    contentDescription = null,
-                    modifier = Modifier.size(14.dp),
-                    tint = statusColor,
-                )
-                Text(
-                    text = participant.status.name.lowercase().replaceFirstChar { it.uppercase() },
-                    style = DesignTheme.Typography.bodySmallest,
-                    color = statusColor,
-                )
-            }
+            Icon(
+                imageVector = participantStatusIcon(participant.status),
+                contentDescription = null,
+                modifier = Modifier.size(12.dp),
+                tint = statusColor,
+            )
+            Text(
+                text = when (participant.status) {
+                ParticipationStatus.INVITED -> "Pending"
+                else -> participant.status.name.lowercase().replaceFirstChar { it.uppercase() }
+            },
+                style = DesignTheme.Typography.bodySmallest,
+                color = statusColor,
+            )
         }
     }
 }
@@ -304,23 +307,24 @@ private fun ActionsSection(
             .padding(top = DesignTheme.Spacing.md),
         verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
     ) {
-        ButtonFactory.primary(
+        ButtonFactory.Primary(
             text = "Accept Invitation",
             onClick = { onAccept(eventId) },
         )
-        ButtonFactory.secondary(
+        ButtonFactory.Secondary(
             text = "Decline Invitation",
             onClick = { onDecline(eventId) },
         )
     }
 }
 
+@Composable
 private fun statusColor(status: String): Color {
     return when (status.lowercase()) {
-        "accepted" -> Color(0xFF34C759)
-        "declined" -> Color(0xFFFF3B30)
-        "pending" -> Color(0xFFFF9500)
-        else -> Color.Gray
+        "accepted" -> MaterialTheme.colorScheme.tertiary
+        "declined" -> MaterialTheme.colorScheme.error
+        "pending" -> Color(0xFFFF9800)
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 }
 
@@ -329,15 +333,16 @@ private fun statusIcon(status: String): ImageVector {
         "accepted" -> Icons.Default.CheckCircle
         "declined" -> Icons.Default.Cancel
         "pending" -> Icons.Default.AccessTime
-        else -> Icons.Default.Help
+        else -> Icons.AutoMirrored.Filled.Help
     }
 }
 
+@Composable
 private fun participantStatusColor(status: ParticipationStatus): Color {
     return when (status) {
-        ParticipationStatus.ACCEPTED -> Color(0xFF34C759)
-        ParticipationStatus.DECLINED -> Color(0xFFFF3B30)
-        ParticipationStatus.INVITED -> Color(0xFFFF9500)
+        ParticipationStatus.ACCEPTED -> MaterialTheme.colorScheme.tertiary
+        ParticipationStatus.DECLINED -> MaterialTheme.colorScheme.error
+        ParticipationStatus.INVITED -> Color(0xFFFF9800)
     }
 }
 

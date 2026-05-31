@@ -1,4 +1,4 @@
-package friends.mobile.designkit.components
+package friends.mobile.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.AccessTimeFilled
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Icon
@@ -20,19 +21,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
-import friends.mobile.designkit.theme.DesignColors
-import friends.mobile.designkit.theme.DesignTypography
+import friends.mobile.designsystem.theme.DesignTheme
 
 object IndicatorFactory {
 
     private val orange = Color(0xFFFF9500)
-    private val green = DesignColors.secondaryAccent
 
     /**
      * Active status — green checkmark circle icon, green text, green tinted background.
      */
     @Composable
-    fun active(modifier: Modifier = Modifier) {
+    fun Active(modifier: Modifier = Modifier) {
+        val green = MaterialTheme.colorScheme.tertiary
         StatusChip(
             label = "Active",
             textColor = green,
@@ -47,13 +47,13 @@ object IndicatorFactory {
      * Pending status — orange clock icon, white text, orange background.
      */
     @Composable
-    fun pending(modifier: Modifier = Modifier) {
+    fun Pending(modifier: Modifier = Modifier) {
         StatusChip(
             label = "Pending",
             textColor = Color.White,
-            iconTint = orange,
+            iconTint = Color.White,
             background = orange,
-            icon = Icons.Default.AccessTime,
+            icon = Icons.Default.AccessTimeFilled,
             modifier = modifier
         )
     }
@@ -62,7 +62,8 @@ object IndicatorFactory {
      * Accepted status — green checkmark circle icon, green text, green tinted background.
      */
     @Composable
-    fun accepted(modifier: Modifier = Modifier) {
+    fun Accepted(modifier: Modifier = Modifier) {
+        val green = MaterialTheme.colorScheme.tertiary
         StatusChip(
             label = "Accepted",
             textColor = green,
@@ -77,7 +78,7 @@ object IndicatorFactory {
      * Declined status — red X circle icon, error text, errorLight background.
      */
     @Composable
-    fun declined(modifier: Modifier = Modifier) {
+    fun Declined(modifier: Modifier = Modifier) {
         val errorColor = MaterialTheme.colorScheme.error
         StatusChip(
             label = "Declined",
@@ -93,7 +94,7 @@ object IndicatorFactory {
      * Sent status — gray paperplane/send icon, gray text, systemGray6 background.
      */
     @Composable
-    fun sent(modifier: Modifier = Modifier) {
+    fun Sent(modifier: Modifier = Modifier) {
         StatusChip(
             label = "Sent",
             textColor = Color.Gray,
@@ -109,7 +110,7 @@ object IndicatorFactory {
      * Background is automatically set to color at 10% opacity.
      */
     @Composable
-    fun status(
+    fun Status(
         label: String,
         color: Color,
         icon: ImageVector,
@@ -149,7 +150,7 @@ object IndicatorFactory {
             )
             Text(
                 text = label,
-                style = DesignTypography.bodySmallest,
+                style = DesignTheme.Typography.bodySmallest,
                 color = textColor
             )
         }

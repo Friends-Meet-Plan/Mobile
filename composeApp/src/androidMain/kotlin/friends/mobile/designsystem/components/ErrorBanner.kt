@@ -1,4 +1,4 @@
-package friends.mobile.designkit.components
+package friends.mobile.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import friends.mobile.designkit.theme.DesignTypography
+import friends.mobile.designsystem.theme.DesignTheme
 
 @Composable
 fun ErrorBanner(
@@ -41,7 +41,7 @@ fun ErrorBanner(
         )
         Text(
             text = message,
-            style = DesignTypography.bodySmall,
+            style = DesignTheme.Typography.bodySmall,
             color = errorColor
         )
         Spacer(modifier = Modifier.weight(1f))

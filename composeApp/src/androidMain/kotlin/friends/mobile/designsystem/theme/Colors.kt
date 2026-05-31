@@ -1,4 +1,4 @@
-package friends.mobile.designkit.theme
+package friends.mobile.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
 

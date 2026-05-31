@@ -21,11 +21,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
@@ -34,14 +34,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerLayoutType
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -54,18 +50,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import androidx.compose.material3.MaterialTheme
-import friends.mobile.designkit.theme.DesignTheme
-import friends.mobile.designkit.components.ButtonFactory
-import friends.mobile.designkit.components.ErrorBanner
-import friends.mobile.designkit.components.LoadingView
+import friends.mobile.designsystem.components.ButtonFactory
+import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.feature.events.domain.model.Event
 import friends.mobile.feature.main.presentation.MainViewAction as MainEventAction
 import friends.mobile.feature.main.presentation.MainViewModel
@@ -90,187 +86,214 @@ fun MainView(
     var showTimePickerDialog by rememberSaveable { mutableStateOf(false) }
     var showBusyAlert by rememberSaveable { mutableStateOf(false) }
     var isCheckingAvailability by rememberSaveable { mutableStateOf(false) }
-    var filterMode by rememberSaveable { mutableStateOf(FilterMode.ACTIVE) }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = System.currentTimeMillis()
     )
     val timePickerState = rememberTimePickerState(initialHour = 12, initialMinute = 0)
-
     val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
-    LaunchedEffect(Unit) {
-        logScreenOpen("launch_home")
-    }
 
     val isLoading = state is MainViewState.Loading
     val errorMessage = (state as? MainViewState.Error)?.message
     val isRefreshing = (state as? MainViewState.Content)?.isRefreshing ?: false
     val activeEvents = (state as? MainViewState.Content)?.activeEvents ?: emptyList()
     val pendingEvents = (state as? MainViewState.Content)?.pendingEvents ?: emptyList()
-
-    val eventsToDisplay = when (filterMode) {
-        FilterMode.ACTIVE -> activeEvents
-        FilterMode.PENDING -> pendingEvents
-    }
-
     val hasNoEventsAtAll = activeEvents.isEmpty() && pendingEvents.isEmpty()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "Your Events", style = DesignTheme.Typography.captionSemibold)
-                },
-                actions = {
-                    BadgedBox(
-                        badge = {
-                            if (pendingEvents.isNotEmpty()) {
-                                Badge {
-                                    Text(
-                                        text = pendingEvents.size.toString(),
-                                        style = DesignTheme.Typography.bodySmallest,
-                                    )
-                                }
-                            }
-                        }
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val tertiaryColor = MaterialTheme.colorScheme.tertiary
+    val pendingColor = Color(0xFFFF9800)
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+
+            // Header
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = DesignTheme.Spacing.lg)
+                    .padding(top = DesignTheme.Spacing.xxl, bottom = DesignTheme.Spacing.md)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs)) {
+                        Text(
+                            text = "My Events",
+                            style = DesignTheme.Typography.heading,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "Manage active and upcoming plans",
+                            style = DesignTheme.Typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .size(46.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
+                        contentAlignment = Alignment.Center
                     ) {
                         IconButton(onClick = onPendingEventsClick) {
                             Icon(
                                 imageVector = Icons.Default.Notifications,
                                 contentDescription = "Pending Invitations",
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = primaryColor
                             )
                         }
                     }
                 }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showDatePickerDialog = true },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = CircleShape,
-                modifier = Modifier.size(58.dp)
-            ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Create Event")
             }
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(innerPadding),
-        ) {
+
+            // Content
             when {
-                isLoading && activeEvents.isEmpty() -> {
-                    LoadingView(message = "Loading events...")
+                isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = primaryColor)
+                    }
                 }
 
-                errorMessage != null && activeEvents.isEmpty() -> {
+                errorMessage != null -> {
                     Column(
-                        modifier = Modifier.fillMaxSize().padding(DesignTheme.Spacing.lg),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(DesignTheme.Spacing.lg),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        ErrorBanner(message = errorMessage, modifier = Modifier.fillMaxWidth())
-                        ButtonFactory.primary(
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(Modifier.height(DesignTheme.Spacing.lg))
+                        Text(
+                            text = errorMessage,
+                            style = DesignTheme.Typography.body,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(Modifier.height(DesignTheme.Spacing.lg))
+                        ButtonFactory.Primary(
                             text = "Retry",
                             onClick = { viewModel.obtainEvent(MainEventAction.OnRefresh) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = DesignTheme.Spacing.lg)
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
 
                 hasNoEventsAtAll -> {
                     Column(
-                        modifier = Modifier.fillMaxSize().padding(DesignTheme.Spacing.lg),
+                        modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Text(
-                            text = "You have no events yet",
-                            style = DesignTheme.Typography.captionSemibold,
+                        Icon(
+                            imageVector = Icons.Default.CalendarToday,
+                            contentDescription = null,
+                            modifier = Modifier.size(52.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.height(DesignTheme.Spacing.sm))
+                        Spacer(Modifier.height(DesignTheme.Spacing.lg))
+                        Text(
+                            text = "No events yet",
+                            style = DesignTheme.Typography.captionSemibold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(Modifier.height(DesignTheme.Spacing.sm))
                         Text(
                             text = "Tap + to create your first event",
                             style = DesignTheme.Typography.bodySmall,
-                            color = Color.Gray
-                        )
-                        Spacer(modifier = Modifier.height(DesignTheme.Spacing.xxl))
-                        ButtonFactory.primary(
-                            text = "Create Event",
-                            onClick = { showDatePickerDialog = true },
-                            modifier = Modifier.fillMaxWidth()
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
 
                 else -> {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        SingleChoiceSegmentedButtonRow(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(DesignTheme.Spacing.lg)
+                    SwipeRefresh(
+                        state = rememberSwipeRefreshState(isRefreshing),
+                        onRefresh = { viewModel.obtainEvent(MainEventAction.OnRefresh) },
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(
+                                start = DesignTheme.Spacing.lg,
+                                end = DesignTheme.Spacing.lg,
+                                top = DesignTheme.Spacing.md,
+                                bottom = 100.dp
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)
                         ) {
-                            FilterMode.entries.forEachIndexed { index, mode ->
-                                SegmentedButton(
-                                    selected = filterMode == mode,
-                                    onClick = { filterMode = mode },
-                                    shape = SegmentedButtonDefaults.itemShape(
-                                        index = index,
-                                        count = FilterMode.entries.size
-                                    ),
-                                ) {
-                                    val label = when (mode) {
-                                        FilterMode.ACTIVE -> "Active (${activeEvents.size})"
-                                        FilterMode.PENDING -> "Pending (${pendingEvents.size})"
-                                    }
-                                    Text(label, style = DesignTheme.Typography.bodySmall)
-                                }
-                            }
-                        }
-
-                        val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
-                        SwipeRefresh(
-                            state = swipeRefreshState,
-                            onRefresh = { viewModel.obtainEvent(MainEventAction.OnRefresh) },
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            if (eventsToDisplay.isEmpty()) {
-                                Box(
-                                    modifier = Modifier.fillMaxSize().padding(DesignTheme.Spacing.lg),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Text(
-                                        text = when (filterMode) {
-                                            FilterMode.ACTIVE -> "No active events yet"
-                                            FilterMode.PENDING -> "No pending invitations"
-                                        },
-                                        style = DesignTheme.Typography.body,
-                                        color = Color.Gray
+                            if (activeEvents.isNotEmpty()) {
+                                item(key = "active_header") {
+                                    EventSectionHeader(
+                                        title = "Active",
+                                        count = activeEvents.size,
+                                        tint = tertiaryColor
                                     )
                                 }
-                            } else {
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    contentPadding = PaddingValues(DesignTheme.Spacing.lg),
-                                    verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
-                                ) {
-                                    items(eventsToDisplay, key = { it.id }) { event ->
-                                        EventCard(
-                                            event = event,
-                                            onClick = { onEventDetailClick(event.id) },
-                                            isPending = filterMode == FilterMode.PENDING,
-                                        )
+                                items(activeEvents, key = { "active_${it.id}" }) { event ->
+                                    EventCard(
+                                        event = event,
+                                        isPending = false,
+                                        onClick = { onEventDetailClick(event.id) }
+                                    )
+                                }
+                            }
+
+                            if (pendingEvents.isNotEmpty()) {
+                                if (activeEvents.isNotEmpty()) {
+                                    item(key = "section_gap") {
+                                        Spacer(Modifier.height(DesignTheme.Spacing.lg))
                                     }
+                                }
+                                item(key = "pending_header") {
+                                    EventSectionHeader(
+                                        title = "Pending",
+                                        count = pendingEvents.size,
+                                        tint = pendingColor
+                                    )
+                                }
+                                items(pendingEvents, key = { "pending_${it.id}" }) { event ->
+                                    EventCard(
+                                        event = event,
+                                        isPending = true,
+                                        onClick = { onEventDetailClick(event.id) }
+                                    )
                                 }
                             }
                         }
                     }
                 }
             }
+        }
+
+        // FAB bottom-trailing
+        FloatingActionButton(
+            onClick = { showDatePickerDialog = true },
+            containerColor = primaryColor,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            shape = CircleShape,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = DesignTheme.Spacing.lg, bottom = DesignTheme.Spacing.lg)
+                .size(58.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Create Event"
+            )
         }
     }
 
@@ -305,20 +328,16 @@ fun MainView(
                                 set(Calendar.MINUTE, timePickerState.minute)
                             }
                             val dateString = dateFormatter.format(calendar.time)
-
                             isCheckingAvailability = true
                             coroutineScope.launch {
                                 val availabilityResult = viewModel.checkAvailability(dateString)
                                 isCheckingAvailability = false
-
                                 when (availabilityResult) {
                                     true -> {
                                         onCreateEventClick(dateString)
                                         showTimePickerDialog = false
                                     }
-                                    false -> {
-                                        showBusyAlert = true
-                                    }
+                                    false -> showBusyAlert = true
                                     null -> {
                                         onCreateEventClick(dateString)
                                         showTimePickerDialog = false
@@ -349,11 +368,36 @@ fun MainView(
     if (showBusyAlert) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { showBusyAlert = false },
-            title = { Text("Not Available") },
-            text = { Text("You are busy on this day. Please select another date.") },
+            title = { Text("You are busy on this day") },
             confirmButton = {
                 Button(onClick = { showBusyAlert = false }) { Text("OK") }
             },
+        )
+    }
+}
+
+@Composable
+private fun EventSectionHeader(title: String, count: Int, tint: Color) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = DesignTheme.Spacing.sm, bottom = DesignTheme.Spacing.sm),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = DesignTheme.Typography.captionSemibold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = "$count",
+            style = DesignTheme.Typography.bodySmallest.copy(fontWeight = FontWeight.SemiBold),
+            color = tint,
+            modifier = Modifier
+                .clip(RoundedCornerShape(50))
+                .background(tint.copy(alpha = 0.12f))
+                .padding(horizontal = 10.dp, vertical = 5.dp)
         )
     }
 }
@@ -364,14 +408,16 @@ private fun EventCard(
     onClick: () -> Unit,
     isPending: Boolean = false,
 ) {
-    val tintColor = if (isPending) Color(0xFFFF9500) else MaterialTheme.colorScheme.primary
+    val tintColor = if (isPending) Color(0xFFFF9800) else MaterialTheme.colorScheme.tertiary
+    val badgeIcon = if (isPending) Icons.Default.Schedule else Icons.Default.CheckCircle
+    val badgeText = if (isPending) "Pending" else "Active"
 
-    val cardBg = MaterialTheme.colorScheme.surface
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .shadow(elevation = 4.dp, shape = RoundedCornerShape(18.dp))
             .clip(RoundedCornerShape(18.dp))
-            .background(cardBg)
+            .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, tintColor.copy(alpha = 0.15f), RoundedCornerShape(18.dp))
             .clickable { onClick() }
             .padding(DesignTheme.Spacing.lg),
@@ -380,33 +426,40 @@ private fun EventCard(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = event.title,
                 style = DesignTheme.Typography.captionSemibold,
-                modifier = Modifier.weight(1f),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = DesignTheme.Spacing.sm)
             )
-            if (isPending) {
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(tintColor.copy(alpha = 0.12f))
+                    .padding(horizontal = 8.dp, vertical = 5.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = badgeIcon,
+                    contentDescription = null,
+                    modifier = Modifier.size(12.dp),
+                    tint = tintColor
+                )
                 Text(
-                    text = "Pending",
-                    style = DesignTheme.Typography.bodySmallest,
-                    color = Color.White,
-                    modifier = Modifier
-                        .background(
-                            Color(0xFFFF9500),
-                            shape = RoundedCornerShape(DesignTheme.CornerRadius.capsule)
-                        )
-                        .padding(
-                            horizontal = DesignTheme.Spacing.sm,
-                            vertical = DesignTheme.Spacing.xs
-                        )
+                    text = badgeText,
+                    style = DesignTheme.Typography.bodySmallest.copy(fontWeight = FontWeight.SemiBold),
+                    color = tintColor
                 )
             }
         }
 
         Row(
-            horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
+            horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm),
             verticalAlignment = Alignment.CenterVertically
         ) {
             EventInfoChip(icon = Icons.Default.CalendarToday, text = event.date)
@@ -419,16 +472,24 @@ private fun EventCard(
 @Composable
 private fun EventInfoChip(icon: ImageVector, text: String) {
     Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs)
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(14.dp),
-            tint = Color.Gray
+            modifier = Modifier.size(12.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Text(text = text, style = DesignTheme.Typography.bodySmallest, color = Color.Gray)
+        Text(
+            text = text,
+            style = DesignTheme.Typography.bodySmallest,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -444,18 +505,16 @@ private fun DateTimePickerDialog(
         onDismissRequest = onDismissRequest,
         title = { Text("Select Time") },
         text = {
-            TimePicker(state = timePickerState, layoutType = TimePickerLayoutType.Vertical)
+            TimePicker(
+                state = timePickerState,
+                layoutType = TimePickerLayoutType.Vertical,
+                colors = androidx.compose.material3.TimePickerDefaults.colors(
+                    periodSelectorSelectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    periodSelectorSelectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            )
         },
         confirmButton = confirmButton,
         dismissButton = dismissButton,
     )
-}
-
-enum class FilterMode {
-    ACTIVE,
-    PENDING,
-}
-
-private fun logScreenOpen(screenName: String) {
-    // TODO: Wire Firebase Analytics here
 }

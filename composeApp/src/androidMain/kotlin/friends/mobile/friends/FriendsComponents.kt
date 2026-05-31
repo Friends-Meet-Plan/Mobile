@@ -19,13 +19,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Group
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,8 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
-import friends.mobile.designkit.theme.DesignTheme
-import friends.mobile.designkit.components.IndicatorFactory
+import friends.mobile.designsystem.theme.DesignTheme
+import friends.mobile.designsystem.components.IndicatorFactory
 import friends.mobile.feature.friends.domain.model.User
 import friends.mobile.feature.friends.presentation.friends.RequestTab
 
@@ -75,7 +76,7 @@ fun UserRow(
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             .clickable(onClick = onClick)
             .padding(DesignTheme.Spacing.md),
         horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
@@ -111,7 +112,7 @@ fun UserRow(
                     Text(
                         text = bio,
                         style = DesignTheme.Typography.bodySmallest,
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -128,9 +129,9 @@ fun UserRow(
 @Composable
 private fun StatusBadge(currentTab: RequestTab) {
     when (currentTab) {
-        RequestTab.FRIENDS -> IndicatorFactory.active()
-        RequestTab.INCOMING -> IndicatorFactory.pending()
-        RequestTab.OUTGOING -> IndicatorFactory.sent()
+        RequestTab.FRIENDS -> IndicatorFactory.Active()
+        RequestTab.INCOMING -> IndicatorFactory.Pending()
+        RequestTab.OUTGOING -> IndicatorFactory.Sent()
     }
 }
 
@@ -155,26 +156,33 @@ fun EmptyStateView(
 
         Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
 
-        if (isSearchEmpty && searchText.isNotEmpty()) {
-            Text(
-                text = "No users found",
-                style = DesignTheme.Typography.captionSemibold
-            )
-            Text(
-                text = "Try searching with a different name",
-                style = DesignTheme.Typography.bodySmall,
-                color = Color.Gray
-            )
-        } else {
-            Text(
-                text = emptyStateTitle(currentTab),
-                style = DesignTheme.Typography.captionSemibold
-            )
-            Text(
-                text = emptyStateSubtitle(currentTab),
-                style = DesignTheme.Typography.bodySmall,
-                color = Color.Gray
-            )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm),
+        ) {
+            if (isSearchEmpty && searchText.isNotEmpty()) {
+                Text(
+                    text = "No users found",
+                    style = DesignTheme.Typography.captionSemibold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = "Try searching with a different name",
+                    style = DesignTheme.Typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                Text(
+                    text = emptyStateTitle(currentTab),
+                    style = DesignTheme.Typography.captionSemibold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = emptyStateSubtitle(currentTab),
+                    style = DesignTheme.Typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }
@@ -191,86 +199,60 @@ private fun emptyStateSubtitle(tab: RequestTab): String = when (tab) {
     RequestTab.OUTGOING -> "Requests you have sent will appear here"
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TabSelector(
     selectedTab: RequestTab,
     onTabSelected: (RequestTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    SingleChoiceSegmentedButtonRow(
+    val tabs = RequestTab.entries
+    var localSelected by remember { mutableStateOf(selectedTab) }
+    LaunchedEffect(selectedTab) { localSelected = selectedTab }
+
+    Column(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(DesignTheme.Spacing.lg)
+            .background(MaterialTheme.colorScheme.background),
     ) {
-        val tabs = RequestTab.entries
-        tabs.forEachIndexed { index, tab ->
-            SegmentedButton(
-                selected = tab == selectedTab,
-                onClick = { onTabSelected(tab) },
-                shape = SegmentedButtonDefaults.itemShape(index = index, count = tabs.size),
-                label = {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = DesignTheme.Spacing.lg)
+                .padding(top = DesignTheme.Spacing.sm, bottom = DesignTheme.Spacing.lg)
+                .clip(RoundedCornerShape(DesignTheme.CornerRadius.capsule))
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                .padding(3.dp),
+        ) {
+            tabs.forEach { tab ->
+                val isSelected = tab == localSelected
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(DesignTheme.CornerRadius.capsule))
+                        .background(
+                            if (isSelected) MaterialTheme.colorScheme.surface
+                            else Color.Transparent
+                        )
+                        .clickable {
+                            localSelected = tab
+                            onTabSelected(tab)
+                        }
+                        .padding(vertical = DesignTheme.Spacing.sm),
+                    contentAlignment = Alignment.Center
+                ) {
                     Text(
                         text = when (tab) {
                             RequestTab.FRIENDS -> "Friends"
                             RequestTab.INCOMING -> "Incoming"
                             RequestTab.OUTGOING -> "Outgoing"
                         },
-                        style = DesignTheme.Typography.bodySmall
+                        style = if (isSelected) DesignTheme.Typography.bodySmall.copy(fontWeight = FontWeight.SemiBold)
+                                else DesignTheme.Typography.bodySmall,
+                        color = if (isSelected) MaterialTheme.colorScheme.onSurface
+                                else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-            )
+            }
         }
     }
 }
 
-@Composable
-fun LoadingSkeletons() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(DesignTheme.Spacing.lg),
-        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)
-    ) {
-        repeat(8) { UserRowSkeleton() }
-    }
-}
-
-@Composable
-private fun UserRowSkeleton() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(DesignTheme.Spacing.md),
-        horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-        )
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm),
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.5f)
-                    .height(12.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(Color.Gray.copy(alpha = 0.2f)),
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.7f)
-                    .height(10.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(Color.Gray.copy(alpha = 0.12f)),
-            )
-        }
-    }
-}
