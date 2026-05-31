@@ -1,6 +1,7 @@
 package friends.mobile.main
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,14 +17,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -31,10 +34,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerLayoutType
@@ -52,12 +55,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import friends.mobile.designkit.theme.DesignTheme
+import friends.mobile.designkit.components.ButtonFactory
+import friends.mobile.designkit.components.ErrorBanner
+import friends.mobile.designkit.components.LoadingView
 import friends.mobile.feature.events.domain.model.Event
 import friends.mobile.feature.main.presentation.MainViewAction as MainEventAction
 import friends.mobile.feature.main.presentation.MainViewModel
@@ -65,7 +72,6 @@ import friends.mobile.feature.main.presentation.MainViewState
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -87,56 +93,41 @@ fun MainView(
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = System.currentTimeMillis()
     )
-    val timePickerState = rememberTimePickerState(
-        initialHour = 12,
-        initialMinute = 0
-    )
+    val timePickerState = rememberTimePickerState(initialHour = 12, initialMinute = 0)
 
     val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val dateTimeFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
 
     LaunchedEffect(Unit) {
-        // Log screen open event for analytics
         logScreenOpen("launch_home")
     }
 
     val isLoading = state is MainViewState.Loading
     val errorMessage = (state as? MainViewState.Error)?.message
-    val isRefreshing =
-        (state as? MainViewState.Content)?.isRefreshing ?: false
-    val activeEvents =
-        (state as? MainViewState.Content)?.activeEvents ?: emptyList()
-    val pendingEvents =
-        (state as? MainViewState.Content)?.pendingEvents ?: emptyList()
+    val isRefreshing = (state as? MainViewState.Content)?.isRefreshing ?: false
+    val activeEvents = (state as? MainViewState.Content)?.activeEvents ?: emptyList()
+    val pendingEvents = (state as? MainViewState.Content)?.pendingEvents ?: emptyList()
 
     val eventsToDisplay = when (filterMode) {
         FilterMode.ACTIVE -> activeEvents
         FilterMode.PENDING -> pendingEvents
     }
 
-    // Detect unified empty state: both activeEvents AND pendingEvents are empty
     val hasNoEventsAtAll = activeEvents.isEmpty() && pendingEvents.isEmpty()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Home") },
+                title = {
+                    Text(text = "Your Events", style = DesignTheme.Typography.captionSemibold)
+                },
                 actions = {
                     BadgedBox(
                         badge = {
                             if (pendingEvents.isNotEmpty()) {
-                                Badge(
-                                    modifier = Modifier
-                                        .background(
-                                            MaterialTheme.colorScheme.error,
-                                            shape = CircleShape
-                                        )
-                                        .size(20.dp),
-                                ) {
+                                Badge {
                                     Text(
                                         text = pendingEvents.size.toString(),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onError,
+                                        style = DesignTheme.Typography.bodySmallest,
                                     )
                                 }
                             }
@@ -145,7 +136,8 @@ fun MainView(
                         IconButton(onClick = onPendingEventsClick) {
                             Icon(
                                 imageVector = Icons.Default.Notifications,
-                                contentDescription = "Pending Invitations"
+                                contentDescription = "Pending Invitations",
+                                tint = DesignTheme.Colors.primary
                             )
                         }
                     }
@@ -154,158 +146,123 @@ fun MainView(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                    showDatePickerDialog = true
-                },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+                onClick = { showDatePickerDialog = true },
+                containerColor = DesignTheme.Colors.primary,
+                contentColor = Color.White,
+                shape = CircleShape,
+                modifier = Modifier.size(58.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Create Event"
-                )
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Create Event")
             }
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
+            modifier = Modifier.fillMaxSize().padding(innerPadding),
         ) {
             when {
                 isLoading && activeEvents.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator()
-                    }
+                    LoadingView(message = "Loading events...")
                 }
 
                 errorMessage != null && activeEvents.isEmpty() -> {
                     Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
+                        modifier = Modifier.fillMaxSize().padding(DesignTheme.Spacing.lg),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
-                        Text(
-                            text = errorMessage,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyMedium,
+                        ErrorBanner(message = errorMessage, modifier = Modifier.fillMaxWidth())
+                        ButtonFactory.primary(
+                            text = "Retry",
+                            onClick = { viewModel.obtainEvent(MainEventAction.OnRefresh) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = DesignTheme.Spacing.lg)
                         )
-                        Button(
-                            onClick = {
-                                viewModel.obtainEvent(MainEventAction.OnRefresh)
-                            },
-                            modifier = Modifier.padding(top = 16.dp),
-                        ) {
-                            Text("Retry")
-                        }
                     }
                 }
 
                 hasNoEventsAtAll -> {
-                    // Unified empty state: no events at all
                     Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
+                        modifier = Modifier.fillMaxSize().padding(DesignTheme.Spacing.lg),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
                         Text(
-                            text = "You have no events, create it now!",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray,
+                            text = "You have no events yet",
+                            style = DesignTheme.Typography.captionSemibold,
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { showDatePickerDialog = true }) {
-                            Text("Create first event")
-                        }
+                        Spacer(modifier = Modifier.height(DesignTheme.Spacing.sm))
+                        Text(
+                            text = "Tap + to create your first event",
+                            style = DesignTheme.Typography.bodySmall,
+                            color = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.height(DesignTheme.Spacing.xxl))
+                        ButtonFactory.primary(
+                            text = "Create Event",
+                            onClick = { showDatePickerDialog = true },
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
 
                 else -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(0.dp),
-                    ) {
-                        // Filter Toggle
-                        Row(
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        SingleChoiceSegmentedButtonRow(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.Center,
+                                .padding(DesignTheme.Spacing.lg)
                         ) {
-                            SingleChoiceSegmentedButtonRow(
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                FilterMode.entries.forEachIndexed { index, mode ->
-                                    SegmentedButton(
-                                        selected = filterMode == mode,
-                                        onClick = { filterMode = mode },
-                                        shape = MaterialTheme.shapes.small,
-                                        modifier = Modifier.weight(1f),
-                                    ) {
-                                        val label = when (mode) {
-                                            FilterMode.ACTIVE -> "Active (${activeEvents.size})"
-                                            FilterMode.PENDING -> "Pending (${pendingEvents.size})"
-                                        }
-                                        Text(label)
+                            FilterMode.entries.forEachIndexed { index, mode ->
+                                SegmentedButton(
+                                    selected = filterMode == mode,
+                                    onClick = { filterMode = mode },
+                                    shape = SegmentedButtonDefaults.itemShape(
+                                        index = index,
+                                        count = FilterMode.entries.size
+                                    ),
+                                ) {
+                                    val label = when (mode) {
+                                        FilterMode.ACTIVE -> "Active (${activeEvents.size})"
+                                        FilterMode.PENDING -> "Pending (${pendingEvents.size})"
                                     }
+                                    Text(label, style = DesignTheme.Typography.bodySmall)
                                 }
                             }
                         }
 
-                        // Events List with Pull-to-Refresh
                         val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
                         SwipeRefresh(
                             state = swipeRefreshState,
-                            onRefresh = {
-                                viewModel.obtainEvent(MainEventAction.OnRefresh)
-                            },
+                            onRefresh = { viewModel.obtainEvent(MainEventAction.OnRefresh) },
                             modifier = Modifier.weight(1f),
                         ) {
-                            Column(
-                                modifier = Modifier.fillMaxSize(),
-                            ) {
-                                if (eventsToDisplay.isEmpty()) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(16.dp),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        val emptyMessage = when (filterMode) {
+                            if (eventsToDisplay.isEmpty()) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize().padding(DesignTheme.Spacing.lg),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        text = when (filterMode) {
                                             FilterMode.ACTIVE -> "No active events yet"
                                             FilterMode.PENDING -> "No pending invitations"
-                                        }
-                                        Text(
-                                            text = emptyMessage,
-                                            style = MaterialTheme.typography.bodyMedium,
+                                        },
+                                        style = DesignTheme.Typography.body,
+                                        color = Color.Gray
+                                    )
+                                }
+                            } else {
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentPadding = PaddingValues(DesignTheme.Spacing.lg),
+                                    verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
+                                ) {
+                                    items(eventsToDisplay, key = { it.id }) { event ->
+                                        EventCard(
+                                            event = event,
+                                            onClick = { onEventDetailClick(event.id) },
+                                            isPending = filterMode == FilterMode.PENDING,
                                         )
-                                    }
-                                } else {
-                                    LazyColumn(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        contentPadding = PaddingValues(16.dp),
-                                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                                    ) {
-                                        items(
-                                            eventsToDisplay,
-                                            key = { it.id }
-                                        ) { event ->
-                                            EventCard(
-                                                event = event,
-                                                onClick = {
-                                                    onEventDetailClick(event.id)
-                                                },
-                                                isPending = filterMode == FilterMode.PENDING,
-                                            )
-                                        }
                                     }
                                 }
                             }
@@ -318,27 +275,15 @@ fun MainView(
 
     if (showDatePickerDialog && !showTimePickerDialog) {
         DatePickerDialog(
-            onDismissRequest = {
-                showDatePickerDialog = false
-            },
+            onDismissRequest = { showDatePickerDialog = false },
             confirmButton = {
-                Button(
-                    onClick = {
-                        showDatePickerDialog = false
-                        showTimePickerDialog = true
-                    },
-                ) {
-                    Text("Next")
-                }
+                Button(onClick = {
+                    showDatePickerDialog = false
+                    showTimePickerDialog = true
+                }) { Text("Next") }
             },
             dismissButton = {
-                Button(
-                    onClick = {
-                        showDatePickerDialog = false
-                    },
-                ) {
-                    Text("Cancel")
-                }
+                Button(onClick = { showDatePickerDialog = false }) { Text("Cancel") }
             },
         ) {
             DatePicker(state = datePickerState)
@@ -347,9 +292,7 @@ fun MainView(
 
     if (showTimePickerDialog) {
         DateTimePickerDialog(
-            onDismissRequest = {
-                showTimePickerDialog = false
-            },
+            onDismissRequest = { showTimePickerDialog = false },
             confirmButton = {
                 Button(
                     onClick = {
@@ -361,7 +304,6 @@ fun MainView(
                                 set(Calendar.MINUTE, timePickerState.minute)
                             }
                             val dateString = dateFormatter.format(calendar.time)
-                            val dateTimeString = dateTimeFormatter.format(calendar.time)
 
                             isCheckingAvailability = true
                             coroutineScope.launch {
@@ -369,16 +311,13 @@ fun MainView(
                                 isCheckingAvailability = false
 
                                 when (availabilityResult) {
-
                                     true -> {
                                         onCreateEventClick(dateString)
                                         showTimePickerDialog = false
                                     }
-
                                     false -> {
                                         showBusyAlert = true
                                     }
-
                                     null -> {
                                         onCreateEventClick(dateString)
                                         showTimePickerDialog = false
@@ -398,13 +337,9 @@ fun MainView(
             },
             dismissButton = {
                 Button(
-                    onClick = {
-                        showTimePickerDialog = false
-                    },
+                    onClick = { showTimePickerDialog = false },
                     enabled = !isCheckingAvailability,
-                ) {
-                    Text("Cancel")
-                }
+                ) { Text("Cancel") }
             },
             timePickerState = timePickerState,
         )
@@ -412,23 +347,11 @@ fun MainView(
 
     if (showBusyAlert) {
         androidx.compose.material3.AlertDialog(
-            onDismissRequest = {
-                showBusyAlert = false
-            },
-            title = {
-                Text("Not Available")
-            },
-            text = {
-                Text("You are busy on this day. Please select another date.")
-            },
+            onDismissRequest = { showBusyAlert = false },
+            title = { Text("Not Available") },
+            text = { Text("You are busy on this day. Please select another date.") },
             confirmButton = {
-                Button(
-                    onClick = {
-                        showBusyAlert = false
-                    },
-                ) {
-                    Text("OK")
-                }
+                Button(onClick = { showBusyAlert = false }) { Text("OK") }
             },
         )
     }
@@ -440,93 +363,70 @@ private fun EventCard(
     onClick: () -> Unit,
     isPending: Boolean = false,
 ) {
-    // Light orange/peach background for pending events (similar to iOS)
-    val backgroundColor = if (isPending) {
-        Color(red = 1.0f, green = 0.97f, blue = 0.92f).copy(alpha = 0.6f)
-    } else {
-        MaterialTheme.colorScheme.surface
-    }
+    val tintColor = if (isPending) Color(0xFFFF9500) else DesignTheme.Colors.primary
 
-    Card(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .background(Color.White)
+            .border(1.dp, tintColor.copy(alpha = 0.15f), RoundedCornerShape(18.dp))
             .clickable { onClick() }
-            .padding(8.dp),
+            .padding(DesignTheme.Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)
     ) {
-        Column(
-            modifier = Modifier
-                .background(backgroundColor)
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Title with pending badge
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = event.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f),
-                )
-                if (isPending) {
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                Color(red = 1.0f, green = 0.647f, blue = 0.0f), // Orange color
-                                shape = MaterialTheme.shapes.small,
-                            )
-                            .clip(MaterialTheme.shapes.small)
-                            .padding(horizontal = 8.dp, vertical = 2.dp),
-                    ) {
-                        Text(
-                            text = "Pending",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White,
-                        )
-                    }
-                }
-            }
-
-            // Date
             Text(
-                text = event.date,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray,
+                text = event.title,
+                style = DesignTheme.Typography.captionSemibold,
+                modifier = Modifier.weight(1f),
             )
-
-            // Time (if present)
-            event.time?.let { time ->
+            if (isPending) {
                 Text(
-                    text = time,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
-                )
-            }
-
-            // Participants with person icon
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = Color.Gray,
-                )
-                Text(
-                    text = "${event.participants.size} participants",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
-                    modifier = Modifier.padding(start = 4.dp),
+                    text = "Pending",
+                    style = DesignTheme.Typography.bodySmallest,
+                    color = Color.White,
+                    modifier = Modifier
+                        .background(
+                            Color(0xFFFF9500),
+                            shape = RoundedCornerShape(DesignTheme.CornerRadius.capsule)
+                        )
+                        .padding(
+                            horizontal = DesignTheme.Spacing.sm,
+                            vertical = DesignTheme.Spacing.xs
+                        )
                 )
             }
         }
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            EventInfoChip(icon = Icons.Default.CalendarToday, text = event.date)
+            event.time?.let { EventInfoChip(icon = Icons.Default.Schedule, text = it) }
+            EventInfoChip(icon = Icons.Default.Group, text = "${event.participants.size}")
+        }
+    }
+}
+
+@Composable
+private fun EventInfoChip(icon: ImageVector, text: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(14.dp),
+            tint = Color.Gray
+        )
+        Text(text = text, style = DesignTheme.Typography.bodySmallest, color = Color.Gray)
     }
 }
 
@@ -542,10 +442,7 @@ private fun DateTimePickerDialog(
         onDismissRequest = onDismissRequest,
         title = { Text("Select Time") },
         text = {
-            TimePicker(
-                state = timePickerState,
-                layoutType = TimePickerLayoutType.Vertical,
-            )
+            TimePicker(state = timePickerState, layoutType = TimePickerLayoutType.Vertical)
         },
         confirmButton = confirmButton,
         dismissButton = dismissButton,
@@ -559,10 +456,4 @@ enum class FilterMode {
 
 private fun logScreenOpen(screenName: String) {
     // TODO: Wire Firebase Analytics here
-    // FirebaseAnalytics.getInstance().logEvent(
-    //     "screen_view",
-    //     Bundle().apply {
-    //         putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName)
-    //     }
-    // )
 }

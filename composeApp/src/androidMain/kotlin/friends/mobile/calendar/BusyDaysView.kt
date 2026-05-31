@@ -12,12 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +22,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import friends.mobile.designkit.theme.DesignTheme
+import friends.mobile.designkit.components.ButtonFactory
+import friends.mobile.designkit.components.ErrorBanner
 import friends.mobile.feature.calendar.presentation.BusyDaysEvent
 import friends.mobile.feature.calendar.presentation.BusyDaysViewModel
 import friends.mobile.feature.calendar.presentation.BusyDaysViewState
@@ -45,26 +45,18 @@ fun BusyDaysView(
 ) {
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-    ) {
-        Text(
-            text = "Activity",
-            style = MaterialTheme.typography.titleLarge
-        )
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(text = "Activity", style = DesignTheme.Typography.heading)
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
 
         when (val current = state) {
             is BusyDaysViewState.Loading -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(120.dp),
+                    modifier = Modifier.fillMaxWidth().height(120.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = DesignTheme.Colors.primary)
                 }
             }
             is BusyDaysViewState.Error -> {
@@ -86,7 +78,7 @@ fun BusyDaysView(
 
 @Composable
 private fun ActivityGridView(busyDays: List<String>) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)) {
         WeekdayLabels()
         BusyDaysGrid(busyDays = busyDays)
         Legend()
@@ -103,8 +95,8 @@ private fun WeekdayLabels() {
         weekdays.forEach { day ->
             Text(
                 text = day,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = DesignTheme.Typography.bodySmallest,
+                color = Color.Gray,
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center
             )
@@ -115,7 +107,7 @@ private fun WeekdayLabels() {
 @Composable
 private fun BusyDaysGrid(busyDays: List<String>) {
     val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-    val endDate = today.plus(27, DateTimeUnit.DAY) // 4 weeks
+    val endDate = today.plus(27, DateTimeUnit.DAY)
 
     val dateRange = mutableListOf<LocalDate>()
     var currentDate = today
@@ -131,13 +123,9 @@ private fun BusyDaysGrid(busyDays: List<String>) {
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 week.forEach { date ->
                     Box(modifier = Modifier.weight(1f)) {
-                        DayCell(
-                            date = date,
-                            isBusy = busyDays.contains(date.toString())
-                        )
+                        DayCell(date = date, isBusy = busyDays.contains(date.toString()))
                     }
                 }
-                // Заполняем пустоту, если в неделе меньше 7 дней
                 repeat(7 - week.size) {
                     Spacer(modifier = Modifier.weight(1f))
                 }
@@ -152,15 +140,15 @@ private fun DayCell(date: LocalDate, isBusy: Boolean) {
         modifier = Modifier
             .aspectRatio(1f)
             .background(
-                color = if (isBusy) Color(0xFF4CAF50) else MaterialTheme.colorScheme.surfaceVariant,
+                color = if (isBusy) DesignTheme.Colors.secondaryAccent else DesignTheme.Colors.textField,
                 shape = RoundedCornerShape(4.dp)
             ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = date.dayOfMonth.toString(),
-            style = MaterialTheme.typography.labelSmall,
-            color = if (isBusy) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+            style = DesignTheme.Typography.bodySmallest,
+            color = if (isBusy) Color.White else Color.Gray
         )
     }
 }
@@ -169,10 +157,10 @@ private fun DayCell(date: LocalDate, isBusy: Boolean) {
 private fun Legend() {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.lg)
     ) {
-        LegendItem(color = Color(0xFF4CAF50), label = "Busy")
-        LegendItem(color = MaterialTheme.colorScheme.surfaceVariant, label = "Not busy")
+        LegendItem(color = DesignTheme.Colors.secondaryAccent, label = "Busy")
+        LegendItem(color = DesignTheme.Colors.textField, label = "Not busy")
     }
 }
 
@@ -180,7 +168,7 @@ private fun Legend() {
 private fun LegendItem(color: Color, label: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)
     ) {
         Box(
             modifier = Modifier
@@ -189,8 +177,8 @@ private fun LegendItem(color: Color, label: String) {
         )
         Text(
             text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = DesignTheme.Typography.bodySmallest,
+            color = Color.Gray
         )
     }
 }
@@ -198,13 +186,13 @@ private fun LegendItem(color: Color, label: String) {
 @Composable
 private fun EmptyContent() {
     Box(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = DesignTheme.Spacing.xxl),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = "No busy days recorded",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = DesignTheme.Typography.body,
+            color = Color.Gray
         )
     }
 }
@@ -212,11 +200,11 @@ private fun EmptyContent() {
 @Composable
 private fun ErrorContent(message: String, onRetry: () -> Unit) {
     Column(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = DesignTheme.Spacing.lg),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
     ) {
-        Text(text = message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
-        Button(onClick = onRetry) { Text("Retry") }
+        ErrorBanner(message = message, modifier = Modifier.fillMaxWidth())
+        ButtonFactory.primary(text = "Retry", onClick = onRetry, modifier = Modifier.fillMaxWidth())
     }
 }

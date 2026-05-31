@@ -8,11 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,11 +21,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import friends.mobile.designkit.DesignTheme
-import friends.mobile.designkit.FormTextField
-import friends.mobile.designkit.PrimaryButton
+import friends.mobile.designkit.theme.DesignTheme
+import friends.mobile.designkit.components.ButtonFactory
+import friends.mobile.designkit.components.ErrorBanner
+import friends.mobile.designkit.components.FormErrorMessage
+import friends.mobile.designkit.components.FormTextField
+import friends.mobile.designkit.components.LoadingView
 import friends.mobile.feature.profile.presentation.edit.EditProfileAction
 import friends.mobile.feature.profile.presentation.edit.EditProfileEvent
 import friends.mobile.feature.profile.presentation.edit.EditProfileViewModel
@@ -51,7 +51,7 @@ fun EditProfileScreen(
         viewModel.viewActions.collectLatest { action ->
             when (action) {
                 is EditProfileAction.NavigateBack -> onBack()
-                is EditProfileAction.ShowMessage -> { /* Handle snackbar */ }
+                is EditProfileAction.ShowMessage -> { }
             }
         }
     }
@@ -62,7 +62,10 @@ fun EditProfileScreen(
                 title = { Text("Edit Profile") },
                 navigationIcon = {
                     IconButton(onClick = { viewModel.obtainEvent(EditProfileEvent.OnBackClick) }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
                 }
             )
@@ -75,7 +78,7 @@ fun EditProfileScreen(
         ) {
             when (val currentState = state) {
                 is EditProfileViewState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    LoadingView()
                 }
                 is EditProfileViewState.Content -> {
                     EditContent(
@@ -84,7 +87,10 @@ fun EditProfileScreen(
                     )
                 }
                 is EditProfileViewState.Error -> {
-                    ErrorState(message = currentState.message, onBack = onBack)
+                    EditErrorContent(
+                        message = currentState.message,
+                        onBack = onBack
+                    )
                 }
             }
         }
@@ -94,69 +100,54 @@ fun EditProfileScreen(
 @Composable
 private fun EditContent(
     state: EditProfileViewState.Content,
-    onEvent: (EditProfileEvent) -> Unit
+    onEvent: (EditProfileEvent) -> Unit,
 ) {
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(DesignTheme.Spacing.lg),
         verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.lg)
     ) {
-        item {
-            FormTextField(
-                value = state.username,
-                onValueChange = { onEvent(EditProfileEvent.OnUsernameChanged(it)) },
-                placeholder = "Username",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp)
-            )
-        }
+        FormTextField(
+            value = state.username,
+            onValueChange = { onEvent(EditProfileEvent.OnUsernameChanged(it)) },
+            placeholder = "Username",
+            modifier = Modifier.fillMaxWidth()
+        )
 
-        item {
-            FormTextField(
-                value = state.bio,
-                onValueChange = { onEvent(EditProfileEvent.OnBioChanged(it)) },
-                placeholder = "Bio",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp)
-            )
-        }
+        FormTextField(
+            value = state.bio,
+            onValueChange = { onEvent(EditProfileEvent.OnBioChanged(it)) },
+            placeholder = "Bio",
+            modifier = Modifier.fillMaxWidth()
+        )
 
-        item {
-            FormTextField(
-                value = state.avatarUrl,
-                onValueChange = { onEvent(EditProfileEvent.OnAvatarUrlChanged(it)) },
-                placeholder = "Avatar URL",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp)
-            )
-        }
+        FormTextField(
+            value = state.avatarUrl,
+            onValueChange = { onEvent(EditProfileEvent.OnAvatarUrlChanged(it)) },
+            placeholder = "Avatar URL",
+            modifier = Modifier.fillMaxWidth()
+        )
 
-        item {
-            Spacer(modifier = Modifier.height(DesignTheme.Spacing.xxxl))
-        }
+        Spacer(modifier = Modifier.weight(1f))
 
-        item {
-            PrimaryButton(
-                text = if (state.isSaving) "Saving..." else "Save",
-                onClick = { onEvent(EditProfileEvent.OnSaveClick) },
-                modifier = Modifier.fillMaxWidth(),
-                isLoading = state.isSaving,
-                isEnabled = !state.isSaving
-            )
-        }
+        ButtonFactory.primary(
+            text = "Save",
+            onClick = { onEvent(EditProfileEvent.OnSaveClick) },
+            modifier = Modifier.fillMaxWidth(),
+            isLoading = state.isSaving,
+            isEnabled = !state.isSaving
+        )
 
-        item {
-            Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
-        }
+        Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
     }
 }
 
 @Composable
-private fun ErrorState(message: String, onBack: () -> Unit) {
+private fun EditErrorContent(
+    message: String,
+    onBack: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -164,16 +155,14 @@ private fun ErrorState(message: String, onBack: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = message,
-            color = DesignTheme.Colors.error,
-            style = DesignTheme.Typography.body
-        )
-        Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
-        PrimaryButton(
+        ErrorBanner(message = message)
+
+        ButtonFactory.primary(
             text = "Go Back",
             onClick = onBack,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = DesignTheme.Spacing.lg)
         )
     }
 }

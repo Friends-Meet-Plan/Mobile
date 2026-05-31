@@ -1,19 +1,19 @@
 package friends.mobile.main
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -22,6 +22,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import friends.mobile.archive.ArchiveEventsView
+import friends.mobile.designkit.theme.DesignTheme
 import friends.mobile.events.CreateEventView
 import friends.mobile.events.EventDetailView
 import friends.mobile.events.PendingEventListView
@@ -60,16 +61,27 @@ fun MainScreen(
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = Color.White,
+            ) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
-                
+
                 bottomNavItems.forEach { (screen, title, icon) ->
                     val routeName = screen::class.qualifiedName ?: ""
+                    val selected = currentDestination?.hierarchy?.any {
+                        it.route?.contains(routeName) == true
+                    } == true
+
                     NavigationBarItem(
                         icon = { Icon(icon, contentDescription = title) },
-                        label = { Text(title) },
-                        selected = currentDestination?.hierarchy?.any { it.route?.contains(routeName) == true } == true,
+                        label = {
+                            Text(
+                                text = title,
+                                style = DesignTheme.Typography.bodySmallest
+                            )
+                        },
+                        selected = selected,
                         onClick = {
                             navController.navigate(screen) {
                                 popUpTo(navController.graph.findStartDestination().id) {
@@ -78,7 +90,14 @@ fun MainScreen(
                                 launchSingleTop = true
                                 restoreState = true
                             }
-                        }
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = DesignTheme.Colors.primary,
+                            selectedTextColor = DesignTheme.Colors.primary,
+                            indicatorColor = DesignTheme.Colors.primary.copy(alpha = 0.08f),
+                            unselectedIconColor = Color(0xFF8E8E93),
+                            unselectedTextColor = Color(0xFF8E8E93),
+                        )
                     )
                 }
             }

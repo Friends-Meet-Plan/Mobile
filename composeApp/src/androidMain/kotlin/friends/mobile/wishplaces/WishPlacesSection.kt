@@ -1,14 +1,12 @@
 package friends.mobile.wishplaces
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -16,9 +14,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import friends.mobile.designkit.theme.DesignTheme
+import friends.mobile.designkit.components.ButtonFactory
 import friends.mobile.feature.wishplaces.domain.model.WishPlace
 import friends.mobile.feature.wishplaces.presentation.WishPlacesAction
 import friends.mobile.feature.wishplaces.presentation.WishPlacesEvent
@@ -34,102 +35,72 @@ fun WishPlacesSection(
     modifier: Modifier = Modifier,
     viewModel: WishPlacesViewModel = koinViewModel(),
 ) {
-
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
 
-    var showCreateSheet by remember {
-        mutableStateOf(false)
-    }
-
-    var selectedPlace by remember {
-        mutableStateOf<WishPlace?>(null)
-    }
+    var showCreateSheet by remember { mutableStateOf(false) }
+    var selectedPlace by remember { mutableStateOf<WishPlace?>(null) }
 
     LaunchedEffect(userId) {
-        viewModel.obtainEvent(
-            WishPlacesEvent.LoadPlaces(userId)
-        )
+        viewModel.obtainEvent(WishPlacesEvent.LoadPlaces(userId))
     }
 
     LaunchedEffect(viewModel) {
         viewModel.viewActions.collectLatest { action ->
-
             when (action) {
-
-                is WishPlacesAction.PlaceCreated -> {
-                    showCreateSheet = false
-                }
-
-                is WishPlacesAction.ShowError -> {
-                    // snackbar if needed
-                }
+                is WishPlacesAction.PlaceCreated -> showCreateSheet = false
+                is WishPlacesAction.ShowError -> { }
             }
         }
     }
 
     Column(modifier = modifier) {
-
         if (mode == WishPlacesMode.EDITABLE) {
-
-            Button(
-                onClick = {
-                    showCreateSheet = true
-                }
-            ) {
-                Text("Create Wish Place")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            ButtonFactory.compact(
+                text = "Add Wish Place",
+                onClick = { showCreateSheet = true }
+            )
+            Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
         }
 
         when (val current = state) {
-
             is WishPlacesViewState.Loading -> {
-
-                CircularProgressIndicator()
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(DesignTheme.Spacing.xxxl),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = DesignTheme.Colors.primary)
+                }
             }
 
             is WishPlacesViewState.Error -> {
-
                 Text(
                     text = current.message,
-                    color = MaterialTheme.colorScheme.error
+                    style = DesignTheme.Typography.bodySmall,
+                    color = DesignTheme.Colors.error
                 )
             }
 
             is WishPlacesViewState.Content -> {
-
                 if (current.places.isEmpty()) {
-
-                    Text("No wish places")
+                    Text(
+                        text = "No wish places yet",
+                        style = DesignTheme.Typography.bodySmall,
+                        color = Color.Gray
+                    )
                 }
 
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-
+                Column(verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)) {
                     current.places.forEach { place ->
-
                         WishPlaceItem(
                             place = place,
-
-                            onClick = {
-                                selectedPlace = place
-                            },
-
+                            onClick = { selectedPlace = place },
                             onDelete = {
-
                                 if (mode == WishPlacesMode.EDITABLE) {
-
                                     viewModel.obtainEvent(
-                                        WishPlacesEvent.ArchivePlace(
-                                            userId = userId,
-                                            id = place.id
-                                        )
+                                        WishPlacesEvent.ArchivePlace(userId = userId, id = place.id)
                                     )
                                 }
                             },
-
                             enableDelete = mode == WishPlacesMode.EDITABLE
                         )
                     }
@@ -139,15 +110,9 @@ fun WishPlacesSection(
     }
 
     if (showCreateSheet) {
-
         CreateWishPlaceBottomSheet(
-
-            onDismiss = {
-                showCreateSheet = false
-            },
-
+            onDismiss = { showCreateSheet = false },
             onCreate = { title, desc, loc, link ->
-
                 viewModel.obtainEvent(
                     WishPlacesEvent.CreatePlace(
                         userId = userId,
@@ -162,12 +127,9 @@ fun WishPlacesSection(
     }
 
     selectedPlace?.let { place ->
-
         WishPlaceDetailBottomSheet(
             place = place,
-            onDismiss = {
-                selectedPlace = null
-            }
+            onDismiss = { selectedPlace = null }
         )
     }
 }

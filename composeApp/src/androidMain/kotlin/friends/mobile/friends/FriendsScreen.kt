@@ -1,14 +1,30 @@
 package friends.mobile.friends
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import friends.mobile.designkit.theme.DesignTheme
+import friends.mobile.designkit.components.ErrorBanner
+import friends.mobile.designkit.components.LoadingView
+import friends.mobile.designkit.components.SearchBar
 import friends.mobile.feature.friends.domain.model.User
 import friends.mobile.feature.friends.presentation.friends.FriendsAction
 import friends.mobile.feature.friends.presentation.friends.FriendsEvent
@@ -29,12 +45,8 @@ fun FriendsScreen(
     LaunchedEffect(viewModel) {
         viewModel.viewActions.collectLatest { action ->
             when (action) {
-                is FriendsAction.ShowError -> {
-                    snackbarHostState.showSnackbar(action.message)
-                }
-                is FriendsAction.NavigateToFriendProfile -> {
-                    selectedFriendId = action.userId
-                }
+                is FriendsAction.ShowError -> snackbarHostState.showSnackbar(action.message)
+                is FriendsAction.NavigateToFriendProfile -> selectedFriendId = action.userId
             }
         }
     }
@@ -47,9 +59,7 @@ fun FriendsScreen(
                 TabSelector(
                     selectedTab = currentState.currentTab,
                     onTabSelected = { viewModel.obtainEvent(FriendsEvent.OnTabSelected(it)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface),
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
@@ -57,17 +67,16 @@ fun FriendsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .background(MaterialTheme.colorScheme.background),
+                .padding(padding),
         ) {
             when (val currentState = state) {
-                is FriendsViewState.Loading -> {
-                    LoadingSkeletons()
-                }
+                is FriendsViewState.Loading -> LoadingView()
                 is FriendsViewState.Error -> {
                     ErrorBanner(
                         message = currentState.message,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(DesignTheme.Spacing.lg)
                     )
                 }
                 is FriendsViewState.Content -> {
@@ -84,9 +93,7 @@ fun FriendsScreen(
         userId = selectedFriendId ?: "",
         isVisible = selectedFriendId != null,
         onDismiss = { selectedFriendId = null },
-        onSheetDismissed = {
-            viewModel.obtainEvent(FriendsEvent.ReloadCurrentTab)
-        }
+        onSheetDismissed = { viewModel.obtainEvent(FriendsEvent.ReloadCurrentTab) }
     )
 }
 
@@ -97,13 +104,12 @@ private fun FriendsContent(
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         SearchBar(
-            text = state.searchText,
-            onTextChange = { onEvent(FriendsEvent.OnSearchUsers(it)) },
+            value = state.searchText,
+            onValueChange = { onEvent(FriendsEvent.OnSearchUsers(it)) },
             onClear = { onEvent(FriendsEvent.OnSearchUsers("")) },
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(16.dp),
+                .padding(DesignTheme.Spacing.lg),
         )
 
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
@@ -113,11 +119,11 @@ private fun FriendsContent(
                 RequestTab.OUTGOING -> state.outgoingRequests
             }
 
-            // Показываем список всегда, если он не пуст. 
-            // Если пуст — показываем EmptyState только когда поиск НЕ активен.
             if (listToDisplay.isNotEmpty()) {
                 UserListView(
                     users = listToDisplay,
+                    currentTab = state.currentTab,
+                    searchText = state.searchText,
                     onUserSelected = { user -> onEvent(FriendsEvent.OnUserClick(user.id)) }
                 )
             } else if (!state.isSearching) {
@@ -128,19 +134,14 @@ private fun FriendsContent(
                 )
             }
 
-            // Небольшой индикатор прогресса под поисковой строкой вместо мигающего экрана
             if (state.isSearching) {
                 LinearProgressIndicator(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(2.dp)
                         .align(Alignment.TopCenter),
-                    color = MaterialTheme.colorScheme.primary
+                    color = DesignTheme.Colors.primary
                 )
-            }
-            
-            if (state.isActionPending) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         }
     }

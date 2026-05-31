@@ -26,12 +26,9 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -48,11 +45,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import friends.mobile.designkit.DesignTheme
-import friends.mobile.designkit.FormTextField
-import friends.mobile.designkit.PrimaryButton
+import friends.mobile.designkit.theme.DesignTheme
+import friends.mobile.designkit.components.ButtonFactory
+import friends.mobile.designkit.components.FormTextField
 import friends.mobile.feature.wishplaces.domain.model.WishPlace
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,12 +64,12 @@ fun WishPlaceItem(
         WishPlaceCard(place = place, onClick = onClick, modifier = modifier)
     } else {
         val dismissState = rememberSwipeToDismissBoxState(
-            positionalThreshold = { totalDistance -> totalDistance * 0.4f }, // 40% свайпа
+            positionalThreshold = { totalDistance -> totalDistance * 0.4f },
             confirmValueChange = { value ->
                 when (value) {
                     SwipeToDismissBoxValue.EndToStart -> {
                         onDelete()
-                        true // важно: разрешаем завершение анимации
+                        true
                     }
                     else -> false
                 }
@@ -90,13 +86,13 @@ fun WishPlaceItem(
             backgroundContent = {
                 val isDismissing = dismissState.targetValue == SwipeToDismissBoxValue.EndToStart
                 val color by animateColorAsState(
-                    targetValue = if (isDismissing) MaterialTheme.colorScheme.error else Color.Transparent,
+                    targetValue = if (isDismissing) DesignTheme.Colors.error else Color.Transparent,
                     label = "delete_color"
                 )
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
                         .background(color)
                         .padding(horizontal = 20.dp),
                     contentAlignment = Alignment.CenterEnd
@@ -123,48 +119,55 @@ private fun WishPlaceCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
+            .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
+            .background(DesignTheme.Colors.textField)
+            .clickable(onClick = onClick)
+            .padding(DesignTheme.Spacing.md),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs)
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = place.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                place.location?.let {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(Modifier.width(4.dp))
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+            Text(
+                text = place.title,
+                style = DesignTheme.Typography.captionSemibold,
+                color = Color.Black
+            )
+            place.location?.let {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = DesignTheme.Colors.primary
+                    )
+                    Text(
+                        text = it,
+                        style = DesignTheme.Typography.bodySmall,
+                        color = Color.Gray
+                    )
                 }
             }
-            Text(
-                text = place.status.name.lowercase().replaceFirstChar { it.uppercase() },
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary
-            )
         }
+        Text(
+            text = place.status.name.lowercase().replaceFirstChar { it.uppercase() },
+            style = DesignTheme.Typography.bodySmallest,
+            color = Color.White,
+            modifier = Modifier
+                .background(
+                    color = DesignTheme.Colors.primary,
+                    shape = RoundedCornerShape(DesignTheme.CornerRadius.capsule)
+                )
+                .padding(horizontal = DesignTheme.Spacing.sm, vertical = DesignTheme.Spacing.xs)
+        )
     }
 }
 
@@ -225,7 +228,7 @@ fun CreateWishPlaceBottomSheet(
 
             Spacer(modifier = Modifier.height(DesignTheme.Spacing.md))
 
-            PrimaryButton(
+            ButtonFactory.primary(
                 text = "Create",
                 onClick = {
                     onCreate(
@@ -235,6 +238,7 @@ fun CreateWishPlaceBottomSheet(
                         link.ifBlank { null }
                     )
                 },
+                modifier = Modifier.fillMaxWidth(),
                 isEnabled = title.isNotBlank()
             )
 
@@ -251,8 +255,8 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
         scrimColor = Color.Black.copy(alpha = 0.3f),
         containerColor = Color.White,
         shape = RoundedCornerShape(
-            topStart = 12.dp,
-            topEnd = 12.dp
+            topStart = DesignTheme.CornerRadius.medium,
+            topEnd = DesignTheme.CornerRadius.medium
         )
     ) {
         Column(
@@ -274,14 +278,9 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
                     modifier = Modifier.weight(1f)
                 )
 
-                Button(
+                IconButton(
                     onClick = onDismiss,
-                    modifier = Modifier.size(24.dp),
-                    shape = RoundedCornerShape(50),
-                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent
-                    ),
-                    contentPadding = PaddingValues(0.dp)
+                    modifier = Modifier.size(32.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -331,13 +330,7 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
 
                 if (!place.link.isNullOrEmpty()) {
                     androidx.compose.material3.TextButton(
-                        onClick = {
-                            val intent = android.content.Intent(
-                                android.content.Intent.ACTION_VIEW,
-                                android.net.Uri.parse(place.link)
-                            )
-                            // Context needed - will be handled in caller
-                        },
+                        onClick = { },
                         modifier = Modifier.height(28.dp),
                         shape = RoundedCornerShape(DesignTheme.CornerRadius.capsule),
                         colors = androidx.compose.material3.ButtonDefaults.buttonColors(

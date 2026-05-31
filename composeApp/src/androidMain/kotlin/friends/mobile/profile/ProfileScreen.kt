@@ -4,22 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -30,11 +20,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import friends.mobile.calendar.BusyDaysView
-import friends.mobile.designkit.DesignTheme
-import friends.mobile.designkit.PrimaryButton
+import friends.mobile.designkit.theme.DesignTheme
+import friends.mobile.designkit.components.ButtonFactory
+import friends.mobile.designkit.components.ErrorBanner
+import friends.mobile.designkit.components.LoadingView
+import friends.mobile.designkit.components.UserView
+import friends.mobile.designkit.components.Dimension
 import friends.mobile.feature.profile.domain.model.Profile
 import friends.mobile.feature.profile.presentation.profile.ProfileAction
 import friends.mobile.feature.profile.presentation.profile.ProfileEvent
@@ -52,102 +45,57 @@ fun ProfileScreen(
     onEditClick: (Profile) -> Unit,
     viewModel: ProfileViewModel = koinViewModel(),
 ) {
-
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
-
-    val snackbarHostState = remember {
-        SnackbarHostState()
-    }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         viewModel.obtainEvent(ProfileEvent.OnRefreshProfile)
     }
 
     LaunchedEffect(viewModel) {
-
         viewModel.viewActions.collectLatest { action ->
-
             when (action) {
-
-                is ProfileAction.NavigateToLogin -> {
-                    onLogout()
-                }
-
-                is ProfileAction.NavigateToEdit -> {
-                    onEditClick(action.profile)
-                }
-
-                is ProfileAction.ShowMessage -> {
-                    snackbarHostState.showSnackbar(action.message)
-                }
+                is ProfileAction.NavigateToLogin -> onLogout()
+                is ProfileAction.NavigateToEdit -> onEditClick(action.profile)
+                is ProfileAction.ShowMessage -> snackbarHostState.showSnackbar(action.message)
             }
         }
     }
 
     Scaffold(
-
         topBar = {
-
             CenterAlignedTopAppBar(
                 title = {
                     Text(
                         text = "Profile",
-                        style = MaterialTheme.typography.titleLarge
+                        style = DesignTheme.Typography.captionSemibold
                     )
                 }
             )
         },
-
-        snackbarHost = {
-            SnackbarHost(snackbarHostState)
-        }
-
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
         ) {
-
             when (val current = state) {
-
                 is ProfileViewState.Loading -> {
-
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+                    LoadingView()
                 }
-
                 is ProfileViewState.Error -> {
-
-                    ErrorContent(
+                    ProfileErrorContent(
                         message = current.message,
-                        onRetry = {
-                            viewModel.obtainEvent(
-                                ProfileEvent.OnRefreshProfile
-                            )
-                        }
+                        onRetry = { viewModel.obtainEvent(ProfileEvent.OnRefreshProfile) }
                     )
                 }
-
                 is ProfileViewState.Content -> {
-
                     ProfileContent(
                         profile = current.profile,
                         isLoggingOut = current.isLoggingOut,
-
-                        onEditClick = {
-                            viewModel.obtainEvent(ProfileEvent.OnEditClick)
-                        },
-
-                        onLogoutClick = {
-                            viewModel.obtainEvent(ProfileEvent.OnLogoutClick)
-                        },
-
-                        onTestCrash = {
-                            throw IllegalArgumentException("jj")
-                        }
+                        onEditClick = { viewModel.obtainEvent(ProfileEvent.OnEditClick) },
+                        onLogoutClick = { viewModel.obtainEvent(ProfileEvent.OnLogoutClick) }
                     )
                 }
             }
@@ -161,61 +109,29 @@ private fun ProfileContent(
     isLoggingOut: Boolean,
     onEditClick: () -> Unit,
     onLogoutClick: () -> Unit,
-    onTestCrash: () -> Unit,
 ) {
-
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(DesignTheme.Spacing.lg),
         verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xxl)
     ) {
-
         item {
-
-            ProfileHeader(
-                profile = profile,
-                isLoggingOut = isLoggingOut,
-                onEditClick = onEditClick,
-                onLogoutClick = onLogoutClick,
-                onTestCrash = onTestCrash
+            UserView(
+                username = profile.username,
+                bio = profile.bio,
+                dimension = Dimension.Vertical,
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
         item {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
-            ) {
-                PrimaryButton(
-                    text = "Refresh Activity",
-                    onClick = {  },
-                    modifier = Modifier.fillMaxWidth(),
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refresh",
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                )
-
-                BusyDaysView(
-                    userId = profile.id,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-
-        item {
-
-            Text(
-                text = "My Wish Places",
-                style = DesignTheme.Typography.heading
+            BusyDaysView(
+                userId = profile.id,
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
         item {
-
             WishPlacesSection(
                 userId = profile.id,
                 mode = WishPlacesMode.EDITABLE,
@@ -224,81 +140,33 @@ private fun ProfileContent(
         }
 
         item {
-            Spacer(modifier = Modifier.height(DesignTheme.Spacing.xxxl))
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
+            ) {
+                ButtonFactory.primary(
+                    text = "Edit Profile",
+                    onClick = onEditClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    isEnabled = !isLoggingOut
+                )
+
+                ButtonFactory.destructive(
+                    text = "Log Out",
+                    onClick = onLogoutClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    isLoading = isLoggingOut
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun ProfileHeader(
-    profile: Profile,
-    isLoggingOut: Boolean,
-    onEditClick: () -> Unit,
-    onLogoutClick: () -> Unit,
-    onTestCrash: () -> Unit,
-) {
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
-    ) {
-
-        Text(
-            text = profile.username,
-            style = DesignTheme.Typography.heading
-        )
-
-        profile.bio?.let { bio ->
-
-            Text(
-                text = bio,
-                style = DesignTheme.Typography.body
-            )
-        }
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
-        ) {
-
-            PrimaryButton(
-                onClick = onEditClick,
-                text = "Edit Profile",
-                modifier = Modifier.fillMaxWidth(),
-                isEnabled = !isLoggingOut
-            )
-
-            PrimaryButton(
-                onClick = onLogoutClick,
-                text = if (isLoggingOut) "Logging out..." else "Log Out",
-                modifier = Modifier.fillMaxWidth(),
-                isLoading = isLoggingOut,
-                isEnabled = !isLoggingOut
-            )
-
-            PrimaryButton(
-                onClick = onTestCrash,
-                text = "Test Crash",
-                modifier = Modifier.fillMaxWidth(),
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.BugReport,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            )
-        }
-    }
-}
-
-@Composable
-private fun ErrorContent(
+private fun ProfileErrorContent(
     message: String,
     onRetry: () -> Unit,
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -306,19 +174,14 @@ private fun ErrorContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        ErrorBanner(message = message)
 
-        Text(
-            text = message,
-            style = DesignTheme.Typography.body,
-            color = DesignTheme.Colors.error
-        )
-
-        Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
-
-        PrimaryButton(
+        ButtonFactory.primary(
             text = "Retry",
             onClick = onRetry,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = DesignTheme.Spacing.lg)
         )
     }
 }

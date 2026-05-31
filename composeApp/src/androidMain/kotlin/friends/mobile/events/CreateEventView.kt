@@ -7,41 +7,48 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.PersonOff
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import friends.mobile.designkit.theme.DesignTheme
+import friends.mobile.designkit.components.ButtonFactory
+import friends.mobile.designkit.components.ErrorBanner
+import friends.mobile.designkit.components.FormErrorMessage
+import friends.mobile.designkit.components.FormTextField
+import friends.mobile.designkit.components.LoadingView
 import friends.mobile.feature.events.presentation.CreateEventAction
 import friends.mobile.feature.events.presentation.CreateEventEvent
 import friends.mobile.feature.events.presentation.CreateEventViewModel
@@ -102,14 +109,12 @@ fun CreateEventView(
     ) { innerPadding ->
         when (state) {
             is CreateEventViewState.Loading -> {
-                Box(
+                LoadingView(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
+                    message = "Loading available friends..."
+                )
             }
 
             is CreateEventViewState.Error -> {
@@ -117,21 +122,16 @@ fun CreateEventView(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
-                        .padding(16.dp),
+                        .padding(DesignTheme.Spacing.lg),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    Text(
-                        text = (state as CreateEventViewState.Error).message,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    Button(
+                    ErrorBanner(message = (state as CreateEventViewState.Error).message)
+                    ButtonFactory.primary(
+                        text = "Back",
                         onClick = onBackClick,
-                        modifier = Modifier.padding(top = 16.dp),
-                    ) {
-                        Text("Back")
-                    }
+                        modifier = Modifier.padding(top = DesignTheme.Spacing.lg),
+                    )
                 }
             }
 
@@ -198,143 +198,165 @@ private fun CreateEventContent(
     onCreateClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(DesignTheme.Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.lg),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            // Display selected date
-            Text(
-                text = "Event Date: ${state.selectedDate}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-            )
-
-            // Show friends loading or error
-            if (state.isLoadingFriends) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            if (state.friendsError != null) {
+        // Date header
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
+                    .background(DesignTheme.Colors.systemGray6.copy(alpha = 0.5f))
+                    .padding(vertical = DesignTheme.Spacing.lg, horizontal = DesignTheme.Spacing.lg),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
                 Text(
-                    text = state.friendsError!!,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
+                    text = "Event Date",
+                    style = DesignTheme.Typography.bodySmall,
+                    color = Color.Gray,
+                )
+                Text(
+                    text = state.selectedDate,
+                    style = DesignTheme.Typography.heading,
                 )
             }
+        }
 
-            // Title field
-            TextField(
+        // Friends loading indicator
+        if (state.isLoadingFriends) {
+            item {
+                LoadingView(
+                    modifier = Modifier.fillMaxWidth(),
+                    message = "Loading available friends..."
+                )
+            }
+        }
+
+        // Friends error banner
+        if (state.friendsError != null) {
+            item {
+                FormErrorMessage(message = state.friendsError!!)
+            }
+        }
+
+        // Title field
+        item {
+            FormTextField(
                 value = state.title,
                 onValueChange = onTitleChanged,
-                label = { Text("Title *") },
-                placeholder = { Text("Event title") },
+                placeholder = "Event title",
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
             )
+        }
 
-            // Description field
-            TextField(
+        // Description field
+        item {
+            FormTextField(
                 value = state.description,
                 onValueChange = onDescriptionChanged,
-                label = { Text("Description") },
-                placeholder = { Text("Event description") },
+                placeholder = "Event description",
                 modifier = Modifier.fillMaxWidth(),
-                maxLines = 3,
             )
+        }
 
-            // Location field
-            TextField(
+        // Location field
+        item {
+            FormTextField(
                 value = state.location,
                 onValueChange = onLocationChanged,
-                label = { Text("Location") },
-                placeholder = { Text("Event location") },
+                placeholder = "Event location",
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
             )
+        }
 
-            // Select Friends button
-            Button(
-                onClick = {
-                    onShowFriendsSheet(true)
-                },
-                modifier = Modifier.fillMaxWidth(),
+        // Select friends button
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
+                    .background(DesignTheme.Colors.systemGray6)
+                    .clickable { onShowFriendsSheet(true) }
+                    .padding(DesignTheme.Spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("Select Friends")
-            }
-
-            // Show selected friends
-            if (state.selectedFriendIds.isNotEmpty()) {
-                val selectedFriendsCount = state.selectedFriendIds.size
-                val selectedFriendsList =
-                    state.availableFriends.filter { state.selectedFriendIds.contains(it.id) }
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            shape = MaterialTheme.shapes.small,
-                        )
-                        .padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
+                Icon(
+                    imageVector = Icons.Default.Group,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = Color.Black,
+                )
+                Text(
+                    text = "Select Friends",
+                    style = DesignTheme.Typography.button,
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                if (state.selectedFriendIds.isNotEmpty()) {
                     Text(
-                        text = "Selected Friends: $selectedFriendsCount",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                    )
-
-                    selectedFriendsList.forEach { friend ->
-                        Text(
-                            text = friend.username,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                }
-            }
-
-            // Create button
-            Button(
-                onClick = onCreateClick,
-                enabled = state.isCreateButtonEnabled && !state.isCreatingEvent,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                if (state.isCreatingEvent) {
-                    CircularProgressIndicator(
+                        text = "${state.selectedFriendIds.size} selected",
+                        style = DesignTheme.Typography.bodySmallest,
+                        color = Color.White,
                         modifier = Modifier
-                            .padding(end = 8.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
+                            .background(
+                                color = DesignTheme.Colors.primary,
+                                shape = RoundedCornerShape(DesignTheme.CornerRadius.small),
+                            )
+                            .padding(
+                                horizontal = DesignTheme.Spacing.md,
+                                vertical = DesignTheme.Spacing.xs,
+                            ),
                     )
                 }
-                Text(if (state.isCreatingEvent) "Creating..." else "Create")
             }
+        }
 
-            if (state.isCreatingEvent) {
-                // Additional loading indicator for better UX
+        // Selected friends badges
+        if (state.selectedFriendIds.isNotEmpty()) {
+            val selectedFriendsList =
+                state.availableFriends.filter { state.selectedFriendIds.contains(it.id) }
+            items(selectedFriendsList, key = { "badge_${it.id}" }) { friend ->
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.Center,
+                        .background(
+                            color = DesignTheme.Colors.primary.copy(alpha = 0.15f),
+                            shape = RoundedCornerShape(DesignTheme.CornerRadius.small),
+                        )
+                        .padding(
+                            horizontal = DesignTheme.Spacing.md,
+                            vertical = DesignTheme.Spacing.xs,
+                        ),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    CircularProgressIndicator()
+                    Text(
+                        text = friend.username,
+                        style = DesignTheme.Typography.bodySmallest,
+                        color = DesignTheme.Colors.primary,
+                    )
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "Remove",
+                        modifier = Modifier
+                            .size(14.dp)
+                            .clickable { onToggleFriend(friend.id) },
+                        tint = DesignTheme.Colors.primary,
+                    )
                 }
             }
+        }
+
+        // Create button
+        item {
+            ButtonFactory.primary(
+                text = "Create Event",
+                onClick = onCreateClick,
+                isLoading = state.isCreatingEvent,
+                isEnabled = state.isCreateButtonEnabled && !state.isCreatingEvent,
+            )
         }
     }
 }
@@ -351,47 +373,67 @@ private fun FriendsSelectionSheet(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(DesignTheme.Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.lg),
     ) {
-        Text(
-            text = "Select Friends",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "Select Friends",
+                style = DesignTheme.Typography.heading,
+            )
+            ButtonFactory.compact(
+                text = "Done",
+                onClick = onDone,
+            )
+        }
 
         when {
             isLoading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 32.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
+                LoadingView(
+                    modifier = Modifier.fillMaxWidth(),
+                    message = "Loading friends..."
+                )
             }
 
             error != null -> {
-                Text(
-                    text = error,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
+                FormErrorMessage(message = error)
             }
 
             friends.isEmpty() -> {
-                Text(
-                    text = "No friends available on selected date",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = DesignTheme.Spacing.xxl),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.PersonOff,
+                        contentDescription = null,
+                        modifier = Modifier.size(48.dp),
+                        tint = Color.Gray,
+                    )
+                    Text(
+                        text = "No Friends Available",
+                        style = DesignTheme.Typography.captionSemibold,
+                    )
+                    Text(
+                        text = "No friends available on selected date",
+                        style = DesignTheme.Typography.bodySmall,
+                        color = Color.Gray,
+                    )
+                }
             }
 
             else -> {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(vertical = DesignTheme.Spacing.sm),
+                    verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm),
                 ) {
                     items(friends, key = { it.id }) { friend ->
                         FriendSelectionItem(
@@ -405,15 +447,6 @@ private fun FriendsSelectionSheet(
                 }
             }
         }
-
-        Button(
-            onClick = onDone,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-        ) {
-            Text("Done")
-        }
     }
 }
 
@@ -426,22 +459,32 @@ private fun FriendSelectionItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
+            .background(DesignTheme.Colors.systemGray6.copy(alpha = 0.5f))
             .clickable { onToggle() }
-            .padding(vertical = 12.dp, horizontal = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+            .padding(DesignTheme.Spacing.md),
+        horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = friend.username,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier
-                .weight(1f)
-                .background(
-                    color = if (isSelected) MaterialTheme.colorScheme.primary else
-                        MaterialTheme.colorScheme.surface,
-                    shape = MaterialTheme.shapes.small,
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = friend.username,
+                style = DesignTheme.Typography.body,
+            )
+            if (!friend.bio.isNullOrEmpty()) {
+                Text(
+                    text = friend.bio!!,
+                    style = DesignTheme.Typography.bodySmall,
+                    color = Color.Gray,
                 )
-                .padding(12.dp),
+            }
+        }
+        Spacer(modifier = Modifier.size(DesignTheme.Spacing.sm))
+        Icon(
+            imageVector = if (isSelected) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+            contentDescription = null,
+            modifier = Modifier.size(20.dp),
+            tint = if (isSelected) DesignTheme.Colors.primary else Color.Gray,
         )
     }
 }

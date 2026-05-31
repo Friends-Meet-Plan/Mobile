@@ -1,26 +1,37 @@
 package friends.mobile.events
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Help
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import friends.mobile.designkit.theme.DesignTheme
+import friends.mobile.designkit.components.ButtonFactory
+import friends.mobile.designkit.components.LoadingView
 import friends.mobile.feature.events.domain.model.Event
 import friends.mobile.feature.events.domain.model.EventParticipant
 import friends.mobile.feature.events.domain.model.ParticipationStatus
@@ -34,272 +45,305 @@ fun PendingEventDetailContent(
     onDecline: (String) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        if (isLoading) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                CircularProgressIndicator()
-            }
-        } else if (errorMessage != null) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text(
-                    text = errorMessage,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium,
+    Column(modifier = modifier.fillMaxWidth()) {
+        when {
+            isLoading -> {
+                LoadingView(
+                    modifier = Modifier.fillMaxWidth(),
+                    message = "Loading event details..."
                 )
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                item {
-                    Text(
-                        text = event.title,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        ),
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            event.description?.let { desc ->
-                                if (desc.isNotEmpty()) {
-                                    Text(
-                                        text = desc,
-                                        style = MaterialTheme.typography.bodySmall,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        ),
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            Text(
-                                text = "Date & Time",
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.SemiBold,
-                            )
-                            Text(
-                                text = "Date: ${event.date}",
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                            event.time?.let { time ->
-                                if (time.isNotEmpty()) {
-                                    Text(
-                                        text = "Time: $time",
-                                        style = MaterialTheme.typography.bodySmall,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                event.location?.let { location ->
-                    if (location.isNotEmpty()) {
-                        item {
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                ),
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(12.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                                ) {
-                                    Text(
-                                        text = "Location",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = FontWeight.SemiBold,
-                                    )
-                                    Text(
-                                        text = location,
-                                        style = MaterialTheme.typography.bodySmall,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        ),
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            Text(
-                                text = "Status",
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.SemiBold,
-                            )
-                            Text(
-                                text = event.status,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = getStatusColor(event.status),
-                            )
-                        }
-                    }
-                }
-
-                item {
-                    Text(
-                        text = "Participants (${event.participants.size})",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
-                }
-
-                items(
-                    event.participants,
-                    key = { it.userId }
-                ) { participant ->
-                    ParticipantCard(participant = participant)
-                }
+            errorMessage != null -> {
+                ErrorContent(message = errorMessage)
             }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Button(
-                    onClick = { onDecline(event.id) },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                    ),
-                ) {
-                    Text("Decline")
-                }
-
-                Button(
-                    onClick = { onAccept(event.id) },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
-                ) {
-                    Text("Accept")
-                }
+            else -> {
+                DetailContent(
+                    event = event,
+                    onAccept = onAccept,
+                    onDecline = onDecline,
+                )
             }
         }
     }
 }
 
 @Composable
-private fun ParticipantCard(participant: EventParticipant) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ),
+private fun ErrorContent(message: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(DesignTheme.Spacing.lg),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Text(
-                    text = participant.username,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Text(
-                    text = participant.role,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline,
-                )
-            }
+        Icon(
+            imageVector = Icons.Default.Warning,
+            contentDescription = null,
+            modifier = Modifier.size(48.dp),
+            tint = DesignTheme.Colors.error,
+        )
+        Text(
+            text = "Something went wrong",
+            style = DesignTheme.Typography.heading,
+        )
+        Text(
+            text = message,
+            style = DesignTheme.Typography.body,
+            color = Color.Gray,
+        )
+    }
+}
 
-            Text(
-                text = participant.status.name,
-                style = MaterialTheme.typography.labelMedium,
-                color = getParticipationStatusColor(participant.status),
-                fontWeight = FontWeight.SemiBold,
+@Composable
+private fun DetailContent(
+    event: Event,
+    onAccept: (String) -> Unit,
+    onDecline: (String) -> Unit,
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(DesignTheme.Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xl),
+    ) {
+        item { HeaderSection(event = event) }
+        item { EventDetailsSection(event = event) }
+        item { ParticipantsSection(participants = event.participants) }
+        item {
+            ActionsSection(
+                eventId = event.id,
+                onAccept = onAccept,
+                onDecline = onDecline,
             )
         }
     }
 }
 
 @Composable
-private fun getStatusColor(status: String): Color {
-    return when (status.lowercase()) {
-        "confirmed" -> Color(0xFF4CAF50)  // Green
-        "pending" -> Color(0xFFFF9800)     // Orange
-        "declined" -> Color(0xFFF44336)    // Red
-        "canceled" -> Color(0xFF9E9E9E)    // Gray
-        else -> MaterialTheme.colorScheme.onSurface
+private fun HeaderSection(event: Event) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
+    ) {
+        Text(
+            text = event.title,
+            style = DesignTheme.Typography.heading,
+        )
+
+        if (!event.description.isNullOrEmpty()) {
+            Text(
+                text = event.description!!,
+                style = DesignTheme.Typography.body,
+                color = Color.Gray,
+            )
+        }
+
+        // Status row
+        val statusColor = statusColor(event.status)
+        Row(
+            modifier = Modifier
+                .background(
+                    color = statusColor.copy(alpha = 0.08f),
+                    shape = RoundedCornerShape(DesignTheme.CornerRadius.medium),
+                )
+                .padding(
+                    vertical = DesignTheme.Spacing.sm,
+                    horizontal = DesignTheme.Spacing.md,
+                ),
+            horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = statusIcon(event.status),
+                contentDescription = null,
+                modifier = Modifier.size(12.dp),
+                tint = statusColor,
+            )
+            Text(
+                text = event.status.replaceFirstChar { it.uppercase() },
+                style = DesignTheme.Typography.captionSemibold,
+                color = statusColor,
+            )
+            Spacer(modifier = Modifier.weight(1f))
+        }
     }
 }
 
 @Composable
-private fun getParticipationStatusColor(status: ParticipationStatus): Color {
+private fun EventDetailsSection(event: Event) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
+    ) {
+        Text(
+            text = "EVENT DETAILS",
+            style = DesignTheme.Typography.bodySmallest,
+            color = Color.Gray,
+        )
+
+        DetailRow(icon = Icons.Default.DateRange, label = "Date", value = event.date)
+
+        if (!event.time.isNullOrEmpty()) {
+            DetailRow(icon = Icons.Default.Schedule, label = "Time", value = event.time!!)
+        }
+
+        if (!event.location.isNullOrEmpty()) {
+            DetailRow(icon = Icons.Default.LocationOn, label = "Location", value = event.location!!)
+        }
+    }
+}
+
+@Composable
+private fun DetailRow(
+    icon: ImageVector,
+    label: String,
+    value: String,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(20.dp),
+            tint = DesignTheme.Colors.primary,
+        )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs),
+        ) {
+            Text(
+                text = label,
+                style = DesignTheme.Typography.bodySmallest,
+                color = Color.Gray,
+            )
+            Text(
+                text = value,
+                style = DesignTheme.Typography.body,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ParticipantsSection(participants: List<EventParticipant>) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
+    ) {
+        Text(
+            text = "PARTICIPANTS",
+            style = DesignTheme.Typography.bodySmallest,
+            color = Color.Gray,
+        )
+
+        participants.forEach { participant ->
+            ParticipantCard(participant = participant)
+        }
+    }
+}
+
+@Composable
+private fun ParticipantCard(participant: EventParticipant) {
+    val statusColor = participantStatusColor(participant.status)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = DesignTheme.Colors.systemGray6,
+                shape = RoundedCornerShape(DesignTheme.CornerRadius.medium),
+            )
+            .padding(DesignTheme.Spacing.md),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = participant.username,
+                    style = DesignTheme.Typography.body,
+                )
+                Text(
+                    text = participant.role,
+                    style = DesignTheme.Typography.bodySmallest,
+                    color = Color.Gray,
+                )
+            }
+            Spacer(modifier = Modifier.weight(0.1f))
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = participantStatusIcon(participant.status),
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp),
+                    tint = statusColor,
+                )
+                Text(
+                    text = participant.status.name.lowercase().replaceFirstChar { it.uppercase() },
+                    style = DesignTheme.Typography.bodySmallest,
+                    color = statusColor,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ActionsSection(
+    eventId: String,
+    onAccept: (String) -> Unit,
+    onDecline: (String) -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = DesignTheme.Spacing.md),
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
+    ) {
+        ButtonFactory.primary(
+            text = "Accept Invitation",
+            onClick = { onAccept(eventId) },
+        )
+        ButtonFactory.secondary(
+            text = "Decline Invitation",
+            onClick = { onDecline(eventId) },
+        )
+    }
+}
+
+private fun statusColor(status: String): Color {
+    return when (status.lowercase()) {
+        "accepted" -> Color(0xFF34C759)
+        "declined" -> Color(0xFFFF3B30)
+        "pending" -> Color(0xFFFF9500)
+        else -> Color.Gray
+    }
+}
+
+private fun statusIcon(status: String): ImageVector {
+    return when (status.lowercase()) {
+        "accepted" -> Icons.Default.CheckCircle
+        "declined" -> Icons.Default.Cancel
+        "pending" -> Icons.Default.AccessTime
+        else -> Icons.Default.Help
+    }
+}
+
+private fun participantStatusColor(status: ParticipationStatus): Color {
     return when (status) {
-        ParticipationStatus.ACCEPTED -> Color(0xFF4CAF50)  // Green
-        ParticipationStatus.DECLINED -> Color(0xFFF44336)  // Red
-        ParticipationStatus.INVITED -> Color(0xFFFF9800)   // Orange
+        ParticipationStatus.ACCEPTED -> Color(0xFF34C759)
+        ParticipationStatus.DECLINED -> Color(0xFFFF3B30)
+        ParticipationStatus.INVITED -> Color(0xFFFF9500)
+    }
+}
+
+private fun participantStatusIcon(status: ParticipationStatus): ImageVector {
+    return when (status) {
+        ParticipationStatus.ACCEPTED -> Icons.Default.CheckCircle
+        ParticipationStatus.DECLINED -> Icons.Default.Cancel
+        ParticipationStatus.INVITED -> Icons.Default.AccessTime
     }
 }

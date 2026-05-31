@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,15 +24,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import friends.mobile.designkit.DesignTheme
-import friends.mobile.designkit.FormErrorMessage
-import friends.mobile.designkit.FormSecureField
-import friends.mobile.designkit.FormTextField
-import friends.mobile.designkit.PrimaryButton
+import friends.mobile.designkit.theme.DesignTheme
+import friends.mobile.designkit.components.ButtonFactory
+import friends.mobile.designkit.components.FormErrorMessage
+import friends.mobile.designkit.components.FormSecureField
+import friends.mobile.designkit.components.FormTextField
+import friends.mobile.designkit.components.LoadingView
 import friends.mobile.feature.auth.presentation.register.RegisterAction
 import friends.mobile.feature.auth.presentation.register.RegisterEvent
 import friends.mobile.feature.auth.presentation.register.RegisterViewModel
@@ -55,7 +56,7 @@ fun RegisterBottomSheet(
         viewModel.viewActions.collectLatest { action ->
             when (action) {
                 RegisterAction.RegisterSucceeded -> onRegisterSuccess()
-                is RegisterAction.ShowMessage -> { /* Handle snackbar if needed */ }
+                is RegisterAction.ShowMessage -> { /* handled inline via ViewState.Error */ }
             }
         }
     }
@@ -74,28 +75,24 @@ fun RegisterBottomSheet(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    CircularProgressIndicator()
+                    LoadingView(
+                        modifier = Modifier.fillMaxWidth(),
+                        message = "Creating account..."
+                    )
                 }
             }
             is RegisterViewState.Error -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(DesignTheme.Spacing.xl),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    FormErrorMessage(message = currentState.message)
-                    Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
-                    PrimaryButton(
-                        text = "Try Again",
-                        onClick = { viewModel.obtainEvent(RegisterEvent.OnRetryClick) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+                RegisterForm(
+                    state = RegisterViewState.Content(),
+                    errorMessage = currentState.message,
+                    onEvent = viewModel::obtainEvent,
+                    onDismiss = onDismiss
+                )
             }
             is RegisterViewState.Content -> {
                 RegisterForm(
                     state = currentState,
+                    errorMessage = null,
                     onEvent = viewModel::obtainEvent,
                     onDismiss = onDismiss
                 )
@@ -107,14 +104,13 @@ fun RegisterBottomSheet(
 @Composable
 private fun RegisterForm(
     state: RegisterViewState.Content,
+    errorMessage: String?,
     onEvent: (RegisterEvent) -> Unit,
     onDismiss: () -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = DesignTheme.Spacing.xl),
-        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.lg),
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xxl),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(
             vertical = DesignTheme.Spacing.lg,
             horizontal = 0.dp
@@ -122,20 +118,22 @@ private fun RegisterForm(
     ) {
         item {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = DesignTheme.Spacing.xl),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = "Create Account",
                     style = DesignTheme.Typography.heading,
-                    color = androidx.compose.ui.graphics.Color.Black
+                    color = Color.Black
                 )
                 IconButton(onClick = onDismiss) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = androidx.compose.ui.graphics.Color.Gray.copy(alpha = 0.5f)
+                        tint = Color.Gray.copy(alpha = 0.5f)
                     )
                 }
             }
@@ -143,7 +141,9 @@ private fun RegisterForm(
 
         item {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = DesignTheme.Spacing.xl),
                 verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.lg),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -169,16 +169,22 @@ private fun RegisterForm(
                         .height(54.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                 )
+
+                if (errorMessage != null) {
+                    FormErrorMessage(message = errorMessage)
+                }
             }
         }
 
         item {
-            PrimaryButton(
-                text = if (state.isRegistering) "Creating account..." else "Create Account",
+            ButtonFactory.primary(
+                text = "Create Account",
                 onClick = { onEvent(RegisterEvent.OnRegisterClick) },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = DesignTheme.Spacing.xl),
                 isLoading = state.isRegistering,
-                isEnabled = state.username.isNotBlank() && state.password.isNotBlank()
+                isEnabled = state.username.isNotBlank() && state.password.isNotBlank() && !state.isRegistering
             )
         }
 
@@ -186,12 +192,14 @@ private fun RegisterForm(
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = DesignTheme.Spacing.xl)
             ) {
                 Text(
                     text = "Already have an account?",
                     style = DesignTheme.Typography.caption,
-                    color = androidx.compose.ui.graphics.Color.Gray
+                    color = Color.Gray
                 )
                 Spacer(modifier = Modifier.width(DesignTheme.Spacing.xs))
                 Text(

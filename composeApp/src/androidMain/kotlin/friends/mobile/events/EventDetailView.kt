@@ -2,20 +2,17 @@ package friends.mobile.events
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -28,30 +25,26 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import friends.mobile.R
-import friends.mobile.designkit.DesignTheme
+import friends.mobile.designkit.theme.DesignTheme
+import friends.mobile.designkit.components.LoadingView
 import friends.mobile.feature.events.domain.model.Event
 import friends.mobile.feature.events.domain.model.EventParticipant
 import friends.mobile.feature.events.domain.model.ParticipationStatus
@@ -86,10 +79,11 @@ fun EventDetailView(
     ) { innerPadding ->
         when (val currentState = state) {
             is EventDetailViewState.Loading -> {
-                LoadingStateView(
+                LoadingView(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding)
+                        .padding(innerPadding),
+                    message = "Loading event details..."
                 )
             }
 
@@ -210,7 +204,7 @@ private fun EventDetailContent(
                             .padding(horizontal = DesignTheme.Spacing.lg)
                             .fillMaxWidth()
                             .background(
-                                Color(0xFFF2F2F7),
+                                DesignTheme.Colors.textField,
                                 shape = RoundedCornerShape(DesignTheme.CornerRadius.medium)
                             )
                             .padding(DesignTheme.Spacing.md),
@@ -300,7 +294,7 @@ private fun DetailRowWithIcon(
         modifier = modifier
             .fillMaxWidth()
             .background(
-                Color(0xFFF2F2F7),
+                DesignTheme.Colors.textField,
                 shape = RoundedCornerShape(DesignTheme.CornerRadius.medium)
             )
             .padding(DesignTheme.Spacing.md),
@@ -342,7 +336,7 @@ private fun ParticipantAvatarRow(
         modifier = modifier
             .fillMaxWidth()
             .background(
-                Color(0xFFF2F2F7),
+                DesignTheme.Colors.textField,
                 shape = RoundedCornerShape(DesignTheme.CornerRadius.medium)
             )
             .padding(DesignTheme.Spacing.md),
@@ -458,7 +452,7 @@ private fun EventImageView(modifier: Modifier = Modifier) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF2F2F7)),
+                .background(DesignTheme.Colors.textField),
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -468,26 +462,6 @@ private fun EventImageView(modifier: Modifier = Modifier) {
                 contentScale = ContentScale.Crop
             )
         }
-    }
-}
-
-@Composable
-private fun LoadingStateView(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(DesignTheme.Spacing.lg),
-        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xl),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        CircularProgressIndicator(
-            color = DesignTheme.Colors.primary
-        )
-        Text(
-            text = "Loading event details...",
-            style = DesignTheme.Typography.bodySmall,
-            color = Color.Gray
-        )
     }
 }
 
