@@ -1,27 +1,32 @@
 package friends.mobile.archive
 
-import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
+import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -30,13 +35,19 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import androidx.compose.material3.MaterialTheme
+import friends.mobile.designsystem.theme.DesignTheme
+import friends.mobile.designsystem.components.ButtonFactory
 import friends.mobile.feature.archive.presentation.ArchiveEventsViewModel
 import friends.mobile.feature.archive.presentation.ArchiveViewAction
 import friends.mobile.feature.archive.presentation.ArchiveViewState
@@ -50,10 +61,6 @@ fun ArchiveEventsView(
     val viewModel: ArchiveEventsViewModel = viewModel()
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        logScreenOpen("launch_archive")
-    }
-
     val isLoading = state is ArchiveViewState.Loading
     val errorMessage = (state as? ArchiveViewState.Error)?.message
     val isRefreshing = (state as? ArchiveViewState.Content)?.isRefreshing ?: false
@@ -62,88 +69,88 @@ fun ArchiveEventsView(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Archived Events") },
+                title = { Text("Archive", style = DesignTheme.Typography.heading) }
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-        ) {
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             when {
-                isLoading && archivedEvents.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator()
-                    }
+                isLoading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
 
-                errorMessage != null && archivedEvents.isEmpty() -> {
+                errorMessage != null -> {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(16.dp),
+                            .padding(DesignTheme.Spacing.lg),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
+                        Icon(
+                            imageVector = Icons.Default.Error,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(modifier = Modifier.height(DesignTheme.Spacing.md))
                         Text(
                             text = errorMessage,
+                            style = DesignTheme.Typography.body,
                             color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center
                         )
-                        Button(
-                            onClick = {
-                                viewModel.obtainEvent(ArchiveViewAction.OnRefresh)
-                            },
-                            modifier = Modifier.padding(top = 16.dp),
-                        ) {
-                            Text("Retry")
-                        }
+                        Spacer(modifier = Modifier.height(DesignTheme.Spacing.md))
+                        ButtonFactory.Primary(
+                            text = "Retry",
+                            onClick = { viewModel.obtainEvent(ArchiveViewAction.OnRefresh) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
 
                 archivedEvents.isEmpty() -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center,
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
                     ) {
+                        Icon(
+                            imageVector = Icons.Default.Archive,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(DesignTheme.Spacing.sm))
                         Text(
-                            text = "No archived events yet",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray,
+                            text = "No archived events",
+                            style = DesignTheme.Typography.body,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
 
                 else -> {
-                    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
                     SwipeRefresh(
-                        state = swipeRefreshState,
-                        onRefresh = {
-                            viewModel.obtainEvent(ArchiveViewAction.OnRefresh)
-                        },
+                        state = rememberSwipeRefreshState(isRefreshing),
+                        onRefresh = { viewModel.obtainEvent(ArchiveViewAction.OnRefresh) },
                         modifier = Modifier.fillMaxSize(),
                     ) {
                         LazyColumn(
                             modifier = Modifier.fillMaxWidth(),
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(
+                                horizontal = DesignTheme.Spacing.lg,
+                                vertical = DesignTheme.Spacing.lg
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            items(
-                                archivedEvents,
-                                key = { it.id }
-                            ) { event ->
-                                EventCard(
+                            items(archivedEvents, key = { it.id }) { event ->
+                                ArchivedEventCard(
                                     event = event,
-                                    onClick = {
-                                        onEventDetailClick(event.id)
-                                    },
-                                    isPending = false,
+                                    onClick = { onEventDetailClick(event.id) },
                                 )
                             }
                         }
@@ -155,105 +162,87 @@ fun ArchiveEventsView(
 }
 
 @Composable
-private fun EventCard(
+private fun ArchivedEventCard(
     event: Event,
     onClick: () -> Unit,
-    isPending: Boolean = false,
 ) {
-    val backgroundColor = if (isPending) {
-        Color(red = 1.0f, green = 0.97f, blue = 0.92f).copy(alpha = 0.6f)
-    } else {
-        MaterialTheme.colorScheme.surface
-    }
-
-    Card(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
+            .shadow(elevation = 4.dp, shape = RoundedCornerShape(18.dp))
+            .clip(RoundedCornerShape(18.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(18.dp))
             .clickable { onClick() }
-            .padding(8.dp),
+            .padding(DesignTheme.Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)
     ) {
-        Column(
-            modifier = Modifier
-                .background(backgroundColor)
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Title with pending badge
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = event.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f),
-                )
-                if (isPending) {
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                Color(red = 1.0f, green = 0.647f, blue = 0.0f),
-                                shape = MaterialTheme.shapes.small,
-                            )
-                            .padding(horizontal = 8.dp, vertical = 2.dp),
-                    ) {
-                        Text(
-                            text = "Pending",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White,
-                        )
-                    }
-                }
-            }
-
-            // Date
             Text(
-                text = event.date,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray,
+                text = event.title,
+                style = DesignTheme.Typography.captionSemibold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f).padding(end = DesignTheme.Spacing.sm)
             )
+            CompletedBadge()
+        }
 
-            // Time (if present)
-            event.time?.let { time ->
-                Text(
-                    text = time,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
-                )
-            }
-
-            // Participants with person icon
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = Color.Gray,
-                )
-                Text(
-                    text = "${event.participants.size} participants",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
-                    modifier = Modifier.padding(start = 4.dp),
-                )
-            }
+        Row(horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)) {
+            InfoChip(icon = Icons.Default.CalendarToday, text = event.date)
+            event.time?.let { InfoChip(icon = Icons.Default.Schedule, text = it) }
+            InfoChip(icon = Icons.Default.Group, text = "${event.participants.size}")
         }
     }
 }
 
-private fun logScreenOpen(screenName: String) {
-    // TODO: Wire Firebase Analytics here
-    // FirebaseAnalytics.getInstance().logEvent(
-    //     "screen_view",
-    //     Bundle().apply {
-    //         putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName)
-    //     }
-    // )
+@Composable
+private fun CompletedBadge() {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(percent = 50))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(horizontal = 8.dp, vertical = 5.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.Default.CheckCircle,
+            contentDescription = null,
+            modifier = Modifier.size(12.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = "Completed",
+            style = DesignTheme.Typography.bodySmallest.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun InfoChip(icon: ImageVector, text: String) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(percent = 50))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(12.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = text,
+            style = DesignTheme.Typography.bodySmallest,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
 }

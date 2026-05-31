@@ -12,12 +12,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +26,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import friends.mobile.designsystem.components.ButtonFactory
+import friends.mobile.designsystem.components.ErrorBanner
+import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.feature.calendar.presentation.BusyDaysEvent
 import friends.mobile.feature.calendar.presentation.BusyDaysViewModel
 import friends.mobile.feature.calendar.presentation.BusyDaysViewState
@@ -45,26 +49,14 @@ fun BusyDaysView(
 ) {
     val state by viewModel.viewStates.collectAsStateWithLifecycle()
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-    ) {
-        Text(
-            text = "Activity",
-            style = MaterialTheme.typography.titleLarge
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
+    Column(modifier = modifier.fillMaxWidth()) {
         when (val current = state) {
             is BusyDaysViewState.Loading -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(120.dp),
+                    modifier = Modifier.fillMaxWidth().height(120.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
             is BusyDaysViewState.Error -> {
@@ -86,10 +78,18 @@ fun BusyDaysView(
 
 @Composable
 private fun ActivityGridView(busyDays: List<String>) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(DesignTheme.CornerRadius.medium)
+            )
+            .padding(DesignTheme.Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
+    ) {
         WeekdayLabels()
         BusyDaysGrid(busyDays = busyDays)
-        Legend()
     }
 }
 
@@ -103,7 +103,7 @@ private fun WeekdayLabels() {
         weekdays.forEach { day ->
             Text(
                 text = day,
-                style = MaterialTheme.typography.labelSmall,
+                style = DesignTheme.Typography.bodySmallest,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center
@@ -115,7 +115,7 @@ private fun WeekdayLabels() {
 @Composable
 private fun BusyDaysGrid(busyDays: List<String>) {
     val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-    val endDate = today.plus(27, DateTimeUnit.DAY) // 4 weeks
+    val endDate = today.plus(27, DateTimeUnit.DAY)
 
     val dateRange = mutableListOf<LocalDate>()
     var currentDate = today
@@ -131,13 +131,9 @@ private fun BusyDaysGrid(busyDays: List<String>) {
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 week.forEach { date ->
                     Box(modifier = Modifier.weight(1f)) {
-                        DayCell(
-                            date = date,
-                            isBusy = busyDays.contains(date.toString())
-                        )
+                        DayCell(date = date, isBusy = busyDays.contains(date.toString()))
                     }
                 }
-                // Заполняем пустоту, если в неделе меньше 7 дней
                 repeat(7 - week.size) {
                     Spacer(modifier = Modifier.weight(1f))
                 }
@@ -152,58 +148,41 @@ private fun DayCell(date: LocalDate, isBusy: Boolean) {
         modifier = Modifier
             .aspectRatio(1f)
             .background(
-                color = if (isBusy) Color(0xFF4CAF50) else MaterialTheme.colorScheme.surfaceVariant,
+                color = if (isBusy) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(4.dp)
             ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = date.dayOfMonth.toString(),
-            style = MaterialTheme.typography.labelSmall,
+            style = DesignTheme.Typography.bodySmallest,
             color = if (isBusy) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
 
 @Composable
-private fun Legend() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        LegendItem(color = Color(0xFF4CAF50), label = "Busy")
-        LegendItem(color = MaterialTheme.colorScheme.surfaceVariant, label = "Not busy")
-    }
-}
-
-@Composable
-private fun LegendItem(color: Color, label: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(12.dp)
-                .background(color = color, shape = RoundedCornerShape(2.dp))
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
 private fun EmptyContent() {
-    Box(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
-        contentAlignment = Alignment.Center
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(DesignTheme.CornerRadius.medium)
+            )
+            .padding(DesignTheme.Spacing.lg),
+        horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm),
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        Icon(
+            imageVector = Icons.Default.CalendarToday,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         Text(
             text = "No busy days recorded",
-            style = MaterialTheme.typography.bodyMedium,
+            style = DesignTheme.Typography.body,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
@@ -212,11 +191,11 @@ private fun EmptyContent() {
 @Composable
 private fun ErrorContent(message: String, onRetry: () -> Unit) {
     Column(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = DesignTheme.Spacing.lg),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
     ) {
-        Text(text = message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
-        Button(onClick = onRetry) { Text("Retry") }
+        ErrorBanner(message = message, modifier = Modifier.fillMaxWidth())
+        ButtonFactory.Primary(text = "Retry", onClick = onRetry, modifier = Modifier.fillMaxWidth())
     }
 }

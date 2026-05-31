@@ -1,19 +1,24 @@
 package friends.mobile.main
 
-import android.util.Log
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -22,6 +27,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import friends.mobile.archive.ArchiveEventsView
+import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.events.CreateEventView
 import friends.mobile.events.EventDetailView
 import friends.mobile.events.PendingEventListView
@@ -52,42 +58,102 @@ fun MainScreen(
 ) {
     val navController = rememberNavController()
     val bottomNavItems = listOf(
-        Triple(Screen.Home, "Home", BottomNavItem.Home.icon),
+        Triple(Screen.Home, "Main", BottomNavItem.Home.icon),
         Triple(Screen.Friends, "Friends", BottomNavItem.Friends.icon),
-        Triple(Screen.Profile, "Profile", BottomNavItem.Profile.icon),
-        Triple(Screen.Archive, "Archive", BottomNavItem.Archive.icon)
+        Triple(Screen.Archive, "Archive", BottomNavItem.Archive.icon),
+        Triple(Screen.Profile, "Profile", BottomNavItem.Profile.icon)
     )
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    val showBottomBar = bottomNavItems.any { (screen, _, _) ->
+        val routeName = screen::class.qualifiedName ?: ""
+        currentDestination?.hierarchy?.any { it.route?.contains(routeName) == true } == true
+    }
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentDestination = navBackStackEntry?.destination
-                
-                bottomNavItems.forEach { (screen, title, icon) ->
-                    val routeName = screen::class.qualifiedName ?: ""
-                    NavigationBarItem(
-                        icon = { Icon(icon, contentDescription = title) },
-                        label = { Text(title) },
-                        selected = currentDestination?.hierarchy?.any { it.route?.contains(routeName) == true } == true,
-                        onClick = {
-                            navController.navigate(screen) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+            if (showBottomBar) {
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                ) {
+                    bottomNavItems.forEach { (screen, title, icon) ->
+                        val routeName = screen::class.qualifiedName ?: ""
+                        val selected = currentDestination?.hierarchy?.any {
+                            it.route?.contains(routeName) == true
+                        } == true
+
+                        NavigationBarItem(
+                            icon = { Icon(icon, contentDescription = title) },
+                            label = {
+                                Text(
+                                    text = title,
+                                    style = DesignTheme.Typography.bodySmallest
+                                )
+                            },
+                            selected = selected,
+                            onClick = {
+                                navController.navigate(screen) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    )
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                                unselectedIconColor = Color.Black,
+                                unselectedTextColor = Color.Black,
+                            )
+                        )
+                    }
                 }
             }
         }
     ) { innerPadding ->
+        val tabRoutes = remember {
+            setOf(
+                Screen.Home::class.qualifiedName ?: "",
+                Screen.Friends::class.qualifiedName ?: "",
+                Screen.Archive::class.qualifiedName ?: "",
+                Screen.Profile::class.qualifiedName ?: "",
+            ).filter { it.isNotEmpty() }.toSet()
+        }
+
+        fun isTab(route: String?) = tabRoutes.any { route?.contains(it) == true }
+
         NavHost(
             navController = navController,
             startDestination = Screen.Home,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
+            enterTransition = {
+                if (isTab(initialState.destination.route) && isTab(targetState.destination.route))
+                    fadeIn(tween(200))
+                else
+                    slideInHorizontally(tween(300, easing = FastOutSlowInEasing)) { it }
+            },
+            exitTransition = {
+                if (isTab(initialState.destination.route) && isTab(targetState.destination.route))
+                    fadeOut(tween(200))
+                else
+                    slideOutHorizontally(tween(300, easing = FastOutSlowInEasing)) { -it / 4 }
+            },
+            popEnterTransition = {
+                if (isTab(initialState.destination.route) && isTab(targetState.destination.route))
+                    fadeIn(tween(200))
+                else
+                    slideInHorizontally(tween(300, easing = FastOutSlowInEasing)) { -it / 4 }
+            },
+            popExitTransition = {
+                if (isTab(initialState.destination.route) && isTab(targetState.destination.route))
+                    fadeOut(tween(200))
+                else
+                    slideOutHorizontally(tween(300, easing = FastOutSlowInEasing)) { it }
+            }
         ) {
             composable<Screen.Home> {
                 MainView(

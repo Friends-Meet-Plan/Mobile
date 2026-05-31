@@ -26,12 +26,9 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -48,11 +45,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import friends.mobile.designkit.DesignTheme
-import friends.mobile.designkit.FormTextField
-import friends.mobile.designkit.PrimaryButton
+import androidx.compose.material3.MaterialTheme
+import friends.mobile.designsystem.theme.DesignTheme
+import friends.mobile.designsystem.components.ButtonFactory
+import friends.mobile.designsystem.components.FormTextField
 import friends.mobile.feature.wishplaces.domain.model.WishPlace
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,12 +65,12 @@ fun WishPlaceItem(
         WishPlaceCard(place = place, onClick = onClick, modifier = modifier)
     } else {
         val dismissState = rememberSwipeToDismissBoxState(
-            positionalThreshold = { totalDistance -> totalDistance * 0.4f }, // 40% свайпа
+            positionalThreshold = { totalDistance -> totalDistance * 0.4f },
             confirmValueChange = { value ->
                 when (value) {
                     SwipeToDismissBoxValue.EndToStart -> {
                         onDelete()
-                        true // важно: разрешаем завершение анимации
+                        true
                     }
                     else -> false
                 }
@@ -96,7 +93,7 @@ fun WishPlaceItem(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
                         .background(color)
                         .padding(horizontal = 20.dp),
                     contentAlignment = Alignment.CenterEnd
@@ -123,48 +120,55 @@ private fun WishPlaceCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
+            .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clickable(onClick = onClick)
+            .padding(DesignTheme.Spacing.md),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs)
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = place.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                place.location?.let {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(Modifier.width(4.dp))
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+            Text(
+                text = place.title,
+                style = DesignTheme.Typography.captionSemibold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            place.location?.let {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = it,
+                        style = DesignTheme.Typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
-            Text(
-                text = place.status.name.lowercase().replaceFirstChar { it.uppercase() },
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary
-            )
         }
+        Text(
+            text = place.status.name.lowercase().replaceFirstChar { it.uppercase() },
+            style = DesignTheme.Typography.bodySmallest,
+            color = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(DesignTheme.CornerRadius.capsule)
+                )
+                .padding(horizontal = DesignTheme.Spacing.sm, vertical = DesignTheme.Spacing.xs)
+        )
     }
 }
 
@@ -184,7 +188,7 @@ fun CreateWishPlaceBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         dragHandle = { BottomSheetDefaults.DragHandle() },
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         scrimColor = Color.Black.copy(alpha = 0.3f)
     ) {
         Column(
@@ -225,7 +229,7 @@ fun CreateWishPlaceBottomSheet(
 
             Spacer(modifier = Modifier.height(DesignTheme.Spacing.md))
 
-            PrimaryButton(
+            ButtonFactory.Primary(
                 text = "Create",
                 onClick = {
                     onCreate(
@@ -235,6 +239,7 @@ fun CreateWishPlaceBottomSheet(
                         link.ifBlank { null }
                     )
                 },
+                modifier = Modifier.fillMaxWidth(),
                 isEnabled = title.isNotBlank()
             )
 
@@ -249,10 +254,10 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         scrimColor = Color.Black.copy(alpha = 0.3f),
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = RoundedCornerShape(
-            topStart = 12.dp,
-            topEnd = 12.dp
+            topStart = DesignTheme.CornerRadius.medium,
+            topEnd = DesignTheme.CornerRadius.medium
         )
     ) {
         Column(
@@ -274,19 +279,14 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
                     modifier = Modifier.weight(1f)
                 )
 
-                Button(
+                IconButton(
                     onClick = onDismiss,
-                    modifier = Modifier.size(24.dp),
-                    shape = RoundedCornerShape(50),
-                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent
-                    ),
-                    contentPadding = PaddingValues(0.dp)
+                    modifier = Modifier.size(32.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = Color.Gray,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -302,12 +302,12 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = null,
                         modifier = Modifier.size(14.dp),
-                        tint = DesignTheme.Colors.primary
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = it,
                         style = DesignTheme.Typography.body,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1
                     )
                 }
@@ -317,7 +317,7 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
                 Text(
                     text = place.description!!,
                     style = DesignTheme.Typography.body,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2
                 )
             }
@@ -331,17 +331,11 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
 
                 if (!place.link.isNullOrEmpty()) {
                     androidx.compose.material3.TextButton(
-                        onClick = {
-                            val intent = android.content.Intent(
-                                android.content.Intent.ACTION_VIEW,
-                                android.net.Uri.parse(place.link)
-                            )
-                            // Context needed - will be handled in caller
-                        },
+                        onClick = { },
                         modifier = Modifier.height(28.dp),
                         shape = RoundedCornerShape(DesignTheme.CornerRadius.capsule),
                         colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                            containerColor = DesignTheme.Colors.primary
+                            containerColor = MaterialTheme.colorScheme.primary
                         ),
                         contentPadding = PaddingValues(
                             horizontal = DesignTheme.Spacing.md,
@@ -369,7 +363,7 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
             Text(
                 text = "Added ${place.createdAt.take(10)}",
                 style = DesignTheme.Typography.bodySmallest,
-                color = Color.Gray
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -380,10 +374,10 @@ private fun StatusBadgeCompact(status: String) {
     Text(
         text = status.lowercase().replaceFirstChar { it.uppercase() },
         style = DesignTheme.Typography.bodySmallest,
-        color = Color.White,
+        color = MaterialTheme.colorScheme.onPrimary,
         modifier = Modifier
             .background(
-                color = DesignTheme.Colors.primary,
+                color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(DesignTheme.CornerRadius.capsule)
             )
             .padding(

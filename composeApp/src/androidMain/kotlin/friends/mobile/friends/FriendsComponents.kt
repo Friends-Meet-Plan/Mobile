@@ -2,13 +2,31 @@ package friends.mobile.friends
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -16,84 +34,30 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.MaterialTheme
+import friends.mobile.designsystem.theme.DesignTheme
+import friends.mobile.designsystem.components.IndicatorFactory
 import friends.mobile.feature.friends.domain.model.User
 import friends.mobile.feature.friends.presentation.friends.RequestTab
 
 @Composable
-fun SearchBar(
-    text: String,
-    onTextChange: (String) -> Unit,
-    onClear: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Text(text = "🔍")
-
-        TextField(
-            value = text,
-            onValueChange = onTextChange,
-            modifier = Modifier
-                .weight(1f)
-                .height(56.dp),
-            placeholder = { Text("Search users...") },
-            singleLine = true,
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-            ),
-        )
-
-        if (text.isNotEmpty()) {
-            IconButton(onClick = onClear) {
-                Text(text = "✕", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
-    }
-}
-
-@Composable
-fun ErrorBanner(
-    message: String,
-    modifier: Modifier = Modifier,
-) {
-    Box(
-        modifier = modifier
-            .background(MaterialTheme.colorScheme.errorContainer)
-            .padding(12.dp),
-    ) {
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onErrorContainer,
-        )
-    }
-}
-
-@Composable
 fun UserListView(
     users: List<User>,
+    currentTab: RequestTab,
+    searchText: String,
     onUserSelected: (User) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        contentPadding = PaddingValues(DesignTheme.Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)
     ) {
         items(users, key = { it.id }) { user ->
             UserRow(
                 user = user,
+                currentTab = currentTab,
+                showStatusBadge = searchText.isEmpty(),
                 onClick = { onUserSelected(user) },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -104,47 +68,50 @@ fun UserListView(
 @Composable
 fun UserRow(
     user: User,
+    currentTab: RequestTab,
+    showStatusBadge: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             .clickable(onClick = onClick)
-            .padding(14.dp),
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
+            .padding(DesignTheme.Spacing.md),
+        horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             modifier = Modifier
-                .size(42.dp)
+                .size(52.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                .background(MaterialTheme.colorScheme.primary),
             contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = user.username.firstOrNull()?.uppercase() ?: "?",
-                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                color = MaterialTheme.colorScheme.onSurface,
+                style = DesignTheme.Typography.captionSemibold.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
+                )
             )
         }
 
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs),
         ) {
             Text(
                 text = user.username,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                color = MaterialTheme.colorScheme.onSurface,
+                style = DesignTheme.Typography.captionSemibold,
+                color = MaterialTheme.colorScheme.onSurface
             )
-
             user.bio?.let { bio ->
                 if (bio.isNotEmpty()) {
                     Text(
                         text = bio,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = DesignTheme.Typography.bodySmallest,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -152,60 +119,19 @@ fun UserRow(
                 }
             }
         }
-    }
-}
 
-@Composable
-fun LoadingSkeletons() {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        repeat(8) {
-            UserRowSkeleton()
+        if (showStatusBadge) {
+            StatusBadge(currentTab = currentTab)
         }
     }
 }
 
 @Composable
-fun UserRowSkeleton(
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerLow)
-            .padding(14.dp),
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(42.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f)),
-        )
-
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.5f)
-                    .height(12.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f)),
-            )
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.7f)
-                    .height(10.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.3f)),
-            )
-        }
+private fun StatusBadge(currentTab: RequestTab) {
+    when (currentTab) {
+        RequestTab.FRIENDS -> IndicatorFactory.Active()
+        RequestTab.INCOMING -> IndicatorFactory.Pending()
+        RequestTab.OUTGOING -> IndicatorFactory.Sent()
     }
 }
 
@@ -214,42 +140,49 @@ fun EmptyStateView(
     currentTab: RequestTab,
     isSearchEmpty: Boolean,
     searchText: String,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(
-            text = "👥",
-            modifier = Modifier.size(48.dp),
-            style = MaterialTheme.typography.headlineLarge
+        Icon(
+            imageVector = Icons.Default.Group,
+            contentDescription = null,
+            modifier = Modifier.size(56.dp),
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
 
-        if (isSearchEmpty && searchText.isNotEmpty()) {
-            Text(
-                text = "No users found",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Text(
-                text = "Try searching with a different name",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        } else {
-            Text(
-                text = emptyStateTitle(currentTab),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Text(
-                text = emptyStateSubtitle(currentTab),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm),
+        ) {
+            if (isSearchEmpty && searchText.isNotEmpty()) {
+                Text(
+                    text = "No users found",
+                    style = DesignTheme.Typography.captionSemibold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = "Try searching with a different name",
+                    style = DesignTheme.Typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                Text(
+                    text = emptyStateTitle(currentTab),
+                    style = DesignTheme.Typography.captionSemibold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = emptyStateSubtitle(currentTab),
+                    style = DesignTheme.Typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }
@@ -272,36 +205,54 @@ fun TabSelector(
     onTabSelected: (RequestTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
+    val tabs = RequestTab.entries
+    var localSelected by remember { mutableStateOf(selectedTab) }
+    LaunchedEffect(selectedTab) { localSelected = selectedTab }
+
+    Column(
         modifier = modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+            .background(MaterialTheme.colorScheme.background),
     ) {
-        RequestTab.entries.forEach { tab ->
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(40.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(
-                        if (tab == selectedTab) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.surfaceContainerHighest
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = DesignTheme.Spacing.lg)
+                .padding(top = DesignTheme.Spacing.sm, bottom = DesignTheme.Spacing.lg)
+                .clip(RoundedCornerShape(DesignTheme.CornerRadius.capsule))
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                .padding(3.dp),
+        ) {
+            tabs.forEach { tab ->
+                val isSelected = tab == localSelected
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(DesignTheme.CornerRadius.capsule))
+                        .background(
+                            if (isSelected) MaterialTheme.colorScheme.surface
+                            else Color.Transparent
+                        )
+                        .clickable {
+                            localSelected = tab
+                            onTabSelected(tab)
+                        }
+                        .padding(vertical = DesignTheme.Spacing.sm),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = when (tab) {
+                            RequestTab.FRIENDS -> "Friends"
+                            RequestTab.INCOMING -> "Incoming"
+                            RequestTab.OUTGOING -> "Outgoing"
+                        },
+                        style = if (isSelected) DesignTheme.Typography.bodySmall.copy(fontWeight = FontWeight.SemiBold)
+                                else DesignTheme.Typography.bodySmall,
+                        color = if (isSelected) MaterialTheme.colorScheme.onSurface
+                                else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    .clickable { onTabSelected(tab) },
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = when (tab) {
-                        RequestTab.FRIENDS -> "Friends"
-                        RequestTab.INCOMING -> "Incoming"
-                        RequestTab.OUTGOING -> "Outgoing"
-                    },
-                    style = MaterialTheme.typography.labelMedium,
-                    color = if (tab == selectedTab) MaterialTheme.colorScheme.onPrimary
-                    else MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                }
             }
         }
     }
 }
+

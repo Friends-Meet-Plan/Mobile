@@ -1,10 +1,8 @@
-package friends.mobile.designkit
+package friends.mobile.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -12,10 +10,11 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import friends.mobile.designsystem.theme.DesignTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,19 +25,21 @@ fun FormTextField(
     modifier: Modifier = Modifier,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
+    val surfaceBg = MaterialTheme.colorScheme.surfaceVariant
+    val primary = MaterialTheme.colorScheme.primary
     TextField(
         value = value,
         onValueChange = onValueChange,
         placeholder = { Text(placeholder, style = DesignTheme.Typography.body) },
         modifier = modifier
-            .background(DesignTheme.Colors.textField, RoundedCornerShape(DesignTheme.CornerRadius.medium))
+            .background(surfaceBg, RoundedCornerShape(12.dp))
             .border(0.dp, Color.Transparent),
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = Color.Transparent,
             focusedContainerColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = DesignTheme.Colors.primary.copy(alpha = 0.5f),
-            focusedLabelColor = DesignTheme.Colors.primary
+            focusedIndicatorColor = Color.Transparent,
+            focusedLabelColor = primary
         ),
         singleLine = true,
         keyboardOptions = keyboardOptions,
@@ -55,19 +56,21 @@ fun FormSecureField(
     modifier: Modifier = Modifier,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
+    val surfaceBg = MaterialTheme.colorScheme.surfaceVariant
+    val primary = MaterialTheme.colorScheme.primary
     TextField(
         value = value,
         onValueChange = onValueChange,
         placeholder = { Text(placeholder, style = DesignTheme.Typography.body) },
         modifier = modifier
-            .background(DesignTheme.Colors.textField, RoundedCornerShape(DesignTheme.CornerRadius.medium))
+            .background(surfaceBg, RoundedCornerShape(12.dp))
             .border(0.dp, Color.Transparent),
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = Color.Transparent,
             focusedContainerColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = DesignTheme.Colors.primary.copy(alpha = 0.5f),
-            focusedLabelColor = DesignTheme.Colors.primary
+            focusedIndicatorColor = Color.Transparent,
+            focusedLabelColor = primary
         ),
         singleLine = true,
         visualTransformation = PasswordVisualTransformation(),
