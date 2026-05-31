@@ -1,14 +1,14 @@
 package friends.mobile.core.domain.model
 
 object ErrorMessages {
-    const val NETWORK = "Ошибка сети. Проверьте соединение"
-    const val UNAUTHORIZED = "Необходимо войти в аккаунт"
-    const val FORBIDDEN = "Доступ к данным запрещён"
-    const val NOT_FOUND = "Данные не найдены"
-    const val CONFLICT = "Конфликт данных: действие невозможно в текущем состоянии"
-    const val CLIENT_ERROR = "Ошибка запроса. Попробуйте снова"
-    const val SERVER_ERROR = "Сервер временно недоступен"
-    const val UNKNOWN = "Произошла неизвестная ошибка"
+    const val NETWORK = "No internet connection. Please check your connection."
+    const val UNAUTHORIZED = "Your session has expired. Please log in again."
+    const val FORBIDDEN = "You don't have permission to perform this action."
+    const val NOT_FOUND = "The requested resource was not found."
+    const val CONFLICT = "This action cannot be completed. Try again."
+    const val CLIENT_ERROR = "Please check your input and try again."
+    const val SERVER_ERROR = "Server error. Please try again later."
+    const val UNKNOWN = "Something went wrong. Please try again."
 }
 
 sealed class UserFriendlyError(open val message: String) {

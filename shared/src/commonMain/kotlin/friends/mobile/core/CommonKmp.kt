@@ -1,6 +1,7 @@
 package friends.mobile.core
 
 import friends.mobile.core.config.Configuration
+import friends.mobile.core.db.di.databaseModule
 import friends.mobile.core.di.platformModule
 import friends.mobile.core.di.qualifierModule
 import friends.mobile.core.network.networkModule
@@ -21,6 +22,7 @@ object CommonKmp {
                 createConfiguration(configuration),
                 qualifierModule,
                 platformModule,
+                databaseModule,
                 networkModule,
                 featureModule,
             )

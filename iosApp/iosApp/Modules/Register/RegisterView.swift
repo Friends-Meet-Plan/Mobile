@@ -20,7 +20,7 @@ struct RegisterView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Create Account")
                             .font(DesignTheme.Typography.heading)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                     }
                     Spacer()
                     Button(action: { dismiss() }) {
@@ -44,8 +44,6 @@ struct RegisterView: View {
                         set: { reducer.setPassword($0) }
                     ))
                     .formSecureField()
-
-                    FormInfoMessage(message: "At least 8 characters")
 
                     if let error = reducer.errorMessage {
                         FormErrorMessage(message: error)

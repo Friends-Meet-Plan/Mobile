@@ -204,7 +204,7 @@ private extension MainView {
                     Circle()
                         .fill(DesignTheme.accentColor)
                         .shadow(
-                            color: .black.opacity(0.15),
+                            color: .primary.opacity(0.15),
                             radius: 10,
                             x: 0,
                             y: 6
@@ -391,7 +391,7 @@ struct EventRowView: View {
             RoundedRectangle(cornerRadius: 18)
                 .fill(Color(.systemBackground))
                 .shadow(
-                    color: .black.opacity(0.06),
+                    color: .primary.opacity(0.06),
                     radius: 8,
                     x: 0,
                     y: 4

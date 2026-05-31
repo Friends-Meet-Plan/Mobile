@@ -1,5 +1,6 @@
 package friends.mobile.feature.profile.di
 
+import friends.mobile.core.db.ProfileCacheStorage
 import friends.mobile.core.di.QualifierAuthClient
 import friends.mobile.feature.profile.data.mapper.ProfileMapper
 import friends.mobile.feature.profile.data.remote.ProfileApi
@@ -22,7 +23,8 @@ val profileModule = module {
     single<ProfileRepository> {
         ProfileRepositoryImpl(
             api = get(),
-            mapper = get()
+            mapper = get(),
+            cacheStorage = get()
         )
     }
     single<GetMeUseCase> { GetMeUseCaseImpl(get()) }

@@ -44,7 +44,7 @@ struct EventDetailView: View {
     
     var body: some View {
         if reducer.isLoading {
-            LoadingStateView()
+            LoadingView()
         } else if let errorMessage = reducer.errorMessage {
             VStack(spacing: DesignTheme.Spacing.lg) {
                 Image(systemName: "exclamationmark.triangle.fill")
@@ -64,7 +64,7 @@ struct EventDetailView: View {
                             VStack(alignment: .leading, spacing: DesignTheme.Spacing.sm) {
                                 Text(reducer.title)
                                     .font(DesignTheme.Typography.heading)
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.primary)
                                     .lineLimit(3)
                             }
                             
@@ -74,7 +74,6 @@ struct EventDetailView: View {
                         }
                     }
                     
-                    // Details Section with Icons
                     VStack(alignment: .leading, spacing: DesignTheme.Spacing.md) {
                         DetailRowWithIcon(icon: "calendar", label: "Date", value: reducer.date)
                         
@@ -87,12 +86,11 @@ struct EventDetailView: View {
                         }
                     }
                     
-                    // Description Section
                     if let description = reducer.description, !description.isEmpty {
                         VStack(alignment: .leading, spacing: DesignTheme.Spacing.sm) {
                             Text("Description")
                                 .font(DesignTheme.Typography.button)
-                                .foregroundColor(.black)
+                                .foregroundColor(.primary)
                             
                             Text(description)
                                 .font(DesignTheme.Typography.body)
@@ -107,7 +105,7 @@ struct EventDetailView: View {
                     VStack(alignment: .leading, spacing: DesignTheme.Spacing.md) {
                         Text("Participants")
                             .font(DesignTheme.Typography.button)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                         
                         if reducer.participants.isEmpty {
                             Text("No participants yet")
@@ -147,63 +145,6 @@ struct EventDetailView: View {
     }
 }
 
-// MARK: - Loading State
-
-private struct LoadingStateView: View {
-    var body: some View {
-        VStack(spacing: DesignTheme.Spacing.xl) {
-            VStack(spacing: DesignTheme.Spacing.lg) {
-                // Skeleton event image placeholder
-                RoundedRectangle(cornerRadius: DesignTheme.CornerRadius.medium)
-                    .fill(Color(.systemGray6))
-                    .frame(height: 200)
-                    .shimmer()
-                
-                VStack(alignment: .leading, spacing: DesignTheme.Spacing.md) {
-                    // Skeleton title
-                    RoundedRectangle(cornerRadius: DesignTheme.CornerRadius.small)
-                        .fill(Color(.systemGray6))
-                        .frame(height: 24)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .shimmer()
-                    
-                    // Skeleton subtitle
-                    RoundedRectangle(cornerRadius: DesignTheme.CornerRadius.small)
-                        .fill(Color(.systemGray6))
-                        .frame(height: 16)
-                        .frame(maxWidth: 200, alignment: .leading)
-                        .shimmer()
-                }
-                
-                VStack(alignment: .leading, spacing: DesignTheme.Spacing.md) {
-                    ForEach(0..<3, id: \.self) { _ in
-                        RoundedRectangle(cornerRadius: DesignTheme.CornerRadius.small)
-                            .fill(Color(.systemGray6))
-                            .frame(height: 16)
-                            .shimmer()
-                    }
-                }
-                
-                Spacer()
-            }
-            .padding(DesignTheme.Spacing.lg)
-            
-            VStack(spacing: DesignTheme.Spacing.sm) {
-                ProgressView()
-                    .tint(DesignTheme.accentColor)
-                
-                Text("Loading event details...")
-                    .font(DesignTheme.Typography.bodySmall)
-                    .foregroundColor(.secondary)
-            }
-        }
-        .frame(maxHeight: .infinity)
-        .padding(DesignTheme.Spacing.lg)
-    }
-}
-
-// MARK: - Event Image View
-
 private struct EventImageView: View {
     var body: some View {
         VStack {
@@ -216,8 +157,6 @@ private struct EventImageView: View {
         }
     }
 }
-
-// MARK: - Detail Row with Icon
 
 private struct DetailRowWithIcon: View {
     let icon: String
@@ -238,7 +177,7 @@ private struct DetailRowWithIcon: View {
                 
                 Text(value)
                     .font(DesignTheme.Typography.body)
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
                     .lineLimit(nil)
             }
             
@@ -250,8 +189,6 @@ private struct DetailRowWithIcon: View {
     }
 }
 
-// MARK: - Participant Avatar Row
-
 private struct ParticipantAvatarRow: View {
     let participant: EventParticipant
     let statusColor: (String) -> Color
@@ -259,14 +196,11 @@ private struct ParticipantAvatarRow: View {
     
     var body: some View {
         HStack(spacing: DesignTheme.Spacing.md) {
-            // Avatar with initials and status badge
             ZStack(alignment: .bottomTrailing) {
-                // Avatar circle
                 Circle()
                     .fill(AvatarColorPalette.color(for: colorIndex))
                     .frame(width: 48, height: 48)
                 
-                // Initials
                 Text(participant.username.prefix(1).uppercased())
                     .font(DesignTheme.Typography.button)
                     .foregroundColor(.white)
@@ -277,11 +211,10 @@ private struct ParticipantAvatarRow: View {
                     .offset(x: 2, y: 2)
             }
             
-            // User info
             VStack(alignment: .leading, spacing: DesignTheme.Spacing.xs) {
                 Text(participant.username)
                     .font(DesignTheme.Typography.body)
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
                 
                 HStack(spacing: DesignTheme.Spacing.sm) {
                     Text(participant.role.capitalized)
