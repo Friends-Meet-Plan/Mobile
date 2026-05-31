@@ -46,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.MaterialTheme
 import friends.mobile.designkit.theme.DesignTheme
 import friends.mobile.designkit.components.ButtonFactory
 import friends.mobile.designkit.components.FormTextField
@@ -86,7 +87,7 @@ fun WishPlaceItem(
             backgroundContent = {
                 val isDismissing = dismissState.targetValue == SwipeToDismissBoxValue.EndToStart
                 val color by animateColorAsState(
-                    targetValue = if (isDismissing) DesignTheme.Colors.error else Color.Transparent,
+                    targetValue = if (isDismissing) MaterialTheme.colorScheme.error else Color.Transparent,
                     label = "delete_color"
                 )
                 Box(
@@ -123,7 +124,7 @@ private fun WishPlaceCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
-            .background(DesignTheme.Colors.textField)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable(onClick = onClick)
             .padding(DesignTheme.Spacing.md),
         verticalAlignment = Alignment.CenterVertically,
@@ -136,7 +137,7 @@ private fun WishPlaceCard(
             Text(
                 text = place.title,
                 style = DesignTheme.Typography.captionSemibold,
-                color = Color.Black
+                color = MaterialTheme.colorScheme.onSurface
             )
             place.location?.let {
                 Row(
@@ -147,7 +148,7 @@ private fun WishPlaceCard(
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = null,
                         modifier = Modifier.size(14.dp),
-                        tint = DesignTheme.Colors.primary
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = it,
@@ -160,10 +161,10 @@ private fun WishPlaceCard(
         Text(
             text = place.status.name.lowercase().replaceFirstChar { it.uppercase() },
             style = DesignTheme.Typography.bodySmallest,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier
                 .background(
-                    color = DesignTheme.Colors.primary,
+                    color = MaterialTheme.colorScheme.primary,
                     shape = RoundedCornerShape(DesignTheme.CornerRadius.capsule)
                 )
                 .padding(horizontal = DesignTheme.Spacing.sm, vertical = DesignTheme.Spacing.xs)
@@ -187,7 +188,7 @@ fun CreateWishPlaceBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         dragHandle = { BottomSheetDefaults.DragHandle() },
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         scrimColor = Color.Black.copy(alpha = 0.3f)
     ) {
         Column(
@@ -253,7 +254,7 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         scrimColor = Color.Black.copy(alpha = 0.3f),
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = RoundedCornerShape(
             topStart = DesignTheme.CornerRadius.medium,
             topEnd = DesignTheme.CornerRadius.medium
@@ -301,12 +302,12 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = null,
                         modifier = Modifier.size(14.dp),
-                        tint = DesignTheme.Colors.primary
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = it,
                         style = DesignTheme.Typography.body,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1
                     )
                 }
@@ -316,7 +317,7 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
                 Text(
                     text = place.description!!,
                     style = DesignTheme.Typography.body,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2
                 )
             }
@@ -334,7 +335,7 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
                         modifier = Modifier.height(28.dp),
                         shape = RoundedCornerShape(DesignTheme.CornerRadius.capsule),
                         colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                            containerColor = DesignTheme.Colors.primary
+                            containerColor = MaterialTheme.colorScheme.primary
                         ),
                         contentPadding = PaddingValues(
                             horizontal = DesignTheme.Spacing.md,
@@ -373,10 +374,10 @@ private fun StatusBadgeCompact(status: String) {
     Text(
         text = status.lowercase().replaceFirstChar { it.uppercase() },
         style = DesignTheme.Typography.bodySmallest,
-        color = Color.White,
+        color = MaterialTheme.colorScheme.onPrimary,
         modifier = Modifier
             .background(
-                color = DesignTheme.Colors.primary,
+                color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(DesignTheme.CornerRadius.capsule)
             )
             .padding(

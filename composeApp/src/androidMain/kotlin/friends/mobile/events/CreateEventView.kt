@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material3.MaterialTheme
 import friends.mobile.designkit.theme.DesignTheme
 import friends.mobile.designkit.components.ButtonFactory
 import friends.mobile.designkit.components.ErrorBanner
@@ -209,7 +210,7 @@ private fun CreateEventContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
-                    .background(DesignTheme.Colors.systemGray6.copy(alpha = 0.5f))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
                     .padding(vertical = DesignTheme.Spacing.lg, horizontal = DesignTheme.Spacing.lg),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -278,7 +279,7 @@ private fun CreateEventContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
-                    .background(DesignTheme.Colors.systemGray6)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
                     .clickable { onShowFriendsSheet(true) }
                     .padding(DesignTheme.Spacing.md),
                 horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
@@ -288,7 +289,7 @@ private fun CreateEventContent(
                     imageVector = Icons.Default.Group,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp),
-                    tint = Color.Black,
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = "Select Friends",
@@ -299,10 +300,10 @@ private fun CreateEventContent(
                     Text(
                         text = "${state.selectedFriendIds.size} selected",
                         style = DesignTheme.Typography.bodySmallest,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier
                             .background(
-                                color = DesignTheme.Colors.primary,
+                                color = MaterialTheme.colorScheme.primary,
                                 shape = RoundedCornerShape(DesignTheme.CornerRadius.small),
                             )
                             .padding(
@@ -322,7 +323,7 @@ private fun CreateEventContent(
                 Row(
                     modifier = Modifier
                         .background(
-                            color = DesignTheme.Colors.primary.copy(alpha = 0.15f),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                             shape = RoundedCornerShape(DesignTheme.CornerRadius.small),
                         )
                         .padding(
@@ -335,7 +336,7 @@ private fun CreateEventContent(
                     Text(
                         text = friend.username,
                         style = DesignTheme.Typography.bodySmallest,
-                        color = DesignTheme.Colors.primary,
+                        color = MaterialTheme.colorScheme.primary,
                     )
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
@@ -343,7 +344,7 @@ private fun CreateEventContent(
                         modifier = Modifier
                             .size(14.dp)
                             .clickable { onToggleFriend(friend.id) },
-                        tint = DesignTheme.Colors.primary,
+                        tint = MaterialTheme.colorScheme.primary,
                     )
                 }
             }
@@ -460,7 +461,7 @@ private fun FriendSelectionItem(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
-            .background(DesignTheme.Colors.systemGray6.copy(alpha = 0.5f))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable { onToggle() }
             .padding(DesignTheme.Spacing.md),
         horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
@@ -484,7 +485,7 @@ private fun FriendSelectionItem(
             imageVector = if (isSelected) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
             contentDescription = null,
             modifier = Modifier.size(20.dp),
-            tint = if (isSelected) DesignTheme.Colors.primary else Color.Gray,
+            tint = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray,
         )
     }
 }

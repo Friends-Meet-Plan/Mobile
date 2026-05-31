@@ -22,7 +22,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.material3.MaterialTheme
 import friends.mobile.designkit.theme.DesignTheme
+import friends.mobile.designkit.theme.DesignColors
 import friends.mobile.designkit.components.ButtonFactory
 import friends.mobile.designkit.components.ErrorBanner
 import friends.mobile.feature.calendar.presentation.BusyDaysEvent
@@ -56,7 +58,7 @@ fun BusyDaysView(
                     modifier = Modifier.fillMaxWidth().height(120.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = DesignTheme.Colors.primary)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
             is BusyDaysViewState.Error -> {
@@ -140,7 +142,7 @@ private fun DayCell(date: LocalDate, isBusy: Boolean) {
         modifier = Modifier
             .aspectRatio(1f)
             .background(
-                color = if (isBusy) DesignTheme.Colors.secondaryAccent else DesignTheme.Colors.textField,
+                color = if (isBusy) DesignColors.secondaryAccent else MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(4.dp)
             ),
         contentAlignment = Alignment.Center
@@ -159,8 +161,8 @@ private fun Legend() {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.lg)
     ) {
-        LegendItem(color = DesignTheme.Colors.secondaryAccent, label = "Busy")
-        LegendItem(color = DesignTheme.Colors.textField, label = "Not busy")
+        LegendItem(color = DesignColors.secondaryAccent, label = "Busy")
+        LegendItem(color = MaterialTheme.colorScheme.surfaceVariant, label = "Not busy")
     }
 }
 

@@ -1,35 +1,17 @@
 package friends.mobile.designkit.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/**
- * Central design-token object used across all screens.
- * Values mirror the iOS DesignTheme.swift constants exactly.
- *
- * For structured access via the sub-packages see:
- *   friends.mobile.designkit.theme.DesignColors
- *   friends.mobile.designkit.theme.DesignTypography
- */
 object DesignTheme {
-
-    object Colors {
-        val primary = Color(0xFF007AFF)
-        val primaryHex = Color(red = 0.0f, green = 0.48f, blue = 1.0f)
-        val error = Color(0xFFFF3B30)
-        val errorLight = Color.Red.copy(alpha = 0.08f)
-        val infoLight = Color(red = 0.0f, green = 0.48f, blue = 1.0f).copy(alpha = 0.06f)
-        val textField = Color(0xFFF2F2F7)
-        val secondaryAccent = Color(0xFF34C759)
-        val systemGray6 = Color(0xFFF2F2F7)
-    }
 
     object Spacing {
         val xs: Dp = 4.dp
@@ -58,65 +40,88 @@ object DesignTheme {
     }
 }
 
-/**
- * App-wide Material 3 theme wrapper.
- * Full color scheme mirrors iOS UIColor system palette in light mode —
- * neutral grays replace Material You purple/pink defaults.
- */
+private val LightColorScheme = lightColorScheme(
+    primary = DesignColors.primary,
+    onPrimary = DesignColors.onPrimary,
+    primaryContainer = DesignColors.primaryContainer,
+    onPrimaryContainer = DesignColors.onPrimaryContainer,
+    secondary = DesignColors.secondary,
+    onSecondary = DesignColors.onSecondary,
+    secondaryContainer = DesignColors.secondaryContainer,
+    onSecondaryContainer = DesignColors.onSecondaryContainer,
+    tertiary = DesignColors.tertiary,
+    onTertiary = DesignColors.onTertiary,
+    tertiaryContainer = DesignColors.tertiaryContainer,
+    onTertiaryContainer = DesignColors.onTertiaryContainer,
+    error = DesignColors.error,
+    onError = DesignColors.onError,
+    errorContainer = DesignColors.errorContainer,
+    onErrorContainer = DesignColors.onErrorContainer,
+    background = DesignColors.background,
+    onBackground = DesignColors.onBackground,
+    surface = DesignColors.surface,
+    onSurface = DesignColors.onSurface,
+    surfaceVariant = DesignColors.surfaceVariant,
+    onSurfaceVariant = DesignColors.onSurfaceVariant,
+    surfaceBright = DesignColors.surfaceBright,
+    surfaceDim = DesignColors.surfaceDim,
+    surfaceContainer = DesignColors.surfaceContainer,
+    surfaceContainerLow = DesignColors.surfaceContainerLow,
+    surfaceContainerHigh = DesignColors.surfaceContainerHigh,
+    surfaceContainerHighest = DesignColors.surfaceContainerHighest,
+    outline = DesignColors.outline,
+    outlineVariant = DesignColors.outlineVariant,
+    scrim = DesignColors.scrim,
+    inverseSurface = DesignColors.inverseSurface,
+    inverseOnSurface = DesignColors.inverseOnSurface,
+    inversePrimary = DesignColors.inversePrimary,
+    surfaceTint = DesignColors.surfaceTint,
+)
+
+private val DarkColorScheme = darkColorScheme(
+    primary = DesignColorsDark.primary,
+    onPrimary = DesignColorsDark.onPrimary,
+    primaryContainer = DesignColorsDark.primaryContainer,
+    onPrimaryContainer = DesignColorsDark.onPrimaryContainer,
+    secondary = DesignColorsDark.secondary,
+    onSecondary = DesignColorsDark.onSecondary,
+    secondaryContainer = DesignColorsDark.secondaryContainer,
+    onSecondaryContainer = DesignColorsDark.onSecondaryContainer,
+    tertiary = DesignColorsDark.tertiary,
+    onTertiary = DesignColorsDark.onTertiary,
+    tertiaryContainer = DesignColorsDark.tertiaryContainer,
+    onTertiaryContainer = DesignColorsDark.onTertiaryContainer,
+    error = DesignColorsDark.error,
+    onError = DesignColorsDark.onError,
+    errorContainer = DesignColorsDark.errorContainer,
+    onErrorContainer = DesignColorsDark.onErrorContainer,
+    background = DesignColorsDark.background,
+    onBackground = DesignColorsDark.onBackground,
+    surface = DesignColorsDark.surface,
+    onSurface = DesignColorsDark.onSurface,
+    surfaceVariant = DesignColorsDark.surfaceVariant,
+    onSurfaceVariant = DesignColorsDark.onSurfaceVariant,
+    surfaceBright = DesignColorsDark.surfaceBright,
+    surfaceDim = DesignColorsDark.surfaceDim,
+    surfaceContainer = DesignColorsDark.surfaceContainer,
+    surfaceContainerLow = DesignColorsDark.surfaceContainerLow,
+    surfaceContainerHigh = DesignColorsDark.surfaceContainerHigh,
+    surfaceContainerHighest = DesignColorsDark.surfaceContainerHighest,
+    outline = DesignColorsDark.outline,
+    outlineVariant = DesignColorsDark.outlineVariant,
+    scrim = DesignColorsDark.scrim,
+    inverseSurface = DesignColorsDark.inverseSurface,
+    inverseOnSurface = DesignColorsDark.inverseOnSurface,
+    inversePrimary = DesignColorsDark.inversePrimary,
+    surfaceTint = DesignColorsDark.surfaceTint,
+)
+
 @Composable
 fun FriendsAppTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    // iOS system colors mapped to Material3 slots:
-    //   systemBackground   → #FFFFFF  (surface / background)
-    //   systemGray6        → #F2F2F7  (surfaceVariant — replaces purple)
-    //   systemGray5        → #E5E5EA  (secondaryContainer — replaces purple)
-    //   systemGray3        → #C7C7CC  (outline)
-    //   systemGray4        → #D1D1D6  (outlineVariant)
-    //   systemGray         → #8E8E93  (onSurfaceVariant / secondary)
-    //   label              → #1C1C1E  (onBackground / onSurface)
-    val colorScheme = lightColorScheme(
-        primary = Color(0xFF007AFF),
-        onPrimary = Color.White,
-        primaryContainer = Color(0xFFD0E4FF),
-        onPrimaryContainer = Color(0xFF001D36),
-        secondary = Color(0xFF8E8E93),
-        onSecondary = Color.White,
-        secondaryContainer = Color(0xFFE5E5EA),
-        onSecondaryContainer = Color(0xFF1C1C1E),
-        tertiary = Color(0xFF34C759),
-        onTertiary = Color.White,
-        tertiaryContainer = Color(0xFFD4F5DD),
-        onTertiaryContainer = Color(0xFF002112),
-        error = Color(0xFFFF3B30),
-        onError = Color.White,
-        errorContainer = Color(0xFFFFEDEC),
-        onErrorContainer = Color(0xFF410002),
-        background = Color.White,
-        onBackground = Color(0xFF1C1C1E),
-        surface = Color.White,
-        onSurface = Color(0xFF1C1C1E),
-        surfaceVariant = Color(0xFFF2F2F7),
-        onSurfaceVariant = Color(0xFF8E8E93),
-        // Surface containers — all neutral iOS grays, replaces Material You purple tints.
-        // surfaceContainerLow  → ModalBottomSheet background
-        // surfaceContainer     → NavigationBar background
-        // surfaceContainerHigh → DatePicker dialog background
-        // surfaceContainerHighest → TimePicker clock face
-        surfaceBright = Color.White,
-        surfaceDim = Color(0xFFEBEBF0),
-        surfaceContainer = Color(0xFFF2F2F7),
-        surfaceContainerLow = Color.White,
-        surfaceContainerHigh = Color(0xFFEBEBF0),
-        surfaceContainerHighest = Color(0xFFE5E5EA),
-        outline = Color(0xFFC7C7CC),
-        outlineVariant = Color(0xFFD1D1D6),
-        scrim = Color.Black,
-        inverseSurface = Color(0xFF1C1C1E),
-        inverseOnSurface = Color(0xFFF2F2F7),
-        inversePrimary = Color(0xFF8FBFFF),
-        surfaceTint = Color.Transparent,
-    )
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,

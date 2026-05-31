@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.MaterialTheme
 import friends.mobile.designkit.theme.DesignColors
 import friends.mobile.designkit.theme.DesignTypography
 
@@ -77,11 +78,12 @@ object IndicatorFactory {
      */
     @Composable
     fun declined(modifier: Modifier = Modifier) {
+        val errorColor = MaterialTheme.colorScheme.error
         StatusChip(
             label = "Declined",
-            textColor = DesignColors.error,
-            iconTint = DesignColors.error,
-            background = DesignColors.errorLight,
+            textColor = errorColor,
+            iconTint = errorColor,
+            background = errorColor.copy(alpha = 0.1f),
             icon = Icons.Default.Cancel,
             modifier = modifier
         )
@@ -96,7 +98,7 @@ object IndicatorFactory {
             label = "Sent",
             textColor = Color.Gray,
             iconTint = Color.Gray,
-            background = DesignColors.systemGray6,
+            background = MaterialTheme.colorScheme.surfaceVariant,
             icon = Icons.AutoMirrored.Filled.Send,
             modifier = modifier
         )

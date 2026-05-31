@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import friends.mobile.R
+import androidx.compose.material3.MaterialTheme
 import friends.mobile.designkit.theme.DesignTheme
 import friends.mobile.designkit.components.LoadingView
 import friends.mobile.feature.events.domain.model.Event
@@ -100,11 +101,11 @@ fun EventDetailView(
                         imageVector = Icons.Default.DateRange,
                         contentDescription = null,
                         modifier = Modifier.size(48.dp),
-                        tint = DesignTheme.Colors.error
+                        tint = MaterialTheme.colorScheme.error
                     )
                     Text(
                         text = currentState.message,
-                        color = DesignTheme.Colors.error,
+                        color = MaterialTheme.colorScheme.error,
                         style = DesignTheme.Typography.body,
                         modifier = Modifier.padding(top = DesignTheme.Spacing.md)
                     )
@@ -154,7 +155,7 @@ private fun EventDetailContent(
                         Text(
                             text = event.title,
                             style = DesignTheme.Typography.heading,
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 3
                         )
                     }
@@ -204,7 +205,7 @@ private fun EventDetailContent(
                             .padding(horizontal = DesignTheme.Spacing.lg)
                             .fillMaxWidth()
                             .background(
-                                DesignTheme.Colors.textField,
+                                MaterialTheme.colorScheme.surfaceVariant,
                                 shape = RoundedCornerShape(DesignTheme.CornerRadius.medium)
                             )
                             .padding(DesignTheme.Spacing.md),
@@ -213,12 +214,12 @@ private fun EventDetailContent(
                         Text(
                             text = "Description",
                             style = DesignTheme.Typography.button,
-                            color = Color.Black
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = description,
                             style = DesignTheme.Typography.body,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -235,7 +236,7 @@ private fun EventDetailContent(
                 Text(
                     text = "Participants",
                     style = DesignTheme.Typography.button,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 if (event.participants.isEmpty()) {
@@ -294,7 +295,7 @@ private fun DetailRowWithIcon(
         modifier = modifier
             .fillMaxWidth()
             .background(
-                DesignTheme.Colors.textField,
+                MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(DesignTheme.CornerRadius.medium)
             )
             .padding(DesignTheme.Spacing.md),
@@ -305,7 +306,7 @@ private fun DetailRowWithIcon(
             imageVector = icon,
             contentDescription = null,
             modifier = Modifier.size(24.dp),
-            tint = DesignTheme.Colors.primary
+            tint = MaterialTheme.colorScheme.primary
         )
 
         Column(
@@ -315,12 +316,12 @@ private fun DetailRowWithIcon(
             Text(
                 text = label,
                 style = DesignTheme.Typography.bodySmall,
-                color = Color.Gray
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
                 text = value,
                 style = DesignTheme.Typography.body,
-                color = Color.Black
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -336,7 +337,7 @@ private fun ParticipantAvatarRow(
         modifier = modifier
             .fillMaxWidth()
             .background(
-                DesignTheme.Colors.textField,
+                MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(DesignTheme.CornerRadius.medium)
             )
             .padding(DesignTheme.Spacing.md),
@@ -364,7 +365,7 @@ private fun ParticipantAvatarRow(
                     .align(Alignment.BottomEnd)
                     .offset(x = 2.dp, y = 2.dp)
                     .size(20.dp)
-                    .background(Color.White, shape = CircleShape),
+                    .background(MaterialTheme.colorScheme.surface, shape = CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 StatusBadgeIcon(participant.status)
@@ -378,7 +379,7 @@ private fun ParticipantAvatarRow(
             Text(
                 text = participant.username,
                 style = DesignTheme.Typography.body,
-                color = Color.Black
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Row(
@@ -426,7 +427,7 @@ private fun StatusBadgeIcon(status: ParticipationStatus) {
                 imageVector = Icons.Default.Clear,
                 contentDescription = null,
                 modifier = Modifier.size(14.dp),
-                tint = DesignTheme.Colors.error
+                tint = MaterialTheme.colorScheme.error
             )
         }
         ParticipationStatus.INVITED -> {
@@ -452,7 +453,7 @@ private fun EventImageView(modifier: Modifier = Modifier) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(DesignTheme.Colors.textField),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -480,19 +481,23 @@ object AvatarColorPalette {
     }
 }
 
+@Composable
 private fun getParticipationStatusColor(status: ParticipationStatus): Color {
+    val error = MaterialTheme.colorScheme.error
     return when (status) {
         ParticipationStatus.ACCEPTED -> Color(0xFF34BE48)
-        ParticipationStatus.DECLINED -> DesignTheme.Colors.error
+        ParticipationStatus.DECLINED -> error
         ParticipationStatus.INVITED -> Color(0xFFFF9800)
     }
 }
 
+@Composable
 private fun getStatusColor(status: String): Color {
+    val error = MaterialTheme.colorScheme.error
     return when (status.lowercase()) {
         "confirmed" -> Color(0xFF4CAF50)
         "pending" -> Color(0xFFFF9800)
-        "declined" -> DesignTheme.Colors.error
+        "declined" -> error
         else -> Color.Gray
     }
 }

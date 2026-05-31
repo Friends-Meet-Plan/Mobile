@@ -43,7 +43,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.material3.MaterialTheme
 import friends.mobile.designkit.theme.DesignTheme
+import friends.mobile.designkit.theme.DesignColors
 import friends.mobile.designkit.components.ButtonFactory
 import friends.mobile.designkit.components.ErrorBanner
 import friends.mobile.designkit.components.LoadingView
@@ -168,12 +170,12 @@ fun PendingEventListView(
                                     imageVector = Icons.Default.Email,
                                     contentDescription = null,
                                     modifier = Modifier.size(48.dp),
-                                    tint = DesignTheme.Colors.primary.copy(alpha = 0.5f)
+                                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                                 )
                                 Text(
                                     text = "No Pending Invitations",
                                     style = DesignTheme.Typography.captionSemibold,
-                                    color = Color.Black
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
                                     text = "You're all caught up!",
@@ -256,7 +258,7 @@ private fun PendingEventCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
-            .background(DesignTheme.Colors.textField)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable { onClick() }
             .padding(DesignTheme.Spacing.lg),
         verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs),
@@ -275,7 +277,7 @@ private fun PendingEventCard(
                 Text(
                     text = event.title,
                     style = DesignTheme.Typography.captionSemibold,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = event.date,
@@ -297,7 +299,7 @@ private fun PendingEventCard(
                         imageVector = Icons.Default.Person,
                         contentDescription = null,
                         modifier = Modifier.size(12.dp),
-                        tint = DesignTheme.Colors.primary,
+                        tint = MaterialTheme.colorScheme.primary,
                     )
                     Text(
                         text = "${event.participants.size}",
@@ -330,12 +332,12 @@ private fun PendingEventCard(
                 imageVector = Icons.Default.Notifications,
                 contentDescription = null,
                 modifier = Modifier.size(12.dp),
-                tint = DesignTheme.Colors.secondaryAccent,
+                tint = DesignColors.secondaryAccent,
             )
             Text(
                 text = "Awaiting your response",
                 style = DesignTheme.Typography.bodySmallest,
-                color = DesignTheme.Colors.secondaryAccent,
+                color = DesignColors.secondaryAccent,
             )
             Spacer(modifier = Modifier.weight(1f))
             Icon(

@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.MaterialTheme
 import friends.mobile.designkit.theme.DesignTheme
 import friends.mobile.designkit.components.ButtonFactory
 import friends.mobile.designkit.components.LoadingView
@@ -80,7 +81,7 @@ private fun ErrorContent(message: String) {
             imageVector = Icons.Default.Warning,
             contentDescription = null,
             modifier = Modifier.size(48.dp),
-            tint = DesignTheme.Colors.error,
+            tint = MaterialTheme.colorScheme.error,
         )
         Text(
             text = "Something went wrong",
@@ -207,7 +208,7 @@ private fun DetailRow(
             imageVector = icon,
             contentDescription = null,
             modifier = Modifier.size(20.dp),
-            tint = DesignTheme.Colors.primary,
+            tint = MaterialTheme.colorScheme.primary,
         )
         Column(
             verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs),
@@ -250,7 +251,7 @@ private fun ParticipantCard(participant: EventParticipant) {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = DesignTheme.Colors.systemGray6,
+                color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(DesignTheme.CornerRadius.medium),
             )
             .padding(DesignTheme.Spacing.md),

@@ -40,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import androidx.compose.material3.MaterialTheme
 import friends.mobile.designkit.theme.DesignTheme
 import friends.mobile.designkit.components.ButtonFactory
 import friends.mobile.designkit.components.ErrorBanner
@@ -108,7 +109,7 @@ fun ArchiveEventsView(
                             imageVector = Icons.Default.Inbox,
                             contentDescription = null,
                             modifier = Modifier.size(56.dp),
-                            tint = DesignTheme.Colors.primary.copy(alpha = 0.3f)
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
                         )
                         Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
                         Text(
@@ -154,12 +155,13 @@ private fun ArchivedEventCard(
     event: Event,
     onClick: () -> Unit,
 ) {
+    val cardBg = MaterialTheme.colorScheme.surface
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(18.dp))
-            .background(Color.White)
-            .border(1.dp, DesignTheme.Colors.primary.copy(alpha = 0.15f), RoundedCornerShape(18.dp))
+            .background(cardBg)
+            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.15f), RoundedCornerShape(18.dp))
             .clickable { onClick() }
             .padding(DesignTheme.Spacing.lg),
         verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)

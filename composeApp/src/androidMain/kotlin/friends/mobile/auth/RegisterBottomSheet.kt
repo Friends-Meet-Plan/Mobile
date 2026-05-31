@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.material3.MaterialTheme
 import friends.mobile.designkit.theme.DesignTheme
 import friends.mobile.designkit.components.ButtonFactory
 import friends.mobile.designkit.components.FormErrorMessage
@@ -127,7 +128,7 @@ private fun RegisterForm(
                 Text(
                     text = "Create Account",
                     style = DesignTheme.Typography.heading,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 IconButton(onClick = onDismiss) {
                     Icon(
@@ -206,7 +207,7 @@ private fun RegisterForm(
                     text = "Login",
                     modifier = Modifier.clickable { onDismiss() },
                     style = DesignTheme.Typography.captionSemibold,
-                    color = DesignTheme.Colors.primaryHex
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

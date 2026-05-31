@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import friends.mobile.designkit.theme.DesignColors
+import androidx.compose.material3.MaterialTheme
 import friends.mobile.designkit.theme.DesignTypography
 
 object ButtonFactory {
@@ -45,10 +45,10 @@ object ButtonFactory {
             enabled = isEnabled && !isLoading,
             shape = RoundedCornerShape(27.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = DesignColors.primary,
-                contentColor = Color.White,
-                disabledContainerColor = DesignColors.primary,
-                disabledContentColor = Color.White
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                disabledContainerColor = MaterialTheme.colorScheme.primary,
+                disabledContentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
             if (isLoading) {
@@ -94,10 +94,10 @@ object ButtonFactory {
             enabled = isEnabled,
             shape = RoundedCornerShape(27.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = DesignColors.errorLight,
-                contentColor = DesignColors.error,
-                disabledContainerColor = DesignColors.errorLight,
-                disabledContentColor = DesignColors.error
+                containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
+                contentColor = MaterialTheme.colorScheme.error,
+                disabledContainerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
+                disabledContentColor = MaterialTheme.colorScheme.error
             )
         ) {
             Text(text, style = DesignTypography.button)
@@ -124,10 +124,10 @@ object ButtonFactory {
             shape = RoundedCornerShape(27.dp),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 0.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = DesignColors.systemGray6,
-                contentColor = DesignColors.primary,
-                disabledContainerColor = DesignColors.systemGray6,
-                disabledContentColor = DesignColors.primary
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.primary,
+                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                disabledContentColor = MaterialTheme.colorScheme.primary
             )
         ) {
             Text(text, style = DesignTypography.button)
@@ -187,10 +187,10 @@ object ButtonFactory {
             enabled = isEnabled && !isLoading,
             shape = RoundedCornerShape(27.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = DesignColors.error,
-                contentColor = Color.White,
-                disabledContainerColor = DesignColors.error,
-                disabledContentColor = Color.White
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError,
+                disabledContainerColor = MaterialTheme.colorScheme.error,
+                disabledContentColor = MaterialTheme.colorScheme.onError
             )
         ) {
             if (isLoading) {

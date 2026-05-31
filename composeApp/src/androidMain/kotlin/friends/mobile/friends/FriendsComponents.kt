@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.MaterialTheme
 import friends.mobile.designkit.theme.DesignTheme
 import friends.mobile.designkit.components.IndicatorFactory
 import friends.mobile.feature.friends.domain.model.User
@@ -74,7 +75,7 @@ fun UserRow(
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
-            .background(DesignTheme.Colors.textField.copy(alpha = 0.5f))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable(onClick = onClick)
             .padding(DesignTheme.Spacing.md),
         horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
@@ -84,7 +85,7 @@ fun UserRow(
             modifier = Modifier
                 .size(52.dp)
                 .clip(CircleShape)
-                .background(DesignTheme.Colors.primary),
+                .background(MaterialTheme.colorScheme.primary),
             contentAlignment = Alignment.Center,
         ) {
             Text(
@@ -103,7 +104,7 @@ fun UserRow(
             Text(
                 text = user.username,
                 style = DesignTheme.Typography.captionSemibold,
-                color = Color.Black
+                color = MaterialTheme.colorScheme.onSurface
             )
             user.bio?.let { bio ->
                 if (bio.isNotEmpty()) {
@@ -149,7 +150,7 @@ fun EmptyStateView(
             imageVector = Icons.Default.Group,
             contentDescription = null,
             modifier = Modifier.size(56.dp),
-            tint = DesignTheme.Colors.primary.copy(alpha = 0.3f)
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
         )
 
         Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
@@ -241,7 +242,7 @@ private fun UserRowSkeleton() {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(DesignTheme.CornerRadius.medium))
-            .background(DesignTheme.Colors.textField)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(DesignTheme.Spacing.md),
         horizontalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
         verticalAlignment = Alignment.CenterVertically,
@@ -250,7 +251,7 @@ private fun UserRowSkeleton() {
             modifier = Modifier
                 .size(52.dp)
                 .clip(CircleShape)
-                .background(DesignTheme.Colors.textField.copy(alpha = 0.5f)),
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
         )
         Column(
             modifier = Modifier.weight(1f),

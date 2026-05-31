@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import friends.mobile.R
+import androidx.compose.material3.MaterialTheme
 import friends.mobile.designkit.theme.DesignTheme
 import friends.mobile.designkit.components.ButtonFactory
 import friends.mobile.designkit.components.FormErrorMessage
@@ -189,7 +190,7 @@ private fun LoginForm(
                     text = "Sign up",
                     modifier = Modifier.clickable { onRegisterClick() },
                     style = DesignTheme.Typography.captionSemibold,
-                    color = DesignTheme.Colors.primaryHex
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

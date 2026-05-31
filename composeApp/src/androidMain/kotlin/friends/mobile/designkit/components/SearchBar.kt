@@ -24,8 +24,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.unit.dp
-import friends.mobile.designkit.theme.DesignColors
 import friends.mobile.designkit.theme.DesignTypography
 
 /**
@@ -45,7 +45,7 @@ fun SearchBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(DesignColors.systemGray6, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
             .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)

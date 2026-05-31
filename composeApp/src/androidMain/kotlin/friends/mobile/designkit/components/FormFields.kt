@@ -10,10 +10,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import friends.mobile.designkit.theme.DesignColors
 import friends.mobile.designkit.theme.DesignTypography
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,19 +25,21 @@ fun FormTextField(
     modifier: Modifier = Modifier,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
+    val surfaceBg = MaterialTheme.colorScheme.surfaceVariant
+    val primary = MaterialTheme.colorScheme.primary
     TextField(
         value = value,
         onValueChange = onValueChange,
         placeholder = { Text(placeholder, style = DesignTypography.body) },
         modifier = modifier
-            .background(DesignColors.textField, RoundedCornerShape(12.dp))
+            .background(surfaceBg, RoundedCornerShape(12.dp))
             .border(0.dp, Color.Transparent),
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = Color.Transparent,
             focusedContainerColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = DesignColors.primary.copy(alpha = 0.5f),
-            focusedLabelColor = DesignColors.primary
+            focusedIndicatorColor = primary.copy(alpha = 0.5f),
+            focusedLabelColor = primary
         ),
         singleLine = true,
         keyboardOptions = keyboardOptions,
@@ -54,19 +56,21 @@ fun FormSecureField(
     modifier: Modifier = Modifier,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
+    val surfaceBg = MaterialTheme.colorScheme.surfaceVariant
+    val primary = MaterialTheme.colorScheme.primary
     TextField(
         value = value,
         onValueChange = onValueChange,
         placeholder = { Text(placeholder, style = DesignTypography.body) },
         modifier = modifier
-            .background(DesignColors.textField, RoundedCornerShape(12.dp))
+            .background(surfaceBg, RoundedCornerShape(12.dp))
             .border(0.dp, Color.Transparent),
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = Color.Transparent,
             focusedContainerColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = DesignColors.primary.copy(alpha = 0.5f),
-            focusedLabelColor = DesignColors.primary
+            focusedIndicatorColor = primary.copy(alpha = 0.5f),
+            focusedLabelColor = primary
         ),
         singleLine = true,
         visualTransformation = PasswordVisualTransformation(),

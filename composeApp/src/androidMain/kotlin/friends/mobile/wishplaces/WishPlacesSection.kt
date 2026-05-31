@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.material3.MaterialTheme
 import friends.mobile.designkit.theme.DesignTheme
 import friends.mobile.designkit.components.ButtonFactory
 import friends.mobile.feature.wishplaces.domain.model.WishPlace
@@ -68,7 +69,7 @@ fun WishPlacesSection(
                     modifier = Modifier.fillMaxWidth().height(DesignTheme.Spacing.xxxl),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = DesignTheme.Colors.primary)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
 
@@ -76,7 +77,7 @@ fun WishPlacesSection(
                 Text(
                     text = current.message,
                     style = DesignTheme.Typography.bodySmall,
-                    color = DesignTheme.Colors.error
+                    color = MaterialTheme.colorScheme.error
                 )
             }
 

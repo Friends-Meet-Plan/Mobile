@@ -61,6 +61,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import androidx.compose.material3.MaterialTheme
 import friends.mobile.designkit.theme.DesignTheme
 import friends.mobile.designkit.components.ButtonFactory
 import friends.mobile.designkit.components.ErrorBanner
@@ -137,7 +138,7 @@ fun MainView(
                             Icon(
                                 imageVector = Icons.Default.Notifications,
                                 contentDescription = "Pending Invitations",
-                                tint = DesignTheme.Colors.primary
+                                tint = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -147,8 +148,8 @@ fun MainView(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showDatePickerDialog = true },
-                containerColor = DesignTheme.Colors.primary,
-                contentColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = CircleShape,
                 modifier = Modifier.size(58.dp)
             ) {
@@ -363,13 +364,14 @@ private fun EventCard(
     onClick: () -> Unit,
     isPending: Boolean = false,
 ) {
-    val tintColor = if (isPending) Color(0xFFFF9500) else DesignTheme.Colors.primary
+    val tintColor = if (isPending) Color(0xFFFF9500) else MaterialTheme.colorScheme.primary
 
+    val cardBg = MaterialTheme.colorScheme.surface
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(18.dp))
-            .background(Color.White)
+            .background(cardBg)
             .border(1.dp, tintColor.copy(alpha = 0.15f), RoundedCornerShape(18.dp))
             .clickable { onClick() }
             .padding(DesignTheme.Spacing.lg),
