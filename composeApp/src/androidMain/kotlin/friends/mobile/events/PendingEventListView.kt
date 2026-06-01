@@ -43,6 +43,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
+import friends.mobile.R
 import friends.mobile.designsystem.components.ButtonFactory
 import friends.mobile.designsystem.components.ErrorBanner
 import friends.mobile.designsystem.components.LoadingView
@@ -91,12 +93,12 @@ fun PendingEventListView(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Pending Invitations") },
+                title = { Text(stringResource(R.string.pending_title)) },
                 navigationIcon = {
                     IconButton(onClick = { viewModel.obtainEvent(PendingEvent.OnBackClick) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.back),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -109,24 +111,21 @@ fun PendingEventListView(
             isLoading && pendingEvents.isEmpty() -> {
                 LoadingView(
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
-                    message = "Loading invitations..."
+                    message = stringResource(R.string.pending_loading)
                 )
             }
 
             errorMessage != null && pendingEvents.isEmpty() -> {
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
                         .padding(DesignTheme.Spacing.xl),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.lg),
+                    contentAlignment = Alignment.TopCenter,
                 ) {
-                    ErrorBanner(message = errorMessage)
-                    ButtonFactory.Primary(
-                        text = "Retry",
-                        onClick = { viewModel.obtainEvent(PendingEvent.OnRefresh) },
-                        modifier = Modifier.fillMaxWidth()
+                    ErrorBanner(
+                        message = errorMessage,
+                        onRetry = { viewModel.obtainEvent(PendingEvent.OnRefresh) }
                     )
                 }
             }
@@ -155,12 +154,12 @@ fun PendingEventListView(
                                     verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs)
                                 ) {
                                     Text(
-                                        text = "No Pending Invitations",
+                                        text = stringResource(R.string.pending_no_invitations),
                                         style = DesignTheme.Typography.captionSemibold,
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Text(
-                                        text = "You're all caught up!",
+                                        text = stringResource(R.string.pending_all_caught_up),
                                         style = DesignTheme.Typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -189,7 +188,7 @@ fun PendingEventListView(
                             modifier = Modifier.fillMaxWidth().padding(DesignTheme.Spacing.lg),
                             contentAlignment = Alignment.Center,
                         ) {
-                            LoadingView(modifier = Modifier.fillMaxWidth(), message = "Refreshing...")
+                            LoadingView(modifier = Modifier.fillMaxWidth(), message = stringResource(R.string.loading_refreshing))
                         }
                     }
                 }
@@ -296,7 +295,7 @@ private fun PendingEventCard(
                 tint = MaterialTheme.colorScheme.tertiary,
             )
             Text(
-                text = "Awaiting your response",
+                text = stringResource(R.string.pending_awaiting),
                 style = DesignTheme.Typography.bodySmallest,
                 color = MaterialTheme.colorScheme.tertiary,
             )

@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS ProfileEntity (
+    id TEXT NOT NULL PRIMARY KEY,
+    username TEXT NOT NULL,
+    avatar_url TEXT,
+    bio TEXT
+);
+
+getProfile:
+SELECT * FROM ProfileEntity LIMIT 1;
+
+upsertProfile:
+INSERT OR REPLACE INTO ProfileEntity(id, username, avatar_url, bio)
+VALUES (:id, :username, :avatarUrl, :bio);
+
+clearProfile:
+DELETE FROM ProfileEntity;

@@ -31,6 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
+import friends.mobile.R
 import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.designsystem.components.ButtonFactory
 import friends.mobile.designsystem.components.Dimension
@@ -120,7 +122,8 @@ fun FriendProfileScreenContent(
                     message = currentState.message,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(DesignTheme.Spacing.lg)
+                        .padding(DesignTheme.Spacing.lg),
+                    onRetry = { viewModel.obtainEvent(FriendProfileEvent.ScreenOpened(userId = userId)) }
                 )
                 is FriendProfileViewState.Content -> {
                     FriendProfileContent(
@@ -189,7 +192,7 @@ private fun FriendProfileContent(
 
         if (content.status == FriendshipStatus.FRIENDS) {
             Text(
-                text = "Wish Places",
+                text = stringResource(R.string.wish_places_section),
                 style = DesignTheme.Typography.heading,
                 modifier = Modifier.align(Alignment.Start)
             )
@@ -213,7 +216,7 @@ private fun ActionButtons(
 ) {
     when (status) {
         FriendshipStatus.NONE -> ButtonFactory.Primary(
-            text = "Add Friend",
+            text = stringResource(R.string.friends_add),
             onClick = { callbacks.onSendRequest(user.id) },
             modifier = Modifier.fillMaxWidth(),
             isLoading = isLoading,
@@ -221,7 +224,7 @@ private fun ActionButtons(
         )
 
         FriendshipStatus.REQUESTING -> ButtonFactory.Disabled(
-            text = "Request Sent",
+            text = stringResource(R.string.friends_request_sent),
             modifier = Modifier.fillMaxWidth(),
             icon = {
                 Icon(
@@ -238,14 +241,14 @@ private fun ActionButtons(
             verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
         ) {
             ButtonFactory.Primary(
-                text = "Accept",
+                text = stringResource(R.string.friends_accept),
                 onClick = { callbacks.onAcceptRequest(user.id) },
                 modifier = Modifier.fillMaxWidth(),
                 isLoading = isLoading,
                 isEnabled = !isLoading
             )
             ButtonFactory.Secondary(
-                text = "Decline",
+                text = stringResource(R.string.friends_decline),
                 onClick = { callbacks.onRejectRequest(user.id) },
                 modifier = Modifier.fillMaxWidth(),
                 isEnabled = !isLoading
@@ -253,7 +256,7 @@ private fun ActionButtons(
         }
 
         FriendshipStatus.FRIENDS -> ButtonFactory.Destructive(
-            text = "Remove Friend",
+            text = stringResource(R.string.friends_remove),
             onClick = { callbacks.onRemoveFriend(user.id) },
             modifier = Modifier.fillMaxWidth(),
             isLoading = isLoading

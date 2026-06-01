@@ -84,14 +84,11 @@ class MainViewModel : BaseViewModel<
     private fun onRefresh() {
         if (isLoadingInProgress) return
 
-        val currentState = viewState
-        if (currentState is MainViewState.Content) {
-            viewState = currentState.copy(isRefreshing = true)
-        } else if (currentState is MainViewState.Error) {
-            viewState = MainViewState.Content(isRefreshing = true)
+        if (viewState is MainViewState.Content) {
+            loadEvents(showLoading = false)
+        } else {
+            loadEvents(showLoading = true)
         }
-
-        loadEvents(showLoading = false)
     }
 
     suspend fun checkAvailability(

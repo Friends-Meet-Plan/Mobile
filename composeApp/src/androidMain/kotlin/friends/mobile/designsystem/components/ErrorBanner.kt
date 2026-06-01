@@ -2,6 +2,7 @@ package friends.mobile.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,34 +17,49 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import friends.mobile.R
 import friends.mobile.designsystem.theme.DesignTheme
 
 @Composable
 fun ErrorBanner(
     message: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onRetry: (() -> Unit)? = null
 ) {
     val errorColor = MaterialTheme.colorScheme.error
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(errorColor.copy(alpha = 0.1f), RoundedCornerShape(10.dp))
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
     ) {
-        Icon(
-            imageVector = Icons.Default.Warning,
-            contentDescription = null,
-            tint = errorColor,
-            modifier = Modifier.size(16.dp)
-        )
-        Text(
-            text = message,
-            style = DesignTheme.Typography.bodySmall,
-            color = errorColor
-        )
-        Spacer(modifier = Modifier.weight(1f))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(errorColor.copy(alpha = 0.1f), RoundedCornerShape(10.dp))
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Warning,
+                contentDescription = null,
+                tint = errorColor,
+                modifier = Modifier.size(16.dp)
+            )
+            Text(
+                text = message,
+                style = DesignTheme.Typography.bodySmall,
+                color = errorColor
+            )
+            Spacer(modifier = Modifier.weight(1f))
+        }
+        if (onRetry != null) {
+            ButtonFactory.Primary(
+                text = stringResource(R.string.retry),
+                onClick = onRetry,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }

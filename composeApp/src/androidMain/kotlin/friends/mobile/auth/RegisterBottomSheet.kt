@@ -33,6 +33,8 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
+import friends.mobile.R
 import friends.mobile.designsystem.components.ButtonFactory
 import friends.mobile.designsystem.components.FormErrorMessage
 import friends.mobile.designsystem.components.FormSecureField
@@ -89,14 +91,14 @@ fun RegisterBottomSheet(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Create Account",
+                        text = stringResource(R.string.auth_create_account),
                         style = DesignTheme.Typography.heading,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     IconButton(onClick = onDismiss) {
                         Icon(
                             imageVector = Icons.Default.Cancel,
-                            contentDescription = "Close",
+                            contentDescription = stringResource(R.string.close),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                         )
                     }
@@ -116,7 +118,7 @@ fun RegisterBottomSheet(
                             username = it
                             viewModel.obtainEvent(RegisterEvent.OnUsernameChanged(it))
                         },
-                        placeholder = "Username",
+                        placeholder = stringResource(R.string.label_username),
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(
                             capitalization = KeyboardCapitalization.None,
@@ -130,7 +132,7 @@ fun RegisterBottomSheet(
                             password = it
                             viewModel.obtainEvent(RegisterEvent.OnPasswordChanged(it))
                         },
-                        placeholder = "Password",
+                        placeholder = stringResource(R.string.label_password),
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                     )
@@ -143,7 +145,7 @@ fun RegisterBottomSheet(
 
             item {
                 ButtonFactory.Primary(
-                    text = "Create Account",
+                    text = stringResource(R.string.auth_create_account),
                     onClick = { viewModel.obtainEvent(RegisterEvent.OnRegisterClick) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -162,13 +164,13 @@ fun RegisterBottomSheet(
                         .padding(horizontal = DesignTheme.Spacing.xl)
                 ) {
                     Text(
-                        text = "Already have an account?",
+                        text = stringResource(R.string.auth_already_have_account),
                         style = DesignTheme.Typography.caption,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.width(DesignTheme.Spacing.xs))
                     Text(
-                        text = "Login",
+                        text = stringResource(R.string.auth_login),
                         modifier = Modifier.clickable { onDismiss() },
                         style = DesignTheme.Typography.captionSemibold,
                         color = MaterialTheme.colorScheme.primary

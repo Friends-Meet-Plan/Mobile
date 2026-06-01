@@ -21,7 +21,7 @@ import friends.mobile.designsystem.theme.DesignTheme
 @Composable
 fun LoadingView(
     modifier: Modifier = Modifier,
-    message: String = "Loading friends..."
+    message: String = "Loading..."
 ) {
     Column(
         modifier = modifier

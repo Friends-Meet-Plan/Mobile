@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.res.stringResource
+import friends.mobile.R
 import friends.mobile.designsystem.theme.DesignTheme
 
 object ButtonFactory {
@@ -62,7 +64,7 @@ object ButtonFactory {
                         color = Color.White,
                         strokeWidth = 2.dp
                     )
-                    Text("Loading...", style = DesignTheme.Typography.button)
+                    Text(stringResource(R.string.loading), style = DesignTheme.Typography.button)
                 }
             } else {
                 Row(
@@ -205,7 +207,7 @@ object ButtonFactory {
                         color = Color.White,
                         strokeWidth = 2.dp
                     )
-                    Text("Removing...", style = DesignTheme.Typography.button)
+                    Text(stringResource(R.string.loading_removing), style = DesignTheme.Typography.button)
                 }
             } else {
                 Text(text, style = DesignTheme.Typography.button)

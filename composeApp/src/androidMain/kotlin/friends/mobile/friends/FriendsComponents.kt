@@ -35,6 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.res.stringResource
+import friends.mobile.R
 import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.designsystem.components.IndicatorFactory
 import friends.mobile.feature.friends.domain.model.User
@@ -162,12 +164,12 @@ fun EmptyStateView(
         ) {
             if (isSearchEmpty && searchText.isNotEmpty()) {
                 Text(
-                    text = "No users found",
+                    text = stringResource(R.string.friends_no_users_found),
                     style = DesignTheme.Typography.captionSemibold,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
-                    text = "Try searching with a different name",
+                    text = stringResource(R.string.friends_try_different_name),
                     style = DesignTheme.Typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -187,16 +189,18 @@ fun EmptyStateView(
     }
 }
 
+@Composable
 private fun emptyStateTitle(tab: RequestTab): String = when (tab) {
-    RequestTab.FRIENDS -> "No friends yet"
-    RequestTab.INCOMING -> "No incoming requests"
-    RequestTab.OUTGOING -> "No outgoing requests"
+    RequestTab.FRIENDS -> stringResource(R.string.friends_no_friends)
+    RequestTab.INCOMING -> stringResource(R.string.friends_no_incoming)
+    RequestTab.OUTGOING -> stringResource(R.string.friends_no_outgoing)
 }
 
+@Composable
 private fun emptyStateSubtitle(tab: RequestTab): String = when (tab) {
-    RequestTab.FRIENDS -> "Search and send friend requests to get started"
-    RequestTab.INCOMING -> "You will see incoming requests here"
-    RequestTab.OUTGOING -> "Requests you have sent will appear here"
+    RequestTab.FRIENDS -> stringResource(R.string.friends_hint_search_start)
+    RequestTab.INCOMING -> stringResource(R.string.friends_hint_incoming)
+    RequestTab.OUTGOING -> stringResource(R.string.friends_hint_outgoing)
 }
 
 @Composable
@@ -241,9 +245,9 @@ fun TabSelector(
                 ) {
                     Text(
                         text = when (tab) {
-                            RequestTab.FRIENDS -> "Friends"
-                            RequestTab.INCOMING -> "Incoming"
-                            RequestTab.OUTGOING -> "Outgoing"
+                            RequestTab.FRIENDS -> stringResource(R.string.friends_tab_friends)
+                            RequestTab.INCOMING -> stringResource(R.string.friends_tab_incoming)
+                            RequestTab.OUTGOING -> stringResource(R.string.friends_tab_outgoing)
                         },
                         style = if (isSelected) DesignTheme.Typography.bodySmall.copy(fontWeight = FontWeight.SemiBold)
                                 else DesignTheme.Typography.bodySmall,

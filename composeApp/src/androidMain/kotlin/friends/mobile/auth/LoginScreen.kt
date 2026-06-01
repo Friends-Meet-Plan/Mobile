@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -139,7 +140,7 @@ private fun LoginForm(
                 FormTextField(
                     value = username,
                     onValueChange = onUsernameChanged,
-                    placeholder = "Username",
+                    placeholder = stringResource(R.string.label_username),
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.None,
@@ -150,7 +151,7 @@ private fun LoginForm(
                 FormSecureField(
                     value = password,
                     onValueChange = onPasswordChanged,
-                    placeholder = "Password",
+                    placeholder = stringResource(R.string.label_password),
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                 )
@@ -163,7 +164,7 @@ private fun LoginForm(
 
         item {
             ButtonFactory.Primary(
-                text = "Login",
+                text = stringResource(R.string.auth_login),
                 onClick = onLoginClick,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -180,12 +181,12 @@ private fun LoginForm(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Don't have an account?",
+                    text = stringResource(R.string.auth_no_account),
                     style = DesignTheme.Typography.caption,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "Sign up",
+                    text = stringResource(R.string.auth_sign_up),
                     modifier = Modifier.clickable { onRegisterClick() },
                     style = DesignTheme.Typography.captionSemibold,
                     color = MaterialTheme.colorScheme.primary

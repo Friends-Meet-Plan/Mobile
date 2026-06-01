@@ -26,6 +26,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
+import friends.mobile.R
 import friends.mobile.designsystem.components.ButtonFactory
 import friends.mobile.designsystem.components.ErrorBanner
 import friends.mobile.designsystem.theme.DesignTheme
@@ -99,7 +101,15 @@ private fun WeekdayLabels() {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        val weekdays = listOf("S", "M", "T", "W", "T", "F", "S")
+        val weekdays = listOf(
+            stringResource(R.string.calendar_weekday_sun),
+            stringResource(R.string.calendar_weekday_mon),
+            stringResource(R.string.calendar_weekday_tue),
+            stringResource(R.string.calendar_weekday_wed),
+            stringResource(R.string.calendar_weekday_thu),
+            stringResource(R.string.calendar_weekday_fri),
+            stringResource(R.string.calendar_weekday_sat),
+        )
         weekdays.forEach { day ->
             Text(
                 text = day,
@@ -181,7 +191,7 @@ private fun EmptyContent() {
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "No busy days recorded",
+            text = stringResource(R.string.calendar_no_busy_days),
             style = DesignTheme.Typography.body,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -190,12 +200,9 @@ private fun EmptyContent() {
 
 @Composable
 private fun ErrorContent(message: String, onRetry: () -> Unit) {
-    Column(
+    ErrorBanner(
+        message = message,
         modifier = Modifier.fillMaxWidth().padding(vertical = DesignTheme.Spacing.lg),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
-    ) {
-        ErrorBanner(message = message, modifier = Modifier.fillMaxWidth())
-        ButtonFactory.Primary(text = "Retry", onClick = onRetry, modifier = Modifier.fillMaxWidth())
-    }
+        onRetry = onRetry
+    )
 }

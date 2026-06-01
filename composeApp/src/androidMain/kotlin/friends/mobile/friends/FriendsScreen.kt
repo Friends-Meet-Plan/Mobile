@@ -24,6 +24,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.res.stringResource
+import friends.mobile.R
 import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.designsystem.components.ErrorBanner
 import friends.mobile.designsystem.components.LoadingView
@@ -74,7 +76,8 @@ fun FriendsScreen(
                     ) {
                         ErrorBanner(
                             message = currentState.message,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            onRetry = { viewModel.obtainEvent(FriendsEvent.ReloadCurrentTab) }
                         )
                     }
                 }
@@ -128,7 +131,7 @@ private fun FriendsContent(
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.height(DesignTheme.Spacing.lg))
                     Text(
-                        text = "Searching...",
+                        text = stringResource(R.string.loading_searching),
                         style = DesignTheme.Typography.body,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

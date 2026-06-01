@@ -25,6 +25,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
+import friends.mobile.R
 import friends.mobile.designsystem.components.ButtonFactory
 import friends.mobile.designsystem.components.ErrorBanner
 import friends.mobile.designsystem.components.FormTextField
@@ -63,12 +65,12 @@ fun EditProfileScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Edit Profile") },
+                title = { Text(stringResource(R.string.profile_edit)) },
                 navigationIcon = {
                     IconButton(onClick = { viewModel.obtainEvent(EditProfileEvent.OnBackClick) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.back),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -96,26 +98,26 @@ fun EditProfileScreen(
                         FormTextField(
                             value = currentState.username,
                             onValueChange = { viewModel.obtainEvent(EditProfileEvent.OnUsernameChanged(it)) },
-                            placeholder = "Username",
+                            placeholder = stringResource(R.string.label_username),
                             modifier = Modifier.fillMaxWidth()
                         )
                         FormTextField(
                             value = currentState.bio,
                             onValueChange = { viewModel.obtainEvent(EditProfileEvent.OnBioChanged(it)) },
-                            placeholder = "Bio",
+                            placeholder = stringResource(R.string.label_bio),
                             modifier = Modifier.fillMaxWidth()
                         )
                         FormTextField(
                             value = currentState.avatarUrl,
                             onValueChange = { viewModel.obtainEvent(EditProfileEvent.OnAvatarUrlChanged(it)) },
-                            placeholder = "Avatar URL",
+                            placeholder = stringResource(R.string.label_avatar_url),
                             modifier = Modifier.fillMaxWidth()
                         )
 
                         Spacer(modifier = Modifier.weight(1f))
 
                         ButtonFactory.Primary(
-                            text = "Save",
+                            text = stringResource(R.string.save),
                             onClick = { viewModel.obtainEvent(EditProfileEvent.OnSaveClick) },
                             modifier = Modifier.fillMaxWidth(),
                             isLoading = currentState.isSaving,
@@ -134,7 +136,7 @@ fun EditProfileScreen(
                     ) {
                         ErrorBanner(message = currentState.message)
                         ButtonFactory.Primary(
-                            text = "Go Back",
+                            text = stringResource(R.string.go_back),
                             onClick = onBack,
                             modifier = Modifier
                                 .fillMaxWidth()
