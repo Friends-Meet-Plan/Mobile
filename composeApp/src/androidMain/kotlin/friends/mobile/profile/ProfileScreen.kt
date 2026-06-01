@@ -20,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import friends.mobile.calendar.BusyDaysView
+import androidx.compose.ui.res.stringResource
+import friends.mobile.R
 import friends.mobile.designsystem.components.ButtonFactory
 import friends.mobile.designsystem.components.Dimension
 import friends.mobile.designsystem.components.ErrorBanner
@@ -135,14 +137,14 @@ private fun ProfileContent(
                 verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
             ) {
                 ButtonFactory.Primary(
-                    text = "Edit Profile",
+                    text = stringResource(R.string.profile_edit),
                     onClick = onEditClick,
                     modifier = Modifier.fillMaxWidth(),
                     isEnabled = !isLoggingOut,
                     buttonHeight = 44.dp
                 )
                 ButtonFactory.Destructive(
-                    text = "Log Out",
+                    text = stringResource(R.string.profile_log_out),
                     onClick = onLogoutClick,
                     modifier = Modifier.fillMaxWidth(),
                     isLoading = isLoggingOut,
@@ -164,13 +166,9 @@ private fun ProfileErrorContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        ErrorBanner(message = message)
-        ButtonFactory.Primary(
-            text = "Retry",
-            onClick = onRetry,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = DesignTheme.Spacing.lg)
+        ErrorBanner(
+            message = message,
+            onRetry = onRetry
         )
     }
 }

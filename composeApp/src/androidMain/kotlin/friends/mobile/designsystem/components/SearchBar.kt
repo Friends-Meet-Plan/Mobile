@@ -26,6 +26,8 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import friends.mobile.R
 import friends.mobile.designsystem.theme.DesignTheme
 
 /**
@@ -88,7 +90,7 @@ fun SearchBar(
             IconButton(onClick = onClear) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Clear",
+                    contentDescription = stringResource(R.string.search_clear),
                     tint = Color.Gray,
                     modifier = Modifier.size(18.dp)
                 )

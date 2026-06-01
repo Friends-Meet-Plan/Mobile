@@ -26,6 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
+import friends.mobile.R
+import friends.mobile.designsystem.components.ErrorBanner
 import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.feature.wishplaces.domain.model.WishPlace
 import friends.mobile.feature.wishplaces.presentation.WishPlacesAction
@@ -69,7 +72,7 @@ fun WishPlacesSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "My Wish Places",
+                    text = stringResource(R.string.wish_places_my),
                     style = DesignTheme.Typography.heading,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
@@ -80,7 +83,7 @@ fun WishPlacesSection(
                 ) {
                     Icon(
                         imageVector = Icons.Default.AddCircle,
-                        contentDescription = "Add Wish Place",
+                        contentDescription = stringResource(R.string.wish_places_add),
                         modifier = Modifier.size(32.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -99,17 +102,17 @@ fun WishPlacesSection(
             }
 
             is WishPlacesViewState.Error -> {
-                Text(
-                    text = current.message,
-                    style = DesignTheme.Typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error
+                ErrorBanner(
+                    message = current.message,
+                    modifier = Modifier.fillMaxWidth(),
+                    onRetry = { viewModel.obtainEvent(WishPlacesEvent.LoadPlaces(userId)) }
                 )
             }
 
             is WishPlacesViewState.Content -> {
                 if (current.places.isEmpty()) {
                     Text(
-                        text = "No wish places yet",
+                        text = stringResource(R.string.wish_places_empty),
                         style = DesignTheme.Typography.body,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.fillMaxWidth(),

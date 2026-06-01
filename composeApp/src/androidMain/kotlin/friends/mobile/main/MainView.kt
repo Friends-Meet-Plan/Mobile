@@ -60,7 +60,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import androidx.compose.ui.res.stringResource
+import friends.mobile.R
 import friends.mobile.designsystem.components.ButtonFactory
+import friends.mobile.designsystem.components.ErrorBanner
 import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.feature.events.domain.model.Event
 import friends.mobile.feature.main.presentation.MainViewAction as MainEventAction
@@ -124,12 +127,12 @@ fun MainView(
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.xs)) {
                         Text(
-                            text = "My Events",
+                            text = stringResource(R.string.main_my_events),
                             style = DesignTheme.Typography.heading,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "Manage active and upcoming plans",
+                            text = stringResource(R.string.main_manage_events),
                             style = DesignTheme.Typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -143,7 +146,7 @@ fun MainView(
                         IconButton(onClick = onPendingEventsClick) {
                             Icon(
                                 imageVector = Icons.Default.Notifications,
-                                contentDescription = "Pending Invitations",
+                                contentDescription = stringResource(R.string.main_pending_invitations),
                                 tint = primaryColor
                             )
                         }
@@ -163,31 +166,15 @@ fun MainView(
                 }
 
                 errorMessage != null -> {
-                    Column(
+                    Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(DesignTheme.Spacing.lg),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Warning,
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                        Spacer(Modifier.height(DesignTheme.Spacing.lg))
-                        Text(
-                            text = errorMessage,
-                            style = DesignTheme.Typography.body,
-                            color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(Modifier.height(DesignTheme.Spacing.lg))
-                        ButtonFactory.Primary(
-                            text = "Retry",
-                            onClick = { viewModel.obtainEvent(MainEventAction.OnRefresh) },
-                            modifier = Modifier.fillMaxWidth()
+                        ErrorBanner(
+                            message = errorMessage,
+                            onRetry = { viewModel.obtainEvent(MainEventAction.OnRefresh) }
                         )
                     }
                 }
@@ -206,13 +193,13 @@ fun MainView(
                         )
                         Spacer(Modifier.height(DesignTheme.Spacing.lg))
                         Text(
-                            text = "No events yet",
+                            text = stringResource(R.string.main_no_events),
                             style = DesignTheme.Typography.captionSemibold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(Modifier.height(DesignTheme.Spacing.sm))
                         Text(
-                            text = "Tap + to create your first event",
+                            text = stringResource(R.string.main_create_first_event),
                             style = DesignTheme.Typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -238,7 +225,7 @@ fun MainView(
                             if (activeEvents.isNotEmpty()) {
                                 item(key = "active_header") {
                                     EventSectionHeader(
-                                        title = "Active",
+                                        title = stringResource(R.string.main_section_active),
                                         count = activeEvents.size,
                                         tint = tertiaryColor
                                     )
@@ -260,7 +247,7 @@ fun MainView(
                                 }
                                 item(key = "pending_header") {
                                     EventSectionHeader(
-                                        title = "Pending",
+                                        title = stringResource(R.string.main_section_pending),
                                         count = pendingEvents.size,
                                         tint = pendingColor
                                     )
@@ -292,7 +279,7 @@ fun MainView(
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Create Event"
+                contentDescription = stringResource(R.string.main_create_event_fab)
             )
         }
     }
@@ -304,10 +291,10 @@ fun MainView(
                 Button(onClick = {
                     showDatePickerDialog = false
                     showTimePickerDialog = true
-                }) { Text("Next") }
+                }) { Text(stringResource(R.string.next)) }
             },
             dismissButton = {
-                Button(onClick = { showDatePickerDialog = false }) { Text("Cancel") }
+                Button(onClick = { showDatePickerDialog = false }) { Text(stringResource(R.string.cancel)) }
             },
         ) {
             DatePicker(state = datePickerState)
@@ -351,7 +338,7 @@ fun MainView(
                     if (isCheckingAvailability) {
                         CircularProgressIndicator(modifier = Modifier.size(20.dp))
                     } else {
-                        Text("Create")
+                        Text(stringResource(R.string.create))
                     }
                 }
             },
@@ -359,7 +346,7 @@ fun MainView(
                 Button(
                     onClick = { showTimePickerDialog = false },
                     enabled = !isCheckingAvailability,
-                ) { Text("Cancel") }
+                ) { Text(stringResource(R.string.cancel)) }
             },
             timePickerState = timePickerState,
         )
@@ -368,9 +355,9 @@ fun MainView(
     if (showBusyAlert) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { showBusyAlert = false },
-            title = { Text("You are busy on this day") },
+            title = { Text(stringResource(R.string.main_busy_day_title)) },
             confirmButton = {
-                Button(onClick = { showBusyAlert = false }) { Text("OK") }
+                Button(onClick = { showBusyAlert = false }) { Text(stringResource(R.string.ok)) }
             },
         )
     }
@@ -410,7 +397,7 @@ private fun EventCard(
 ) {
     val tintColor = if (isPending) Color(0xFFFF9800) else MaterialTheme.colorScheme.tertiary
     val badgeIcon = if (isPending) Icons.Default.Schedule else Icons.Default.CheckCircle
-    val badgeText = if (isPending) "Pending" else "Active"
+    val badgeText = if (isPending) stringResource(R.string.main_section_pending) else stringResource(R.string.main_section_active)
 
     Column(
         modifier = Modifier
@@ -503,7 +490,7 @@ private fun DateTimePickerDialog(
 ) {
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text("Select Time") },
+        title = { Text(stringResource(R.string.main_select_time)) },
         text = {
             TimePicker(
                 state = timePickerState,

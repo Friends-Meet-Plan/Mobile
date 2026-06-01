@@ -29,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import friends.mobile.R
 import friends.mobile.designsystem.components.ButtonFactory
 import friends.mobile.designsystem.components.LoadingView
 import friends.mobile.designsystem.theme.DesignTheme
@@ -50,7 +52,7 @@ fun PendingEventDetailContent(
             isLoading -> {
                 LoadingView(
                     modifier = Modifier.fillMaxWidth(),
-                    message = "Loading event details..."
+                    message = stringResource(R.string.event_detail_loading)
                 )
             }
             errorMessage != null -> {
@@ -83,7 +85,7 @@ private fun ErrorContent(message: String) {
             tint = MaterialTheme.colorScheme.error,
         )
         Text(
-            text = "Something went wrong",
+            text = stringResource(R.string.pending_error),
             style = DesignTheme.Typography.heading,
         )
         Text(
@@ -174,19 +176,19 @@ private fun EventDetailsSection(event: Event) {
         verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
     ) {
         Text(
-            text = "EVENT DETAILS",
+            text = stringResource(R.string.pending_section_event_details),
             style = DesignTheme.Typography.bodySmallest,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
-        DetailRow(icon = Icons.Default.CalendarToday, label = "Date", value = event.date)
+        DetailRow(icon = Icons.Default.CalendarToday, label = stringResource(R.string.label_date), value = event.date)
 
         if (!event.time.isNullOrEmpty()) {
-            DetailRow(icon = Icons.Default.Schedule, label = "Time", value = event.time!!)
+            DetailRow(icon = Icons.Default.Schedule, label = stringResource(R.string.label_time), value = event.time!!)
         }
 
         if (!event.location.isNullOrEmpty()) {
-            DetailRow(icon = Icons.Default.LocationOn, label = "Location", value = event.location!!)
+            DetailRow(icon = Icons.Default.LocationOn, label = stringResource(R.string.label_location), value = event.location!!)
         }
     }
 }
@@ -229,7 +231,7 @@ private fun ParticipantsSection(participants: List<EventParticipant>) {
         verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
     ) {
         Text(
-            text = "PARTICIPANTS",
+            text = stringResource(R.string.pending_section_participants),
             style = DesignTheme.Typography.bodySmallest,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -285,7 +287,7 @@ private fun ParticipantCard(participant: EventParticipant) {
             )
             Text(
                 text = when (participant.status) {
-                ParticipationStatus.INVITED -> "Pending"
+                ParticipationStatus.INVITED -> stringResource(R.string.pending_status)
                 else -> participant.status.name.lowercase().replaceFirstChar { it.uppercase() }
             },
                 style = DesignTheme.Typography.bodySmallest,
@@ -308,11 +310,11 @@ private fun ActionsSection(
         verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md),
     ) {
         ButtonFactory.Primary(
-            text = "Accept Invitation",
+            text = stringResource(R.string.pending_accept),
             onClick = { onAccept(eventId) },
         )
         ButtonFactory.Secondary(
-            text = "Decline Invitation",
+            text = stringResource(R.string.pending_decline),
             onClick = { onDecline(eventId) },
         )
     }

@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -45,10 +45,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import friends.mobile.R
 import androidx.compose.material3.MaterialTheme
 import friends.mobile.designsystem.theme.DesignTheme
+import friends.mobile.designsystem.components.ErrorBanner
 import friends.mobile.designsystem.components.LoadingView
 import friends.mobile.feature.events.domain.model.Event
 import friends.mobile.feature.events.domain.model.EventParticipant
 import friends.mobile.feature.events.domain.model.ParticipationStatus
+import friends.mobile.feature.events.presentation.eventdetail.EventDetailEvent
 import friends.mobile.feature.events.presentation.eventdetail.EventDetailViewModel
 import friends.mobile.feature.events.presentation.eventdetail.EventDetailViewState
 
@@ -71,7 +73,7 @@ fun EventDetailView(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.back),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -83,30 +85,22 @@ fun EventDetailView(
             is EventDetailViewState.Loading -> {
                 LoadingView(
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
-                    message = "Loading event details..."
+                    message = stringResource(R.string.event_detail_loading)
                 )
             }
 
             is EventDetailViewState.Error -> {
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
                         .padding(DesignTheme.Spacing.lg),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Warning,
-                        contentDescription = null,
-                        modifier = Modifier.size(48.dp),
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                    Text(
-                        text = currentState.message,
-                        color = MaterialTheme.colorScheme.error,
-                        style = DesignTheme.Typography.body,
-                        modifier = Modifier.padding(top = DesignTheme.Spacing.md)
+                    ErrorBanner(
+                        message = currentState.message,
+                        modifier = Modifier.fillMaxWidth(),
+                        onRetry = { viewModel.obtainEvent(EventDetailEvent.OnRefresh) }
                     )
                 }
             }
@@ -159,15 +153,15 @@ private fun EventDetailContent(
             Column(verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)) {
                 DetailRowWithIcon(
                     icon = Icons.Default.CalendarToday,
-                    label = "Date",
+                    label = stringResource(R.string.label_date),
                     value = event.date
                 )
                 event.time?.let {
-                    DetailRowWithIcon(icon = Icons.Default.Schedule, label = "Time", value = it)
+                    DetailRowWithIcon(icon = Icons.Default.Schedule, label = stringResource(R.string.label_time), value = it)
                 }
                 event.location?.let {
                     if (it.isNotEmpty()) {
-                        DetailRowWithIcon(icon = Icons.Default.LocationOn, label = "Location", value = it)
+                        DetailRowWithIcon(icon = Icons.Default.LocationOn, label = stringResource(R.string.label_location), value = it)
                     }
                 }
             }
@@ -187,7 +181,7 @@ private fun EventDetailContent(
                         verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)
                     ) {
                         Text(
-                            text = "Description",
+                            text = stringResource(R.string.label_description),
                             style = DesignTheme.Typography.button,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -204,13 +198,13 @@ private fun EventDetailContent(
         item {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)) {
                 Text(
-                    text = "Participants",
+                    text = stringResource(R.string.event_detail_participants),
                     style = DesignTheme.Typography.button,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 if (event.participants.isEmpty()) {
                     Text(
-                        text = "No participants yet",
+                        text = stringResource(R.string.event_detail_no_participants),
                         style = DesignTheme.Typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(DesignTheme.Spacing.md)
@@ -368,7 +362,7 @@ private fun ParticipantAvatarRow(
                 )
                 Text(
                     text = when (participant.status) {
-                        ParticipationStatus.INVITED -> "Pending"
+                        ParticipationStatus.INVITED -> stringResource(R.string.pending_status)
                         else -> participant.status.name.lowercase().replaceFirstChar { it.uppercase() }
                     },
                     style = DesignTheme.Typography.bodySmallest,

@@ -21,7 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.CircularProgressIndicator
@@ -46,8 +45,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.res.stringResource
+import friends.mobile.R
 import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.designsystem.components.ButtonFactory
+import friends.mobile.designsystem.components.ErrorBanner
 import friends.mobile.feature.archive.presentation.ArchiveEventsViewModel
 import friends.mobile.feature.archive.presentation.ArchiveViewAction
 import friends.mobile.feature.archive.presentation.ArchiveViewState
@@ -69,7 +71,7 @@ fun ArchiveEventsView(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Archive", style = DesignTheme.Typography.heading) }
+                title = { Text(stringResource(R.string.archive_title), style = DesignTheme.Typography.heading) }
             )
         }
     ) { innerPadding ->
@@ -83,31 +85,15 @@ fun ArchiveEventsView(
                 }
 
                 errorMessage != null -> {
-                    Column(
+                    Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(DesignTheme.Spacing.lg),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
+                        contentAlignment = Alignment.Center,
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Error,
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                        Spacer(modifier = Modifier.height(DesignTheme.Spacing.md))
-                        Text(
-                            text = errorMessage,
-                            style = DesignTheme.Typography.body,
-                            color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(DesignTheme.Spacing.md))
-                        ButtonFactory.Primary(
-                            text = "Retry",
-                            onClick = { viewModel.obtainEvent(ArchiveViewAction.OnRefresh) },
-                            modifier = Modifier.fillMaxWidth()
+                        ErrorBanner(
+                            message = errorMessage,
+                            onRetry = { viewModel.obtainEvent(ArchiveViewAction.OnRefresh) }
                         )
                     }
                 }
@@ -126,7 +112,7 @@ fun ArchiveEventsView(
                         )
                         Spacer(modifier = Modifier.height(DesignTheme.Spacing.sm))
                         Text(
-                            text = "No archived events",
+                            text = stringResource(R.string.archive_empty),
                             style = DesignTheme.Typography.body,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -216,7 +202,7 @@ private fun CompletedBadge() {
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
-            text = "Completed",
+            text = stringResource(R.string.archive_badge_completed),
             style = DesignTheme.Typography.bodySmallest.copy(fontWeight = FontWeight.SemiBold),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

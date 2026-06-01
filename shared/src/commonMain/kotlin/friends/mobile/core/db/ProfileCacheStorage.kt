@@ -1,12 +1,8 @@
 package friends.mobile.core.db
 
-import com.russhwolf.settings.Settings
 import friends.mobile.feature.profile.domain.model.Profile
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-
-private const val PROFILE_CACHE_KEY = "profile_cache"
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 interface ProfileCacheStorage {
     suspend fun getProfile(): Profile?
@@ -14,25 +10,31 @@ interface ProfileCacheStorage {
     suspend fun clearProfile()
 }
 
-class ProfileCacheStorageImpl(
-    private val settings: Settings,
-    private val json: Json,
+internal class ProfileCacheStorageImpl(
+    private val database: AppDatabase,
 ) : ProfileCacheStorage {
-    override suspend fun getProfile(): Profile? {
-        val cached = settings.getStringOrNull(PROFILE_CACHE_KEY) ?: return null
-        return try {
-            json.decodeFromString(cached)
-        } catch (e: Exception) {
-            null
+
+    override suspend fun getProfile(): Profile? = withContext(Dispatchers.Default) {
+        database.profileQueries.getProfile().executeAsOneOrNull()?.let {
+            Profile(
+                id = it.id,
+                username = it.username,
+                avatarUrl = it.avatar_url,
+                bio = it.bio,
+            )
         }
     }
 
-    override suspend fun saveProfile(profile: Profile) {
-        val serialized = json.encodeToString(profile)
-        settings.putString(PROFILE_CACHE_KEY, serialized)
+    override suspend fun saveProfile(profile: Profile) = withContext(Dispatchers.Default) {
+        database.profileQueries.upsertProfile(
+            id = profile.id,
+            username = profile.username,
+            avatarUrl = profile.avatarUrl,
+            bio = profile.bio,
+        )
     }
 
-    override suspend fun clearProfile() {
-        settings.remove(PROFILE_CACHE_KEY)
+    override suspend fun clearProfile() = withContext(Dispatchers.Default) {
+        database.profileQueries.clearProfile()
     }
 }

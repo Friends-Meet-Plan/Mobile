@@ -50,6 +50,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.res.stringResource
+import friends.mobile.R
 import friends.mobile.designsystem.components.ButtonFactory
 import friends.mobile.designsystem.components.ErrorBanner
 import friends.mobile.designsystem.components.FormErrorMessage
@@ -93,12 +95,12 @@ fun CreateEventView(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Create Event") },
+                title = { Text(stringResource(R.string.event_create_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.back),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -110,7 +112,7 @@ fun CreateEventView(
             is CreateEventViewState.Loading -> {
                 LoadingView(
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
-                    message = "Loading available friends..."
+                    message = stringResource(R.string.event_loading_friends)
                 )
             }
 
@@ -125,7 +127,7 @@ fun CreateEventView(
                 ) {
                     ErrorBanner(message = (state as CreateEventViewState.Error).message)
                     ButtonFactory.Primary(
-                        text = "Back",
+                        text = stringResource(R.string.back),
                         onClick = onBackClick,
                         modifier = Modifier.padding(top = DesignTheme.Spacing.lg),
                     )
@@ -155,7 +157,7 @@ fun CreateEventView(
                         verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.sm)
                     ) {
                         Text(
-                            text = "Event Date",
+                            text = stringResource(R.string.event_section_date),
                             style = DesignTheme.Typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -178,7 +180,7 @@ fun CreateEventView(
                             ) {
                                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                                 Text(
-                                    text = "Loading available friends...",
+                                    text = stringResource(R.string.event_loading_friends),
                                     style = DesignTheme.Typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -201,31 +203,31 @@ fun CreateEventView(
                             item {
                                 Column(verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.lg)) {
                                     LabeledFormField(
-                                        label = "Title",
+                                        label = stringResource(R.string.label_title),
                                         icon = Icons.Default.Edit,
                                         value = contentState.title,
                                         onValueChange = {
                                             viewModel.obtainEvent(CreateEventEvent.OnTitleChanged(it))
                                         },
-                                        placeholder = "Event title"
+                                        placeholder = stringResource(R.string.event_hint_title)
                                     )
                                     LabeledFormField(
-                                        label = "Description",
+                                        label = stringResource(R.string.label_description),
                                         icon = Icons.Default.Description,
                                         value = contentState.description,
                                         onValueChange = {
                                             viewModel.obtainEvent(CreateEventEvent.OnDescriptionChanged(it))
                                         },
-                                        placeholder = "Event description"
+                                        placeholder = stringResource(R.string.event_hint_description)
                                     )
                                     LabeledFormField(
-                                        label = "Location",
+                                        label = stringResource(R.string.label_location),
                                         icon = Icons.Default.LocationOn,
                                         value = contentState.location,
                                         onValueChange = {
                                             viewModel.obtainEvent(CreateEventEvent.OnLocationChanged(it))
                                         },
-                                        placeholder = "Event location"
+                                        placeholder = stringResource(R.string.event_hint_location)
                                     )
                                 }
                             }
@@ -247,7 +249,7 @@ fun CreateEventView(
 
                         // Create button fixed at bottom
                         ButtonFactory.Primary(
-                            text = "Create Event",
+                            text = stringResource(R.string.event_create_title),
                             onClick = { viewModel.obtainEvent(CreateEventEvent.OnCreateEvent) },
                             isLoading = contentState.isCreatingEvent,
                             isEnabled = contentState.isCreateButtonEnabled && !contentState.isCreatingEvent,
@@ -347,14 +349,14 @@ private fun FriendsSelectionSection(
                 tint = MaterialTheme.colorScheme.onSurface,
             )
             Text(
-                text = "Select Friends",
+                text = stringResource(R.string.event_select_friends),
                 style = DesignTheme.Typography.button,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f)
             )
             if (selectedCount > 0) {
                 Text(
-                    text = "$selectedCount selected",
+                    text = stringResource(R.string.event_selected_count, selectedCount),
                     style = DesignTheme.Typography.bodySmallest,
                     color = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier
@@ -382,7 +384,7 @@ private fun FriendsSelectionSection(
                 verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
             ) {
                 Text(
-                    text = "Selected Friends",
+                    text = stringResource(R.string.event_selected_friends),
                     style = DesignTheme.Typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -411,7 +413,7 @@ private fun FriendsSelectionSection(
                             )
                             Icon(
                                 imageVector = Icons.Default.Cancel,
-                                contentDescription = "Remove",
+                                contentDescription = stringResource(R.string.remove),
                                 modifier = Modifier
                                     .size(12.dp)
                                     .clickable { onRemoveFriend(friend.id) },
@@ -445,8 +447,8 @@ private fun FriendsSelectionSheet(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(text = "Select Friends", style = DesignTheme.Typography.heading)
-            ButtonFactory.Compact(text = "Done", onClick = onDone)
+            Text(text = stringResource(R.string.event_select_friends), style = DesignTheme.Typography.heading)
+            ButtonFactory.Compact(text = stringResource(R.string.done), onClick = onDone)
         }
 
         when {
@@ -463,7 +465,7 @@ private fun FriendsSelectionSheet(
                     ) {
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         Text(
-                            text = "Loading friends...",
+                            text = stringResource(R.string.loading_friends),
                             style = DesignTheme.Typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -490,11 +492,11 @@ private fun FriendsSelectionSheet(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        text = "No Friends Available",
+                        text = stringResource(R.string.event_no_friends_title),
                         style = DesignTheme.Typography.captionSemibold,
                     )
                     Text(
-                        text = "No friends available on selected date",
+                        text = stringResource(R.string.event_no_friends_subtitle),
                         style = DesignTheme.Typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

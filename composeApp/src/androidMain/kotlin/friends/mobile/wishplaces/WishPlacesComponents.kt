@@ -47,6 +47,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.res.stringResource
+import friends.mobile.R
 import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.designsystem.components.ButtonFactory
 import friends.mobile.designsystem.components.FormTextField
@@ -101,7 +103,7 @@ fun WishPlaceItem(
                     if (isDismissing) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete",
+                            contentDescription = stringResource(R.string.delete),
                             tint = Color.White
                         )
                     }
@@ -200,37 +202,37 @@ fun CreateWishPlaceBottomSheet(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(DesignTheme.Spacing.md)
         ) {
-            Text("Add Wish Place", style = DesignTheme.Typography.heading)
+            Text(stringResource(R.string.wish_places_add), style = DesignTheme.Typography.heading)
 
             FormTextField(
                 value = title,
                 onValueChange = { title = it },
-                placeholder = "Title",
+                placeholder = stringResource(R.string.label_title),
                 modifier = Modifier.fillMaxWidth()
             )
             FormTextField(
                 value = location,
                 onValueChange = { location = it },
-                placeholder = "Location",
+                placeholder = stringResource(R.string.label_location),
                 modifier = Modifier.fillMaxWidth()
             )
             FormTextField(
                 value = description,
                 onValueChange = { description = it },
-                placeholder = "Description",
+                placeholder = stringResource(R.string.label_description),
                 modifier = Modifier.fillMaxWidth()
             )
             FormTextField(
                 value = link,
                 onValueChange = { link = it },
-                placeholder = "Link",
+                placeholder = stringResource(R.string.label_link),
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(DesignTheme.Spacing.md))
 
             ButtonFactory.Primary(
-                text = "Create",
+                text = stringResource(R.string.create),
                 onClick = {
                     onCreate(
                         title,
@@ -285,7 +287,7 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.close),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )
@@ -350,7 +352,7 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
                         )
                         Spacer(modifier = Modifier.width(DesignTheme.Spacing.xs))
                         Text(
-                            "Link",
+                            stringResource(R.string.label_link),
                             style = DesignTheme.Typography.bodySmall,
                             color = Color.White
                         )
@@ -361,7 +363,7 @@ fun WishPlaceDetailBottomSheet(place: WishPlace, onDismiss: () -> Unit) {
             }
 
             Text(
-                text = "Added ${place.createdAt.take(10)}",
+                text = stringResource(R.string.wish_places_added_date, place.createdAt.take(10)),
                 style = DesignTheme.Typography.bodySmallest,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

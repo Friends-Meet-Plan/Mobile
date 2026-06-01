@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.sqldelight)
     kotlin("plugin.serialization") version libs.versions.kotlin.get()
 }
 
@@ -36,6 +37,7 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.multiplatform.settings)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.sqldelight.coroutines)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -45,15 +47,25 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.firebase.analytics)
             implementation(libs.firebase.crashlytics)
+            implementation(libs.sqldelight.android.driver)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+            implementation(libs.sqldelight.native.driver)
         }
     }
 }
 
 dependencies {
     "androidMainImplementation"(platform(libs.firebase.bom))
+}
+
+sqldelight {
+    databases {
+        create("AppDatabase") {
+            packageName.set("friends.mobile.core.db")
+        }
+    }
 }
 
 android {
