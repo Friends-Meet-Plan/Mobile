@@ -295,7 +295,7 @@ enum IndicatorFactory {
         HStack(spacing: DesignTheme.Spacing.xs) {
             Image(systemName: "clock.fill")
                 .font(.system(size: 16))
-                .foregroundColor(Color.orange)
+                .foregroundStyle(.background)
             Text("Pending")
                 .font(DesignTheme.Typography.bodySmallest)
                 .foregroundColor(.white)

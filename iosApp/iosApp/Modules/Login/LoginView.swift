@@ -16,6 +16,9 @@ struct LoginView: View {
     
     var body: some View {
         ScrollView {
+            Button("Crash") {
+                fatalError("Crash was triggered")
+            }
             VStack(spacing: DesignTheme.Spacing.xxxl) {
                 Image("OnboardingImage")
                     .resizable()

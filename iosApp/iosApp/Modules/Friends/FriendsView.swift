@@ -16,7 +16,6 @@ struct FriendsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Search Bar
             SearchBar(
                 text: $reducer.searchText,
                 onSearch: { query in
@@ -28,14 +27,12 @@ struct FriendsView: View {
             .padding(DesignTheme.Spacing.lg)
             .background(Color(.systemBackground))
 
-            // Error Banner
             if let errorMessage = reducer.errorMessage {
                 ErrorBanner(message: errorMessage)
                     .padding(.horizontal, DesignTheme.Spacing.lg)
                     .padding(.vertical, DesignTheme.Spacing.md)
             }
 
-            // Content
             contentListView()
                 .overlay {
                     if reducer.isLoading {
@@ -44,7 +41,6 @@ struct FriendsView: View {
                 }
                 .opacity(reducer.isLoading ? 0 : 1)
                 .safeAreaInset(edge: .bottom) {
-                    // Tab Picker at Bottom
                     Picker("", selection: $selectedSegment) {
                         ForEach(Segment.allCases, id: \.self) { segment in
                             Text(segment.rawValue)
@@ -193,7 +189,6 @@ private struct UserRowView: View {
 
     var body: some View {
         HStack(spacing: DesignTheme.Spacing.md) {
-            // Avatar with Initial Badge
             ZStack(alignment: .bottomTrailing) {
                 Circle()
                     .fill(DesignTheme.accentColor)
@@ -203,8 +198,7 @@ private struct UserRowView: View {
                             .font(DesignTheme.Typography.captionSemibold)
                             .foregroundColor(.white)
                     }
-
-                // Status Badge
+                
                 if let avatarUrl = user.avatarUrl, !avatarUrl.isEmpty {
                     AsyncImage(url: URL(string: avatarUrl)) { image in
                         image
@@ -219,7 +213,6 @@ private struct UserRowView: View {
                 }
             }
 
-            // User Info
             VStack(alignment: .leading, spacing: DesignTheme.Spacing.xs) {
                 Text(user.username)
                     .font(DesignTheme.Typography.captionSemibold)
@@ -235,7 +228,6 @@ private struct UserRowView: View {
 
             Spacer()
 
-            // Status Badge
             if searchText.isEmpty {
                 statusBadge()
             }
@@ -252,13 +244,10 @@ private struct UserRowView: View {
         switch currentTab {
         case .friends:
             IndicatorFactory.active()
-
         case .incoming:
             IndicatorFactory.pending()
-
         case .outgoing:
             IndicatorFactory.sent()
-
         default:
             EmptyView()
         }
