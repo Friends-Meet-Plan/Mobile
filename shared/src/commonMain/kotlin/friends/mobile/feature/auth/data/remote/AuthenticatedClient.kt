@@ -1,6 +1,6 @@
 package friends.mobile.feature.auth.data.remote
 
-import friends.mobile.feature.auth.data.storage.TokenStorage
+import friends.mobile.feature.auth.domain.storage.TokenStorage
 import friends.mobile.feature.auth.domain.model.AuthToken
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpSend

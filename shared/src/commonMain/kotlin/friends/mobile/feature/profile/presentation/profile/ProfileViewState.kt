@@ -8,6 +8,6 @@ sealed class ProfileViewState {
     data class Content(
         val profile: Profile,
         val isLoggingOut: Boolean = false,
-        val isRefreshing: Boolean = false
+        val isRefreshing: Boolean = false,
     ) : ProfileViewState()
 }

@@ -5,6 +5,7 @@ import com.russhwolf.settings.set
 import friends.mobile.feature.auth.data.mapper.StoredSessionMapper
 import friends.mobile.feature.auth.data.storage.dto.StoredSessionDto
 import friends.mobile.feature.auth.domain.model.AuthSession
+import friends.mobile.feature.auth.domain.storage.TokenStorage
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 

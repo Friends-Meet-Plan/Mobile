@@ -25,7 +25,7 @@ import friends.mobile.feature.events.domain.usecase.GetArchivedEventsUseCase
 import friends.mobile.feature.events.domain.usecase.GetEventDetailUseCase
 import friends.mobile.feature.events.domain.usecase.GetPendingEventsUseCase
 import friends.mobile.feature.events.domain.usecase.GetWaitingEventsUseCase
-import friends.mobile.feature.events.presentation.CreateEventViewModel
+import friends.mobile.feature.events.presentation.createevent.CreateEventViewModel
 import friends.mobile.feature.events.presentation.eventdetail.EventDetailViewModel
 import friends.mobile.feature.events.presentation.pendingevents.PendingEventViewModel
 import org.koin.core.qualifier.named

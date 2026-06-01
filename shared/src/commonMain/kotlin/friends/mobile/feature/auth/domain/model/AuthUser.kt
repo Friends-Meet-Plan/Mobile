@@ -1,6 +1,5 @@
 package friends.mobile.feature.auth.domain.model
 
-/** Authenticated user profile returned by the login endpoint. */
 data class AuthUser(
     val id: String,
     val username: String,
