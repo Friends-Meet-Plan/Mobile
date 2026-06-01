@@ -13,7 +13,6 @@ class ProfileViewModel : BaseViewModel<ProfileViewState, ProfileAction, ProfileE
     initState = ProfileViewState.Loading,
     screenName = AnalyticsEvent.LAUNCH_PROFILE,
 ) {
-
     private val getMeUseCase: GetMeUseCase by inject()
     private var isLoadingInProgress = false
 
@@ -33,9 +32,7 @@ class ProfileViewModel : BaseViewModel<ProfileViewState, ProfileAction, ProfileE
     private fun loadProfile(showLoading: Boolean) {
         viewModelScope.launch {
             if (isLoadingInProgress) return@launch
-
             isLoadingInProgress = true
-
             try {
                 if (showLoading) {
                     viewState = ProfileViewState.Loading
@@ -45,12 +42,11 @@ class ProfileViewModel : BaseViewModel<ProfileViewState, ProfileAction, ProfileE
                         viewState = currentState.copy(isRefreshing = true)
                     }
                 }
-
                 when (val result = getMeUseCase()) {
                     is ResultWrapper.Success -> {
                         viewState = ProfileViewState.Content(
                             profile = result.data,
-                            isRefreshing = false
+                            isRefreshing = false,
                         )
                     }
                     is ResultWrapper.Error -> {
@@ -74,13 +70,11 @@ class ProfileViewModel : BaseViewModel<ProfileViewState, ProfileAction, ProfileE
 
     private fun onRefresh() {
         if (isLoadingInProgress) return
-
-        val currentState = viewState
-        if (currentState is ProfileViewState.Content) {
-            viewState = currentState.copy(isRefreshing = true)
+        if (viewState is ProfileViewState.Content) {
+            loadProfile(showLoading = false)
+        } else {
+            loadProfile(showLoading = true)
         }
-
-        loadProfile(showLoading = false)
     }
 
     private fun onEditClick() {

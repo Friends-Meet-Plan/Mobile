@@ -29,7 +29,6 @@ class EditProfileViewModel : BaseViewModel<EditProfileViewState, EditProfileActi
     }
 
     private fun onInit(event: EditProfileEvent.Init) {
-        // Мы просто устанавливаем данные, переданные при открытии экрана
         viewState = EditProfileViewState.Content(
             username = event.username,
             bio = event.bio,
@@ -41,21 +40,17 @@ class EditProfileViewModel : BaseViewModel<EditProfileViewState, EditProfileActi
         val currentState = viewState as? EditProfileViewState.Content ?: return
         viewModelScope.launch {
             viewState = currentState.copy(isSaving = true)
-
             val result = updateProfileUseCase(
                 username = currentState.username,
                 bio = currentState.bio,
                 avatarUrl = currentState.avatarUrl
             )
-
             when (result) {
                 is ResultWrapper.Success -> {
-                    // После успешного сохранения возвращаемся назад
                     viewAction = EditProfileAction.NavigateBack
                 }
                 is ResultWrapper.Error -> {
                     val userError = mapApiErrorToUserFriendly(result.error)
-                    // Переключаем в состояние Error, как вы и просили
                     viewState = EditProfileViewState.Error(
                         message = getErrorMessage(userError)
                     )

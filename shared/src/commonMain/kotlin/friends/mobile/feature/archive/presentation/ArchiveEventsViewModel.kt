@@ -28,19 +28,15 @@ class ArchiveEventsViewModel : BaseViewModel<ArchiveViewState, Unit, ArchiveView
 
     private fun loadArchivedEvents() {
         viewModelScope.launch {
-
             when (val result = getArchivedEventsUseCase()) {
-
                 is ResultWrapper.Success -> {
                     viewState = ArchiveViewState.Content(
                         archivedEvents = result.data,
                         isRefreshing = false,
                     )
                 }
-
                 is ResultWrapper.Error -> {
                     val userError = mapApiErrorToUserFriendly(result.error)
-
                     viewState = ArchiveViewState.Error(
                         message = getErrorMessage(userError),
                     )
@@ -53,7 +49,6 @@ class ArchiveEventsViewModel : BaseViewModel<ArchiveViewState, Unit, ArchiveView
         updateContent {
             it.copy(isRefreshing = true)
         }
-
         loadArchivedEvents()
     }
 

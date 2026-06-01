@@ -96,6 +96,8 @@
     <string name="pending_status">Pending</string>
     <string name="pending_accept">Accept Invitation</string>
     <string name="pending_decline">Decline Invitation</string>
+    <string name="pending_accepted_message">Invitation accepted</string>
+    <string name="pending_declined_message">Invitation declined</string>
 
     <!-- Friends -->
     <string name="friends_search_hint">Search users</string>

@@ -47,7 +47,11 @@ fun UserView(
 
     val textStack: @Composable () -> Unit = {
         Column(
-            horizontalAlignment = if (dimension == Dimension.Vertical) Alignment.CenterHorizontally else Alignment.Start,
+            horizontalAlignment = if (dimension == Dimension.Vertical) {
+                Alignment.CenterHorizontally
+            } else {
+                Alignment.Start
+            },
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(

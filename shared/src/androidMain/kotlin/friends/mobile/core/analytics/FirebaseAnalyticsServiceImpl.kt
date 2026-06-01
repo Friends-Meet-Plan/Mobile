@@ -6,7 +6,7 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 
-class FirebaseAnalyticsServiceImpl : AnalyticsService {
+internal class FirebaseAnalyticsServiceImpl : AnalyticsService {
 
     private val analytics: FirebaseAnalytics = Firebase.analytics
 
