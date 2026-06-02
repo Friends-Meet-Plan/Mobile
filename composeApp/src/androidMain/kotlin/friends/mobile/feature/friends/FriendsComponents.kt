@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,14 +32,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.res.stringResource
 import friends.mobile.R
-import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.designsystem.components.IndicatorFactory
+import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.feature.friends.domain.model.User
 import friends.mobile.feature.friends.presentation.friends.RequestTab
 
@@ -233,8 +233,7 @@ fun TabSelector(
                         .weight(1f)
                         .clip(RoundedCornerShape(DesignTheme.CornerRadius.capsule))
                         .background(
-                            if (isSelected) MaterialTheme.colorScheme.surface
-                            else Color.Transparent
+                            if (isSelected) { MaterialTheme.colorScheme.surface } else { Color.Transparent }
                         )
                         .clickable {
                             localSelected = tab
@@ -249,14 +248,19 @@ fun TabSelector(
                             RequestTab.INCOMING -> stringResource(R.string.friends_tab_incoming)
                             RequestTab.OUTGOING -> stringResource(R.string.friends_tab_outgoing)
                         },
-                        style = if (isSelected) DesignTheme.Typography.bodySmall.copy(fontWeight = FontWeight.SemiBold)
-                                else DesignTheme.Typography.bodySmall,
-                        color = if (isSelected) MaterialTheme.colorScheme.onSurface
-                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = if (isSelected) {
+                            DesignTheme.Typography.bodySmall.copy(fontWeight = FontWeight.SemiBold)
+                        } else {
+                            DesignTheme.Typography.bodySmall
+                        },
+                        color = if (isSelected) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
                     )
                 }
             }
         }
     }
 }
-

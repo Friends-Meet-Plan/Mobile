@@ -8,8 +8,10 @@ import org.koin.dsl.module
 fun initKoinIOS(analyticsService: AnalyticsService) = CommonKmp.initKoin(
     configuration = createConfiguration(isDebug = true),
     appDeclaration = {
-        modules(module {
-            single<AnalyticsService> { analyticsService }
-        })
+        modules(
+            module {
+                single<AnalyticsService> { analyticsService }
+            }
+        )
     },
 )

@@ -1,9 +1,9 @@
 package friends.mobile.feature.auth.presentation.register
 
+import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
-import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.auth.domain.usecase.RegisterUseCase
 import kotlinx.coroutines.launch
@@ -27,7 +27,7 @@ class RegisterViewModel : BaseViewModel<RegisterViewState, RegisterAction, Regis
 
     private fun onRegisterClick() {
         val currentState = viewState as? RegisterViewState.Content ?: return
-        
+
         if (currentState.username.isBlank()) {
             viewState = RegisterViewState.Error("Username cannot be empty")
             return
@@ -40,7 +40,7 @@ class RegisterViewModel : BaseViewModel<RegisterViewState, RegisterAction, Regis
         viewModelScope.launch {
             val username = currentState.username
             val password = currentState.password
-            
+
             viewState = RegisterViewState.Loading
 
             when (val result = registerUseCase(username, password)) {

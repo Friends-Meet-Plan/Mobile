@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -22,14 +23,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import friends.mobile.R
-import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.designsystem.components.ErrorBanner
 import friends.mobile.designsystem.components.LoadingView
 import friends.mobile.designsystem.components.SearchBar
+import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.feature.friends.domain.model.User
 import friends.mobile.feature.friends.presentation.friends.FriendsAction
 import friends.mobile.feature.friends.presentation.friends.FriendsEvent

@@ -1,9 +1,9 @@
 package friends.mobile.feature.profile.presentation.profile
 
+import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
-import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.profile.domain.usecase.GetMeUseCase
 import kotlinx.coroutines.launch

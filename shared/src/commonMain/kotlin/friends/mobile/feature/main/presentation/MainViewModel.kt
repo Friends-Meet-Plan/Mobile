@@ -1,10 +1,10 @@
 package friends.mobile.feature.main.presentation
 
+import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.domain.model.ApiError
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
-import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.events.domain.usecase.CheckUserAvailabilityUseCase
 import friends.mobile.feature.events.domain.usecase.GetAcceptedEventsUseCase
@@ -13,10 +13,10 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.inject
 
 class MainViewModel : BaseViewModel<
-        MainViewState,
-        MainAction,
-        MainViewAction,
-        >(
+    MainViewState,
+    MainAction,
+    MainViewAction,
+    >(
     initState = MainViewState.Loading,
     screenName = AnalyticsEvent.LAUNCH_HOME,
 ) {

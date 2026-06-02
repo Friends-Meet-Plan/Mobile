@@ -1,14 +1,26 @@
 package friends.mobile.feature.friends.presentation.friends
 
+import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
-import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.viewmodel.BaseViewModel
-import friends.mobile.feature.friends.domain.usecase.*
+import friends.mobile.feature.friends.domain.usecase.AcceptFriendRequestUseCase
+import friends.mobile.feature.friends.domain.usecase.CancelFriendRequestUseCase
+import friends.mobile.feature.friends.domain.usecase.GetFriendsUseCase
+import friends.mobile.feature.friends.domain.usecase.GetIncomingFriendRequestsUseCase
+import friends.mobile.feature.friends.domain.usecase.GetOutgoingFriendRequestsUseCase
+import friends.mobile.feature.friends.domain.usecase.RejectFriendRequestUseCase
+import friends.mobile.feature.friends.domain.usecase.SearchUserUseCase
+import friends.mobile.feature.friends.domain.usecase.SendFriendRequestUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import org.koin.core.component.inject
 
@@ -71,7 +83,7 @@ class FriendsViewModel : BaseViewModel<FriendsViewState, FriendsAction, FriendsE
                     updateContent { it.copy(searchResults = null, isSearching = false) }
                     return@onEach
                 }
-                
+
                 updateContent { it.copy(isSearching = true) }
                 when (val result = searchUserUseCase(query)) {
                     is ResultWrapper.Success -> {
@@ -108,11 +120,18 @@ class FriendsViewModel : BaseViewModel<FriendsViewState, FriendsAction, FriendsE
             .onEach { (result, tab) ->
                 when (result) {
                     is ResultWrapper.Success -> {
-                        val baseContent = (viewState as? FriendsViewState.Content) ?: FriendsViewState.Content(currentTab = tab)
+                        val baseContent = (viewState as? FriendsViewState.Content)
+                            ?: FriendsViewState.Content(currentTab = tab)
                         viewState = when (tab) {
-                            RequestTab.FRIENDS -> baseContent.copy(friendsList = result.data, currentTab = tab, isTabLoading = false)
-                            RequestTab.INCOMING -> baseContent.copy(incomingRequests = result.data, currentTab = tab, isTabLoading = false)
-                            RequestTab.OUTGOING -> baseContent.copy(outgoingRequests = result.data, currentTab = tab, isTabLoading = false)
+                            RequestTab.FRIENDS -> baseContent.copy(
+                                friendsList = result.data, currentTab = tab, isTabLoading = false
+                            )
+                            RequestTab.INCOMING -> baseContent.copy(
+                                incomingRequests = result.data, currentTab = tab, isTabLoading = false
+                            )
+                            RequestTab.OUTGOING -> baseContent.copy(
+                                outgoingRequests = result.data, currentTab = tab, isTabLoading = false
+                            )
                         }
                     }
                     is ResultWrapper.Error -> {
@@ -120,7 +139,9 @@ class FriendsViewModel : BaseViewModel<FriendsViewState, FriendsAction, FriendsE
                             viewState = FriendsViewState.Error(getErrorMessage(mapApiErrorToUserFriendly(result.error)))
                         } else {
                             updateContent { it.copy(isTabLoading = false) }
-                            viewAction = FriendsAction.ShowError(getErrorMessage(mapApiErrorToUserFriendly(result.error)))
+                            viewAction = FriendsAction.ShowError(
+                                getErrorMessage(mapApiErrorToUserFriendly(result.error))
+                            )
                         }
                     }
                 }

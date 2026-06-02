@@ -1,9 +1,9 @@
 package friends.mobile.feature.auth.presentation.login
 
+import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
-import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.auth.domain.usecase.LoginUseCase
 import kotlinx.coroutines.launch
@@ -26,7 +26,7 @@ class LoginViewModel : BaseViewModel<LoginViewState, LoginAction, LoginEvent>(
 
     private fun onLoginClick() {
         val currentState = viewState as? LoginViewState.Content ?: return
-        
+
         if (currentState.username.isBlank()) {
             viewAction = LoginAction.ShowMessage("Username cannot be empty")
             return
@@ -39,7 +39,7 @@ class LoginViewModel : BaseViewModel<LoginViewState, LoginAction, LoginEvent>(
         viewModelScope.launch {
             val username = currentState.username
             val password = currentState.password
-            
+
             viewState = LoginViewState.Loading
 
             when (val result = loginUseCase(username, password)) {

@@ -81,7 +81,6 @@ fun WishPlacesSection(
                 WishPlacesContentBody(
                     places = current.places,
                     mode = mode,
-                    userId = userId,
                     onPlaceClick = { selectedPlace = it },
                     onDeletePlace = { viewModel.obtainEvent(WishPlacesEvent.ArchivePlace(userId = userId, id = it)) },
                 )
@@ -156,7 +155,6 @@ private fun WishPlacesLoadingContent() {
 private fun WishPlacesContentBody(
     places: List<WishPlace>,
     mode: WishPlacesMode,
-    userId: String,
     onPlaceClick: (WishPlace) -> Unit,
     onDeletePlace: (String) -> Unit,
 ) {
