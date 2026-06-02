@@ -82,7 +82,7 @@ val eventsModule = module {
         GetArchivedEventsUseCaseImpl(repository = get())
     }
 
-    factory< GetAcceptedEventsUseCase> {
+    factory<GetAcceptedEventsUseCase> {
         GetAcceptedEventsUseCaseImpl(repository = get())
     }
 

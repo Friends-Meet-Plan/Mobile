@@ -28,8 +28,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import friends.mobile.R
 import friends.mobile.designsystem.components.ButtonFactory
 import friends.mobile.designsystem.components.LoadingView
@@ -188,7 +188,11 @@ private fun EventDetailsSection(event: Event) {
         }
 
         if (!event.location.isNullOrEmpty()) {
-            DetailRow(icon = Icons.Default.LocationOn, label = stringResource(R.string.label_location), value = event.location!!)
+            DetailRow(
+                icon = Icons.Default.LocationOn,
+                label = stringResource(R.string.label_location),
+                value = event.location!!,
+            )
         }
     }
 }
@@ -287,9 +291,9 @@ private fun ParticipantCard(participant: EventParticipant) {
             )
             Text(
                 text = when (participant.status) {
-                ParticipationStatus.INVITED -> stringResource(R.string.pending_status)
-                else -> participant.status.name.lowercase().replaceFirstChar { it.uppercase() }
-            },
+                    ParticipationStatus.INVITED -> stringResource(R.string.pending_status)
+                    else -> participant.status.name.lowercase().replaceFirstChar { it.uppercase() }
+                },
                 style = DesignTheme.Typography.bodySmallest,
                 color = statusColor,
             )

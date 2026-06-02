@@ -41,6 +41,7 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TimePickerLayoutType
 import androidx.compose.material3.TimePickerState
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -60,18 +61,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import friends.mobile.R
 import friends.mobile.designsystem.components.ErrorBanner
 import friends.mobile.designsystem.theme.DesignTheme
 import friends.mobile.feature.events.domain.model.Event
-import friends.mobile.feature.main.presentation.MainViewAction as MainEventAction
 import friends.mobile.feature.main.presentation.MainViewModel
 import friends.mobile.feature.main.presentation.MainViewState
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import friends.mobile.feature.main.presentation.MainViewAction as MainEventAction
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -441,7 +441,11 @@ private fun EventCard(
 ) {
     val tintColor = if (isPending) Color(0xFFFF9800) else MaterialTheme.colorScheme.tertiary
     val badgeIcon = if (isPending) Icons.Default.Schedule else Icons.Default.CheckCircle
-    val badgeText = if (isPending) stringResource(R.string.main_section_pending) else stringResource(R.string.main_section_active)
+    val badgeText = if (isPending) {
+        stringResource(R.string.main_section_pending)
+    } else {
+        stringResource(R.string.main_section_active)
+    }
 
     Column(
         modifier = Modifier

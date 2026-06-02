@@ -1,3 +1,5 @@
+@file:Suppress("MatchingDeclarationName")
+
 package friends.mobile.designsystem.components
 
 import androidx.compose.foundation.background

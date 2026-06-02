@@ -1,10 +1,10 @@
 package friends.mobile.feature.events.presentation.createevent
 
+import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.domain.model.ApiError
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.domain.model.getErrorMessage
 import friends.mobile.core.domain.model.mapApiErrorToUserFriendly
-import friends.mobile.core.analytics.AnalyticsEvent
 import friends.mobile.core.viewmodel.BaseViewModel
 import friends.mobile.feature.events.domain.usecase.CheckFriendsAvailabilityUseCase
 import friends.mobile.feature.events.domain.usecase.CheckUserAvailabilityUseCase
@@ -15,10 +15,10 @@ import org.koin.core.component.inject
 class CreateEventViewModel(
     private val selectedDate: String,
 ) : BaseViewModel<
-        CreateEventViewState,
-        CreateEventAction,
-        CreateEventEvent,
-        >(
+    CreateEventViewState,
+    CreateEventAction,
+    CreateEventEvent,
+    >(
     initState = CreateEventViewState.Loading,
     screenName = AnalyticsEvent.LAUNCH_CREATE_EVENT,
 ) {
@@ -158,7 +158,7 @@ class CreateEventViewModel(
         isOwnerAvailable: Boolean,
     ): Boolean {
         return title.isNotBlank() &&
-                selectedFriendIds.isNotEmpty() &&
-                isOwnerAvailable
+            selectedFriendIds.isNotEmpty() &&
+            isOwnerAvailable
     }
 }

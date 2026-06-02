@@ -27,7 +27,9 @@ internal class ProfileRepositoryImpl(
             is ResultWrapper.Error -> {
                 if (result.error.code == NO_CONNECTION_ERROR_CODE) {
                     cacheStorage.getProfile()?.let { ResultWrapper.Success(it) } ?: result
-                } else result
+                } else {
+                    result
+                }
             }
         }
     }
