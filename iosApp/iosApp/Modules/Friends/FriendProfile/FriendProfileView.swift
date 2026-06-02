@@ -84,14 +84,7 @@ struct FriendProfileView: View {
                 .frame(width: 100, height: 100)
                 .clipShape(Circle())
             } else {
-                Circle()
-                    .fill(Color(UIColor.systemGray6))
-                    .frame(width: 100, height: 100)
-                    .overlay(
-                        Image(systemName: "person.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.gray)
-                    )
+                UserView(user: user, dimension: .vertical)
             }
             
             VStack(spacing: DesignTheme.Spacing.xs) {

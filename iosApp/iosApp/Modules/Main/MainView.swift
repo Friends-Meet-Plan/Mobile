@@ -31,16 +31,10 @@ struct MainView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ZStack(alignment: .bottomTrailing) {
-
-                    backgroundLayer
-
                     VStack(spacing: 0) {
-
                         headerView
-
                         contentView
                     }
-
                     floatingCreateButton
                 }
                 .sheet(isPresented: $isCreatingEventInProgress) {
@@ -71,18 +65,13 @@ struct MainView: View {
 
 private extension MainView {
     
-    var backgroundLayer: some View {
-        Color(.systemGroupedBackground)
-            .ignoresSafeArea()
-    }
-    
     var headerView: some View {
         VStack(alignment: .leading, spacing: 12) {
             
             HStack {
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Your Events")
+                    Text("My Events")
                         .font(.system(size: 30, weight: .bold))
                     
                     Text("Manage active and upcoming plans")
@@ -110,16 +99,6 @@ private extension MainView {
         .padding(.horizontal, DesignTheme.Spacing.lg)
         .padding(.top, DesignTheme.Spacing.lg)
         .padding(.bottom, DesignTheme.Spacing.md)
-        .background(
-            LinearGradient(
-                colors: [
-                    DesignTheme.accentColor.opacity(0.12),
-                    Color(.systemGroupedBackground)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        )
     }
     
     @ViewBuilder
@@ -152,7 +131,7 @@ private extension MainView {
                             ForEach(reducer.activeEvents, id: \.id) { event in
                                 EventRowView(
                                     event: event,
-                                    isPending: false
+                                    eventState: .active
                                 )
                                 .onTapGesture {
                                     router.push(
@@ -172,7 +151,7 @@ private extension MainView {
                             ForEach(reducer.pendingEvents, id: \.id) { event in
                                 EventRowView(
                                     event: event,
-                                    isPending: true
+                                    eventState: .pending
                                 )
                                 .onTapGesture {
                                     router.push(
@@ -340,30 +319,7 @@ private extension MainView {
 struct EventRowView: View {
     
     let event: Event
-    let isPending: Bool
-    let forceHideBadge: Bool
-    
-    init(event: Event, isPending: Bool, forceHideBadge: Bool = false) {
-        self.event = event
-        self.isPending = isPending
-        self.forceHideBadge = forceHideBadge
-    }
-    
-    private var tint: Color {
-        isPending ? .orange : DesignTheme.secondaryAccent
-    }
-    
-    private var badgeIcon: String {
-        isPending
-        ? "clock.fill"
-        : "checkmark.circle.fill"
-    }
-    
-    private var badgeText: String {
-        isPending
-        ? "Pending"
-        : "Active"
-    }
+    let eventState: EventState
     
     var body: some View {
         
@@ -371,39 +327,38 @@ struct EventRowView: View {
             alignment: .leading,
             spacing: DesignTheme.Spacing.sm
         ) {
-            
             HStack {
-                
                 Text(event.title)
                     .font(.system(size: 17, weight: .semibold))
                     .foregroundColor(.primary)
                 
                 Spacer()
                 
-                if !forceHideBadge {
-                    badgeView
+                switch eventState {
+                case .active:
+                    IndicatorFactory.active()
+                case .pending:
+                    IndicatorFactory.pending()
+                case .archive:
+                    IndicatorFactory.archive()
                 }
             }
             
             HStack(spacing: 8) {
-                
                 infoChip(
                     icon: "calendar",
                     text: event.date
                 )
-                
                 if let time = event.time {
                     infoChip(
                         icon: "clock",
                         text: time
                     )
                 }
-                
                 infoChip(
                     icon: "person.2",
                     text: "\(event.participants.count)"
                 )
-                
                 Spacer()
             }
         }
@@ -421,27 +376,9 @@ struct EventRowView: View {
         .overlay(
             RoundedRectangle(cornerRadius: 18)
                 .stroke(
-                    tint.opacity(0.15),
+                    eventState.tint.opacity(0.15),
                     lineWidth: 1
                 )
-        )
-    }
-    
-    private var badgeView: some View {
-        HStack(spacing: 4) {
-            
-            Image(systemName: badgeIcon)
-                .font(.caption)
-            
-            Text(badgeText)
-                .font(.caption.weight(.semibold))
-        }
-        .foregroundColor(tint)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 5)
-        .background(
-            Capsule()
-                .fill(tint.opacity(0.12))
         )
     }
     

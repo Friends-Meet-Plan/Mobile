@@ -287,6 +287,22 @@ enum IndicatorFactory {
         .background(DesignTheme.secondaryAccent.opacity(0.1))
         .cornerRadius(DesignTheme.CornerRadius.small)
     }
+    
+    @ViewBuilder
+    static func archive() -> some View {
+        HStack(spacing: DesignTheme.Spacing.xs) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 16))
+                .foregroundColor(Color.gray)
+            Text("Completed")
+                .font(DesignTheme.Typography.bodySmallest)
+                .foregroundColor(Color.gray)
+        }
+        .padding(.horizontal, DesignTheme.Spacing.sm)
+        .padding(.vertical, DesignTheme.Spacing.xs)
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(DesignTheme.CornerRadius.small)
+    }
 
     /// Orange clock badge with "Pending" label.
     /// Used to indicate pending friend request from current user's perspective.
@@ -295,14 +311,14 @@ enum IndicatorFactory {
         HStack(spacing: DesignTheme.Spacing.xs) {
             Image(systemName: "clock.fill")
                 .font(.system(size: 16))
-                .foregroundStyle(.background)
+                .foregroundStyle(.orange)
             Text("Pending")
                 .font(DesignTheme.Typography.bodySmallest)
-                .foregroundColor(.white)
+                .foregroundColor(.orange)
         }
         .padding(.horizontal, DesignTheme.Spacing.sm)
         .padding(.vertical, DesignTheme.Spacing.xs)
-        .background(Color.orange)
+        .background(Color.orange.opacity(0.1))
         .cornerRadius(DesignTheme.CornerRadius.small)
     }
 
@@ -398,7 +414,7 @@ struct FormTextField: ViewModifier {
     func body(content: Content) -> some View {
         content
             .textFieldStyle(.plain)
-            .padding(DesignTheme.Spacing.md)
+            .padding(DesignTheme.Spacing.lg)
             .background(Color(UIColor.systemGray6))
             .cornerRadius(DesignTheme.CornerRadius.medium)
             .font(DesignTheme.Typography.body)
@@ -409,7 +425,7 @@ struct FormSecureField: ViewModifier {
     func body(content: Content) -> some View {
         content
             .textFieldStyle(.plain)
-            .padding(DesignTheme.Spacing.md)
+            .padding(DesignTheme.Spacing.lg)
             .background(Color(UIColor.systemGray6))
             .cornerRadius(DesignTheme.CornerRadius.medium)
             .font(DesignTheme.Typography.body)

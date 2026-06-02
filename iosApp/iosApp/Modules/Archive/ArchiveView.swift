@@ -57,7 +57,7 @@ struct ArchiveView: View {
                                 }
 
                                 ForEach(reducer.archivedEvents, id: \.id) { event in
-                                    EventRowView(event: event, isPending: false, forceHideBadge: true)
+                                    EventRowView(event: event, eventState: .archive)
                                         .onTapGesture {
                                             router.push(screen: .eventDetail(id: event.id))
                                         }
