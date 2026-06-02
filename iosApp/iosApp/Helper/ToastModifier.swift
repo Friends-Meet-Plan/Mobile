@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ToastModifier: ViewModifier {
-    @State var isPresented: Bool
+    @Binding var isPresented: Bool
     let message: String
 
     func body(content: Content) -> some View {
@@ -36,6 +36,6 @@ struct ToastModifier: ViewModifier {
 
 extension View {
     func toast(isPresented: Binding<Bool>, message: String) -> some View {
-        modifier(ToastModifier(isPresented: isPresented.wrappedValue, message: message))
+        modifier(ToastModifier(isPresented: isPresented, message: message))
     }
 }

@@ -60,6 +60,7 @@ val authModule = module {
             api = get(),
             storage = get(),
             mapper = get(),
+            profileCacheStorage = get(),
         )
     }
 

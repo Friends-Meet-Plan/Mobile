@@ -10,60 +10,73 @@ import SwiftUI
 
 struct FriendsView: View {
 
-    @State private var reducer = FriendsReducer()
+    @State private var reducer: FriendsReducer!
     @State private var selectedSegment: Segment = .friends
     @State private var friendToPresent: Shared.User?
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Search Bar
-            SearchBar(
-                text: $reducer.searchText,
-                onSearch: { query in
-                    reducer.onSearchUsers(query)
-                }, onClear: {
-                    reducer.clearSearch()
-                }
-            )
-            .padding(DesignTheme.Spacing.lg)
-            .background(Color(.systemBackground))
-
-            // Error Banner
-            if let errorMessage = reducer.errorMessage {
-                ErrorBanner(message: errorMessage)
-                    .padding(.horizontal, DesignTheme.Spacing.lg)
-                    .padding(.vertical, DesignTheme.Spacing.md)
-            }
-
-            // Content
-            contentListView()
-                .overlay {
-                    if reducer.isLoading {
-                        LoadingView()
-                    }
-                }
-                .opacity(reducer.isLoading ? 0 : 1)
-                .safeAreaInset(edge: .bottom) {
-                    // Tab Picker at Bottom
-                    Picker("", selection: $selectedSegment) {
-                        ForEach(Segment.allCases, id: \.self) { segment in
-                            Text(segment.rawValue)
-                                .tag(segment)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(DesignTheme.Spacing.lg)
-                    .background(Color(.systemBackground))
-                    .onChange(of: selectedSegment) { oldValue, newValue in
-                        if reducer.searchResults != nil {
+        Group {
+            if reducer == nil {
+                LoadingView()
+            } else {
+                VStack(spacing: 0) {
+                    SearchBar(
+                        text: Binding(get: {
+                            reducer.searchText
+                        }, set: {
+                            reducer.searchText = $0
+                        }),
+                        onSearch: { query in
+                            reducer.onSearchUsers(query)
+                        }, onClear: {
                             reducer.clearSearch()
                         }
-                        reducer.onTabSelected(newValue.requestTab)
+                    )
+                    .padding(DesignTheme.Spacing.lg)
+                    .background(Color(.systemBackground))
+
+                    if let errorMessage = reducer.errorMessage {
+                        ErrorBanner(message: errorMessage)
+                            .padding(.horizontal, DesignTheme.Spacing.lg)
+                            .padding(.vertical, DesignTheme.Spacing.md)
                     }
+
+                    contentListView()
+                        .overlay {
+                            if reducer.isLoading {
+                                LoadingView()
+                            }
+                        }
+                        .opacity(reducer.isLoading ? 0 : 1)
+                        .safeAreaInset(edge: .bottom) {
+                            Picker("", selection: $selectedSegment) {
+                                ForEach(Segment.allCases, id: \.self) { segment in
+                                    Text(segment.rawValue)
+                                        .tag(segment)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .padding(DesignTheme.Spacing.lg)
+                            .background(Color(.systemBackground))
+                            .onChange(of: selectedSegment) { oldValue, newValue in
+                                if reducer.searchResults != nil {
+                                    reducer.clearSearch()
+                                }
+                                reducer.onTabSelected(newValue.requestTab)
+                            }
+                        }
                 }
+            }
+        }
+        .onAppear {
+            if reducer == nil {
+                reducer = FriendsReducer()
+            }
         }
         .task {
-            reducer.reloadCurrentTab()
+            if reducer != nil {
+                reducer.reloadCurrentTab()
+            }
         }
         .sheet(item: $friendToPresent) { friend in
             FriendProfileView(reducer: FriendProfileReducer(userId: friend.id))
@@ -193,7 +206,6 @@ private struct UserRowView: View {
 
     var body: some View {
         HStack(spacing: DesignTheme.Spacing.md) {
-            // Avatar with Initial Badge
             ZStack(alignment: .bottomTrailing) {
                 Circle()
                     .fill(DesignTheme.accentColor)
@@ -203,8 +215,7 @@ private struct UserRowView: View {
                             .font(DesignTheme.Typography.captionSemibold)
                             .foregroundColor(.white)
                     }
-
-                // Status Badge
+                
                 if let avatarUrl = user.avatarUrl, !avatarUrl.isEmpty {
                     AsyncImage(url: URL(string: avatarUrl)) { image in
                         image
@@ -219,7 +230,6 @@ private struct UserRowView: View {
                 }
             }
 
-            // User Info
             VStack(alignment: .leading, spacing: DesignTheme.Spacing.xs) {
                 Text(user.username)
                     .font(DesignTheme.Typography.captionSemibold)
@@ -235,7 +245,6 @@ private struct UserRowView: View {
 
             Spacer()
 
-            // Status Badge
             if searchText.isEmpty {
                 statusBadge()
             }
@@ -252,13 +261,10 @@ private struct UserRowView: View {
         switch currentTab {
         case .friends:
             IndicatorFactory.active()
-
         case .incoming:
             IndicatorFactory.pending()
-
         case .outgoing:
             IndicatorFactory.sent()
-
         default:
             EmptyView()
         }

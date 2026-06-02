@@ -59,15 +59,10 @@ struct WishPlacesView: View {
             } else {
                 List {
                     ForEach(reducer.places, id: \.id) { place in
-                        WishPlaceItem(
-                            place: place,
-                            onTap: {
-                                reducer.selectedPlace = place
-                            }
-                        )
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets(top: DesignTheme.Spacing.sm, leading: 0, bottom: DesignTheme.Spacing.sm, trailing: 0))
+                        currentWishPlace(place: place)
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets(top: DesignTheme.Spacing.sm, leading: 0, bottom: DesignTheme.Spacing.sm, trailing: 0))
                     }
                     .if(mode == .editable) { view in
                         view.onDelete { indexSet in
@@ -116,6 +111,16 @@ struct WishPlacesView: View {
         .sheet(item: $reducer.selectedPlace) { place in
             WishPlaceDetailSheet(place: place)
         }
+    }
+    
+    @ViewBuilder
+    private func currentWishPlace(place: WishPlace) -> some View {
+        WishPlaceItem(
+            place: place,
+            onTap: {
+                reducer.selectedPlace = place
+            }
+        )
     }
 }
 

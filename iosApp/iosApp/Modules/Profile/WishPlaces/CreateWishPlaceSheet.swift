@@ -42,17 +42,14 @@ struct CreateWishPlaceSheet: View {
                             Text("Description").foregroundColor(.gray)
                         }
                         .formTextField()
-                        .frame(minHeight: 80, maxHeight: 120)
                     
                     TextField("Link", text: $link)
                         .placeholder(when: link.isEmpty) {
                             Text("Link").foregroundColor(.gray)
                         }
                         .formTextField()
+                        .padding(.bottom, DesignTheme.Spacing.md)
                     
-                    Spacer()
-                        .frame(height: DesignTheme.Spacing.md)
-
                     ButtonFactory.primary(
                         action: {
                             onCreate(
