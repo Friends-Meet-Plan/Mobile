@@ -42,9 +42,7 @@ class MainViewModel : BaseViewModel<
     private fun loadEvents(showLoading: Boolean = true) {
         viewModelScope.launch {
             if (isLoadingInProgress) return@launch
-
             isLoadingInProgress = true
-
             try {
                 if (showLoading) {
                     viewState = MainViewState.Loading
@@ -56,11 +54,8 @@ class MainViewModel : BaseViewModel<
                 }
 
                 when (val activeResult = getAcceptedEventsUseCase()) {
-
                     is ResultWrapper.Success -> {
-
                         when (val pendingResult = getPendingEventsUseCase()) {
-
                             is ResultWrapper.Success -> {
                                 viewState = MainViewState.Content(
                                     activeEvents = activeResult.data,
@@ -68,11 +63,9 @@ class MainViewModel : BaseViewModel<
                                     isRefreshing = false,
                                 )
                             }
-
                             is ResultWrapper.Error -> handleError(pendingResult.error)
                         }
                     }
-
                     is ResultWrapper.Error -> handleError(activeResult.error)
                 }
             } finally {
@@ -83,29 +76,22 @@ class MainViewModel : BaseViewModel<
 
     private fun onRefresh() {
         if (isLoadingInProgress) return
-
-        val currentState = viewState
-        if (currentState is MainViewState.Content) {
-            viewState = currentState.copy(isRefreshing = true)
-        } else if (currentState is MainViewState.Error) {
-            viewState = MainViewState.Content(isRefreshing = true)
+        if (viewState is MainViewState.Content) {
+            loadEvents(showLoading = false)
+        } else {
+            loadEvents(showLoading = true)
         }
-
-        loadEvents(showLoading = false)
     }
 
     suspend fun checkAvailability(
         date: String,
     ): Boolean? {
-
         return when (
             val result = checkUserAvailabilityUseCase(date)
         ) {
-
             is ResultWrapper.Success -> {
                 result.data
             }
-
             is ResultWrapper.Error -> {
                 null
             }
@@ -114,23 +100,12 @@ class MainViewModel : BaseViewModel<
 
     private fun handleError(error: ApiError) {
         logError(RuntimeException("MainViewModel: $error"))
-
         val userError = mapApiErrorToUserFriendly(error)
         val currentState = viewState
-
         if (currentState is MainViewState.Content) {
             viewState = currentState.copy(isRefreshing = false)
         } else {
             viewState = MainViewState.Error(message = getErrorMessage(userError))
         }
-    }
-
-    private inline fun updateContent(
-        transform: MainViewState.Content.() -> MainViewState.Content,
-    ) {
-        val currentState =
-            viewState as? MainViewState.Content ?: return
-
-        viewState = currentState.transform()
     }
 }

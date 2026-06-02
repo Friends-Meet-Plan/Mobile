@@ -9,7 +9,7 @@ import friends.mobile.feature.auth.data.remote.dto.LoginRequestDto
 import friends.mobile.feature.auth.data.remote.dto.LogoutRequestDto
 import friends.mobile.feature.auth.data.remote.dto.RefreshRequestDto
 import friends.mobile.feature.auth.data.remote.dto.RegisterRequestDto
-import friends.mobile.feature.auth.data.storage.TokenStorage
+import friends.mobile.feature.auth.domain.storage.TokenStorage
 import friends.mobile.feature.auth.domain.model.AuthSession
 import friends.mobile.feature.auth.domain.model.AuthToken
 import friends.mobile.feature.auth.domain.repository.AuthRepository

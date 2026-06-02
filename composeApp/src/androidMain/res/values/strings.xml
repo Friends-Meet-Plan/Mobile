@@ -1,3 +1,141 @@
 <resources>
     <string name="app_name">Mobile</string>
+
+    <!-- Common actions -->
+    <string name="back">Back</string>
+    <string name="retry">Retry</string>
+    <string name="cancel">Cancel</string>
+    <string name="create">Create</string>
+    <string name="done">Done</string>
+    <string name="save">Save</string>
+    <string name="ok">OK</string>
+    <string name="next">Next</string>
+    <string name="remove">Remove</string>
+    <string name="delete">Delete</string>
+    <string name="close">Close</string>
+    <string name="go_back">Go Back</string>
+
+    <!-- Common labels -->
+    <string name="label_title">Title</string>
+    <string name="label_description">Description</string>
+    <string name="label_location">Location</string>
+    <string name="label_date">Date</string>
+    <string name="label_time">Time</string>
+    <string name="label_link">Link</string>
+    <string name="label_username">Username</string>
+    <string name="label_password">Password</string>
+    <string name="label_bio">Bio</string>
+    <string name="label_avatar_url">Avatar URL</string>
+
+    <string name="search_clear">Clear</string>
+
+    <!-- Common loading states -->
+    <string name="loading">Loading…</string>
+    <string name="loading_friends">Loading friends…</string>
+    <string name="loading_removing">Removing…</string>
+    <string name="loading_searching">Searching…</string>
+    <string name="loading_refreshing">Refreshing…</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_friends">Friends</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_archive">Archive</string>
+
+    <!-- Auth -->
+    <string name="auth_login">Login</string>
+    <string name="auth_sign_up">Sign up</string>
+    <string name="auth_create_account">Create Account</string>
+    <string name="auth_no_account">Don\'t have an account?</string>
+    <string name="auth_already_have_account">Already have an account?</string>
+
+    <!-- Main screen -->
+    <string name="main_my_events">My Events</string>
+    <string name="main_manage_events">Manage active and upcoming plans</string>
+    <string name="main_pending_invitations">Pending Invitations</string>
+    <string name="main_no_events">No events yet</string>
+    <string name="main_create_first_event">Tap + to create your first event</string>
+    <string name="main_section_active">Active</string>
+    <string name="main_section_pending">Pending</string>
+    <string name="main_busy_day_title">You are busy on this day</string>
+    <string name="main_select_time">Select Time</string>
+    <string name="main_create_event_fab">Create Event</string>
+
+    <!-- Archive -->
+    <string name="archive_title">Archive</string>
+    <string name="archive_empty">No archived events</string>
+    <string name="archive_badge_completed">Completed</string>
+
+    <!-- Events -->
+    <string name="event_create_title">Create Event</string>
+    <string name="event_hint_title">Event title</string>
+    <string name="event_hint_description">Event description</string>
+    <string name="event_hint_location">Event location</string>
+    <string name="event_section_date">Event Date</string>
+    <string name="event_select_friends">Select Friends</string>
+    <string name="event_selected_friends">Selected Friends</string>
+    <string name="event_selected_count">%d selected</string>
+    <string name="event_loading_friends">Loading available friends…</string>
+    <string name="event_no_friends_title">No Friends Available</string>
+    <string name="event_no_friends_subtitle">No friends available on selected date</string>
+
+    <!-- Event detail -->
+    <string name="event_detail_loading">Loading event details…</string>
+    <string name="event_detail_no_participants">No participants yet</string>
+    <string name="event_detail_participants">Participants</string>
+
+    <!-- Pending events -->
+    <string name="pending_title">Pending Invitations</string>
+    <string name="pending_loading">Loading invitations…</string>
+    <string name="pending_no_invitations">No Pending Invitations</string>
+    <string name="pending_all_caught_up">You\'re all caught up!</string>
+    <string name="pending_awaiting">Awaiting your response</string>
+    <string name="pending_error">Something went wrong</string>
+    <string name="pending_section_event_details">EVENT DETAILS</string>
+    <string name="pending_section_participants">PARTICIPANTS</string>
+    <string name="pending_status">Pending</string>
+    <string name="pending_accept">Accept Invitation</string>
+    <string name="pending_decline">Decline Invitation</string>
+    <string name="pending_accepted_message">Invitation accepted</string>
+    <string name="pending_declined_message">Invitation declined</string>
+
+    <!-- Friends -->
+    <string name="friends_search_hint">Search users</string>
+    <string name="friends_add">Add Friend</string>
+    <string name="friends_request_sent">Request Sent</string>
+    <string name="friends_accept">Accept</string>
+    <string name="friends_decline">Decline</string>
+    <string name="friends_remove">Remove Friend</string>
+    <string name="friends_tab_friends">Friends</string>
+    <string name="friends_tab_incoming">Incoming</string>
+    <string name="friends_tab_outgoing">Outgoing</string>
+    <string name="friends_no_users_found">No users found</string>
+    <string name="friends_try_different_name">Try searching with a different name</string>
+    <string name="friends_no_friends">No friends yet</string>
+    <string name="friends_no_incoming">No incoming requests</string>
+    <string name="friends_no_outgoing">No outgoing requests</string>
+    <string name="friends_hint_search_start">Search and send friend requests to get started</string>
+    <string name="friends_hint_incoming">You will see incoming requests here</string>
+    <string name="friends_hint_outgoing">Requests you have sent will appear here</string>
+
+    <!-- Profile -->
+    <string name="profile_edit">Edit Profile</string>
+    <string name="profile_log_out">Log Out</string>
+
+    <!-- Wish places -->
+    <string name="wish_places_my">My Wish Places</string>
+    <string name="wish_places_add">Add Wish Place</string>
+    <string name="wish_places_empty">No wish places yet</string>
+    <string name="wish_places_added_date">Added %s</string>
+    <string name="wish_places_section">Wish Places</string>
+
+    <!-- Calendar -->
+    <string name="calendar_weekday_sun">S</string>
+    <string name="calendar_weekday_mon">M</string>
+    <string name="calendar_weekday_tue">T</string>
+    <string name="calendar_weekday_wed">W</string>
+    <string name="calendar_weekday_thu">T</string>
+    <string name="calendar_weekday_fri">F</string>
+    <string name="calendar_weekday_sat">S</string>
+    <string name="calendar_no_busy_days">No busy days recorded</string>
 </resources>

@@ -24,6 +24,9 @@ class RootViewModel(
             is RootEvent.OnLogoutClick -> {
                 onLogoutClick()
             }
+            is RootEvent.OnRetry -> {
+                loadSession()
+            }
         }
     }
 

@@ -1,13 +1,16 @@
 package friends.mobile.core.db.di
 
-import com.russhwolf.settings.Settings
+import app.cash.sqldelight.db.SqlDriver
+import friends.mobile.core.db.AppDatabase
 import friends.mobile.core.db.ProfileCacheStorage
 import friends.mobile.core.db.ProfileCacheStorageImpl
-import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 
 val databaseModule = module {
+    single<AppDatabase> {
+        AppDatabase(driver = get<SqlDriver>())
+    }
     single<ProfileCacheStorage> {
-        ProfileCacheStorageImpl(get<Settings>(), get<Json>())
+        ProfileCacheStorageImpl(database = get())
     }
 }

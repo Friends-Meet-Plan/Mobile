@@ -74,7 +74,6 @@ class FriendProfileViewModel : BaseViewModel<FriendProfileViewState, FriendProfi
             viewState = currentState.copy(isActionPending = true)
             when (val result = action()) {
                 is ResultWrapper.Success -> {
-                    // Re-load status to get the updated UI state
                     loadFriendProfile(userId)
                 }
                 is ResultWrapper.Error -> {

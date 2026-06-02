@@ -6,8 +6,8 @@ import friends.mobile.feature.auth.data.mapper.StoredSessionMapper
 import friends.mobile.feature.auth.data.remote.AuthApi
 import friends.mobile.feature.auth.data.remote.AuthenticatedClient
 import friends.mobile.feature.auth.data.repository.AuthRepositoryImpl
-import friends.mobile.feature.auth.data.storage.TokenStorage
 import friends.mobile.feature.auth.data.storage.TokenStorageImpl
+import friends.mobile.feature.auth.domain.storage.TokenStorage
 import friends.mobile.feature.auth.data.usecase.GetStoredSessionUseCaseImpl
 import friends.mobile.feature.auth.data.usecase.LoginUseCaseImpl
 import friends.mobile.feature.auth.data.usecase.LogoutUseCaseImpl
