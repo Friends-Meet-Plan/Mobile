@@ -9,13 +9,13 @@ import SwiftUI
 import Shared
 
 struct MainView: View {
-    
-    @State private var reducer = EventsReducer()
+
+    @State private var reducer: EventsReducer!
     @State private var isCreatingEventInProgress = false
     @State private var selectedDate = Date()
     @State private var showBusyAlert = false
     @State private var selectedDateForEvent: String?
-    
+
     @Environment(Router.self) private var router
     
     private let dateFormatter: DateFormatter = {
@@ -25,33 +25,45 @@ struct MainView: View {
     }()
     
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            
-            backgroundLayer
-            
-            VStack(spacing: 0) {
-                
-                headerView
-                
-                contentView
+        Group {
+            if reducer == nil {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ZStack(alignment: .bottomTrailing) {
+
+                    backgroundLayer
+
+                    VStack(spacing: 0) {
+
+                        headerView
+
+                        contentView
+                    }
+
+                    floatingCreateButton
+                }
+                .sheet(isPresented: $isCreatingEventInProgress) {
+                    createEventSheet
+                }
+                .alert("You are busy on this day", isPresented: $showBusyAlert) {
+                    Button("OK") {
+                        showBusyAlert = false
+                    }
+                }
+                .task {
+                    router.onCreatedEventPushBack = {
+                        reducer.refresh()
+                    }
+                }
+                .navigationBarTitleDisplayMode(.inline)
             }
-            
-            floatingCreateButton
         }
-        .sheet(isPresented: $isCreatingEventInProgress) {
-            createEventSheet
-        }
-        .alert("You are busy on this day", isPresented: $showBusyAlert) {
-            Button("OK") {
-                showBusyAlert = false
+        .onAppear {
+            if reducer == nil {
+                reducer = EventsReducer()
             }
         }
-        .task {
-            router.onCreatedEventPushBack = {
-                reducer.refresh()
-            }
-        }
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -112,20 +124,20 @@ private extension MainView {
     
     @ViewBuilder
     var contentView: some View {
-        
+
         if reducer.isLoading {
-            
+
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            
+
         } else if let errorMessage = reducer.errorMessage {
-            
+
             errorState(message: errorMessage)
-            
+
         } else if reducer.activeEvents.isEmpty && reducer.pendingEvents.isEmpty {
-            
+
             emptyState
-            
+
         } else {
             
             ScrollView {
@@ -329,6 +341,13 @@ struct EventRowView: View {
     
     let event: Event
     let isPending: Bool
+    let forceHideBadge: Bool
+    
+    init(event: Event, isPending: Bool, forceHideBadge: Bool = false) {
+        self.event = event
+        self.isPending = isPending
+        self.forceHideBadge = forceHideBadge
+    }
     
     private var tint: Color {
         isPending ? .orange : DesignTheme.secondaryAccent
@@ -361,7 +380,9 @@ struct EventRowView: View {
                 
                 Spacer()
                 
-                badgeView
+                if !forceHideBadge {
+                    badgeView
+                }
             }
             
             HStack(spacing: 8) {

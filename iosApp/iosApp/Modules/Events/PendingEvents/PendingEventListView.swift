@@ -77,6 +77,7 @@ struct PendingEventListView: View {
         }
         .navigationTitle("Pending Invitations")
         .navigationBarTitleDisplayMode(.inline)
+        .toast(isPresented: $reducer.showToast, message: reducer.toastMessage ?? "")
         .sheet(item: Binding(
             get: { reducer.selectedEventDetail },
             set: { _ in reducer.closeEventDetail() }

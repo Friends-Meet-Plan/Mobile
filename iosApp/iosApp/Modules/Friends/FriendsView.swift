@@ -10,56 +10,73 @@ import SwiftUI
 
 struct FriendsView: View {
 
-    @State private var reducer = FriendsReducer()
+    @State private var reducer: FriendsReducer!
     @State private var selectedSegment: Segment = .friends
     @State private var friendToPresent: Shared.User?
 
     var body: some View {
-        VStack(spacing: 0) {
-            SearchBar(
-                text: $reducer.searchText,
-                onSearch: { query in
-                    reducer.onSearchUsers(query)
-                }, onClear: {
-                    reducer.clearSearch()
-                }
-            )
-            .padding(DesignTheme.Spacing.lg)
-            .background(Color(.systemBackground))
-
-            if let errorMessage = reducer.errorMessage {
-                ErrorBanner(message: errorMessage)
-                    .padding(.horizontal, DesignTheme.Spacing.lg)
-                    .padding(.vertical, DesignTheme.Spacing.md)
-            }
-
-            contentListView()
-                .overlay {
-                    if reducer.isLoading {
-                        LoadingView()
-                    }
-                }
-                .opacity(reducer.isLoading ? 0 : 1)
-                .safeAreaInset(edge: .bottom) {
-                    Picker("", selection: $selectedSegment) {
-                        ForEach(Segment.allCases, id: \.self) { segment in
-                            Text(segment.rawValue)
-                                .tag(segment)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(DesignTheme.Spacing.lg)
-                    .background(Color(.systemBackground))
-                    .onChange(of: selectedSegment) { oldValue, newValue in
-                        if reducer.searchResults != nil {
+        Group {
+            if reducer == nil {
+                LoadingView()
+            } else {
+                VStack(spacing: 0) {
+                    SearchBar(
+                        text: Binding(get: {
+                            reducer.searchText
+                        }, set: {
+                            reducer.searchText = $0
+                        }),
+                        onSearch: { query in
+                            reducer.onSearchUsers(query)
+                        }, onClear: {
                             reducer.clearSearch()
                         }
-                        reducer.onTabSelected(newValue.requestTab)
+                    )
+                    .padding(DesignTheme.Spacing.lg)
+                    .background(Color(.systemBackground))
+
+                    if let errorMessage = reducer.errorMessage {
+                        ErrorBanner(message: errorMessage)
+                            .padding(.horizontal, DesignTheme.Spacing.lg)
+                            .padding(.vertical, DesignTheme.Spacing.md)
                     }
+
+                    contentListView()
+                        .overlay {
+                            if reducer.isLoading {
+                                LoadingView()
+                            }
+                        }
+                        .opacity(reducer.isLoading ? 0 : 1)
+                        .safeAreaInset(edge: .bottom) {
+                            Picker("", selection: $selectedSegment) {
+                                ForEach(Segment.allCases, id: \.self) { segment in
+                                    Text(segment.rawValue)
+                                        .tag(segment)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .padding(DesignTheme.Spacing.lg)
+                            .background(Color(.systemBackground))
+                            .onChange(of: selectedSegment) { oldValue, newValue in
+                                if reducer.searchResults != nil {
+                                    reducer.clearSearch()
+                                }
+                                reducer.onTabSelected(newValue.requestTab)
+                            }
+                        }
                 }
+            }
+        }
+        .onAppear {
+            if reducer == nil {
+                reducer = FriendsReducer()
+            }
         }
         .task {
-            reducer.reloadCurrentTab()
+            if reducer != nil {
+                reducer.reloadCurrentTab()
+            }
         }
         .sheet(item: $friendToPresent) { friend in
             FriendProfileView(reducer: FriendProfileReducer(userId: friend.id))

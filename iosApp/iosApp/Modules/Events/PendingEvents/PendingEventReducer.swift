@@ -10,16 +10,20 @@ import Shared
 
 @Observable
 final class PendingEventReducer {
-    
+
     var pendingEvents: [Event] = []
     var selectedEventDetail: Event?
     var isLoading: Bool = false
+    var errorMessage: String?
     var isRefreshing: Bool = false
     var detailError: String?
     var isLoadingDetail: Bool = false
     var toastMessage: String?
     var showToast: Bool = false
-    
+    var shouldNavigateBack: Bool = false
+
+    var onBackClick: (() -> Void)?
+
     private let sharedVM: PendingEventViewModel
     private var stateTask: Task<Void, Never>?
     private var actionTask: Task<Void, Never>?
@@ -57,20 +61,30 @@ final class PendingEventReducer {
             for await action in sharedVM.viewActions.asAsyncStream(scope: scope) {
                 guard let pendingAction = action as? PendingAction else { continue }
                 switch pendingAction {
-                case let error as PendingAction.ShowMessage:
+                case is PendingAction.ShowAcceptSuccess:
+                    self.toastMessage = "Event accepted"
+                    self.showToast = true
+                    try? await Task.sleep(nanoseconds: 2_000_000_000)
+                    self.showToast = false
+                case is PendingAction.ShowDeclineSuccess:
+                    self.toastMessage = "Event declined"
+                    self.showToast = true
+                    try? await Task.sleep(nanoseconds: 2_000_000_000)
+                    self.showToast = false
+                case let error as PendingAction.ShowError:
                     self.toastMessage = error.message
                     self.showToast = true
                     try? await Task.sleep(nanoseconds: 2_000_000_000)
                     self.showToast = false
+                case is PendingAction.NavigateBack:
+                    self.onBackClick?()
                 default:
                     break
                 }
             }
         }
     }
-    
-    var errorMessage: String?
-    
+
     deinit {
         stateTask?.cancel()
         actionTask?.cancel()

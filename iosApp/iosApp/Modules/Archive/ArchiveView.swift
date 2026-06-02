@@ -9,57 +9,73 @@ import SwiftUI
 import Shared
 
 struct ArchiveView: View {
-    
-    @State private var reducer = ArchiveEventsReducer()
+
+    @State private var reducer: ArchiveEventsReducer!
     @Environment(Router.self) private var router
     
     var body: some View {
-        VStack {
-            if reducer.isLoading {
+        Group {
+            if reducer == nil {
                 ProgressView()
                     .frame(maxHeight: .infinity, alignment: .center)
-            } else if let errorMessage = reducer.errorMessage {
-                VStack(spacing: DesignTheme.Spacing.md) {
-                    Image(systemName: "exclamationmark.circle.fill")
-                        .font(.largeTitle)
-                        .foregroundColor(DesignTheme.error)
-                    Text(errorMessage)
-                        .foregroundColor(DesignTheme.error)
-                        .multilineTextAlignment(.center)
-                    ButtonFactory.primary(
-                        action: { reducer.refresh() },
-                        label: "Retry"
-                    )
-                }
-                .padding(DesignTheme.Spacing.lg)
-                .frame(maxHeight: .infinity, alignment: .center)
-            } else if reducer.archivedEvents.isEmpty {
-                VStack(spacing: 12) {
-                    Image(systemName: "archivebox")
-                        .font(.largeTitle)
-                        .foregroundColor(.gray)
-                    Text("No archived events")
-                        .foregroundColor(.gray)
-                }
-                .frame(maxHeight: .infinity, alignment: .center)
             } else {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 8) {
-                        ForEach(reducer.archivedEvents, id: \.id) { event in
-                            EventRowView(event: event, isPending: false)
-                                .onTapGesture {
-                                    router.push(screen: .eventDetail(id: event.id))
+                VStack {
+                    if reducer.isLoading {
+                        ProgressView()
+                            .frame(maxHeight: .infinity, alignment: .center)
+                    } else if let errorMessage = reducer.errorMessage {
+                        VStack(spacing: DesignTheme.Spacing.md) {
+                            Image(systemName: "exclamationmark.circle.fill")
+                                .font(.largeTitle)
+                                .foregroundColor(DesignTheme.error)
+                            Text(errorMessage)
+                                .foregroundColor(DesignTheme.error)
+                                .multilineTextAlignment(.center)
+                            ButtonFactory.primary(
+                                action: { reducer.refresh() },
+                                label: "Retry"
+                            )
+                        }
+                        .padding(DesignTheme.Spacing.lg)
+                        .frame(maxHeight: .infinity, alignment: .center)
+                    } else if reducer.archivedEvents.isEmpty {
+                        VStack(spacing: 12) {
+                            Image(systemName: "archivebox")
+                                .font(.largeTitle)
+                                .foregroundColor(.gray)
+                            Text("No archived events")
+                                .foregroundColor(.gray)
+                        }
+                        .frame(maxHeight: .infinity, alignment: .center)
+                    } else {
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Text("Archive")
+                                        .font(.system(size: 30, weight: .bold))
+                                    Spacer()
                                 }
-                                .padding(.horizontal)
+
+                                ForEach(reducer.archivedEvents, id: \.id) { event in
+                                    EventRowView(event: event, isPending: false, forceHideBadge: true)
+                                        .onTapGesture {
+                                            router.push(screen: .eventDetail(id: event.id))
+                                        }
+                                }
+                            }
+                            .padding()
                         }
                     }
-                    .padding(.vertical)
+                }
+                .refreshable {
+                    reducer.refresh()
                 }
             }
         }
-        .navigationTitle("Archive")
-        .refreshable {
-            reducer.refresh()
+        .onAppear {
+            if reducer == nil {
+                reducer = ArchiveEventsReducer()
+            }
         }
     }
 }
