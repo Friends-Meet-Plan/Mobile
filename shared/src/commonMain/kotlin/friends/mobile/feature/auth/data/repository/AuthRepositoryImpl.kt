@@ -1,5 +1,6 @@
 package friends.mobile.feature.auth.data.repository
 
+import friends.mobile.core.db.ProfileCacheStorage
 import friends.mobile.core.domain.model.ApiError
 import friends.mobile.core.domain.model.ResultWrapper
 import friends.mobile.core.network.safeApiCall
@@ -20,6 +21,7 @@ internal class AuthRepositoryImpl(
     private val api: AuthApi,
     private val storage: TokenStorage,
     private val mapper: AuthSessionMapper,
+    private val profileCacheStorage: ProfileCacheStorage,
 ) : AuthRepository {
 
     override suspend fun register(
@@ -57,6 +59,7 @@ internal class AuthRepositoryImpl(
     override suspend fun logout(): ResultWrapper<Unit> {
         val session = storage.getSession()
         storage.clearSession()
+        profileCacheStorage.clearProfile()
         if (session == null) return ResultWrapper.Success(Unit)
 
         return safeApiCall {
