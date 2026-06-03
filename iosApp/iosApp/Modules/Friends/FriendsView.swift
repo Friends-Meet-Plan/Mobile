@@ -17,7 +17,7 @@ struct FriendsView: View {
     var body: some View {
         Group {
             if reducer == nil {
-                LoadingView()
+                LoadingView(title: "Loading friend...")
             } else {
                 VStack(spacing: 0) {
                     SearchBar(
@@ -44,7 +44,7 @@ struct FriendsView: View {
                     contentListView()
                         .overlay {
                             if reducer.isLoading {
-                                LoadingView()
+                                LoadingView(title: "Loading friends...")
                             }
                         }
                         .opacity(reducer.isLoading ? 0 : 1)
