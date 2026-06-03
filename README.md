@@ -31,3 +31,7 @@ Follow the setup instructions from the backend repository README:
 Ready-to-use backend package:
 
 📦 https://disk.yandex.ru/d/7uJJP2QvirEiaw
+
+### CI/CD
+
+Sample PR with passed CI: https://github.com/Friends-Meet-Plan/Mobile/pull/2
