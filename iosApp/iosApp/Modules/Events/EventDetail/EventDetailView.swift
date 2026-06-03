@@ -44,7 +44,7 @@ struct EventDetailView: View {
     
     var body: some View {
         if reducer.isLoading {
-            LoadingView()
+            LoadingView(title: "Loading event detail...")
         } else if let errorMessage = reducer.errorMessage {
             VStack(spacing: DesignTheme.Spacing.lg) {
                 Image(systemName: "exclamationmark.triangle.fill")

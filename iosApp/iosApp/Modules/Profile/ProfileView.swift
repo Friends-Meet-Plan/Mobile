@@ -17,7 +17,7 @@ struct ProfileView: View {
     var body: some View {
         Group {
             if profileReducer == nil {
-                LoadingView()
+                LoadingView(title: "Loading profile...")
             } else if let profile = profileReducer.profile {
                 ScrollView {
                     VStack(spacing: DesignTheme.Spacing.xxl) {
@@ -70,7 +70,7 @@ struct ProfileView: View {
                     }
                 }
             } else {
-                LoadingView()
+                LoadingView(title: "Loading profile...")
                     .onAppear {
                         profileReducer.loadProfile()
                     }
