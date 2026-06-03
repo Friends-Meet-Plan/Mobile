@@ -23,14 +23,14 @@ sealed class UserFriendlyError(open val message: String) {
 }
 
 fun mapApiErrorToUserFriendly(error: ApiError): UserFriendlyError = when (error.code) {
-    401 -> UserFriendlyError.Unauthorized(error.message)
-    403 -> UserFriendlyError.Forbidden(error.message)
-    404 -> UserFriendlyError.NotFound(error.message)
-    409 -> UserFriendlyError.Conflict(error.message)
-    in 400..499 -> UserFriendlyError.ClientError(error.message)
-    in 500..599 -> UserFriendlyError.Server(error.message)
-    -1 -> UserFriendlyError.Network(error.message)
-    else -> UserFriendlyError.Unknown(error.message)
+    401 -> UserFriendlyError.Unauthorized()
+    403 -> UserFriendlyError.Forbidden()
+    404 -> UserFriendlyError.NotFound()
+    409 -> UserFriendlyError.Conflict()
+    in 400..499 -> UserFriendlyError.ClientError()
+    in 500..599 -> UserFriendlyError.Server()
+    -1 -> UserFriendlyError.Network()
+    else -> UserFriendlyError.Unknown()
 }
 
 fun getErrorMessage(error: UserFriendlyError): String = error.message
